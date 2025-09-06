@@ -1,0 +1,610 @@
+@import url("styles/$_.css");
+
+@font-face {
+  font-family: "UbuntuBold";
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/Ubuntu-B.ttf");
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/Ubuntu-B.ttf") format("woff");
+}
+@font-face {
+  font-family: "UbuntuLow";
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-L.woff2");
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-L.woff2") format("woff2");
+}
+@font-face {
+  font-family: "UbuntuLowItalic";
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-LI.woff2");
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-LI.woff2") format("woff2");
+}
+@font-face {
+  font-family: "UbuntuMedium";
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-M.woff2");
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-M.woff2") format("woff2");
+}
+@font-face {
+  font-family: "UbuntuMediumItalic";
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-MI.woff2");
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-MI.woff2") format("woff2");
+}
+@font-face {
+  font-family: "UbuntuR";
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-R.woff2");
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-R.woff2") format("woff2");
+}
+@font-face {
+  font-family: "UbuntuRI";
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-RI.woff2");
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-RI.woff2") format("woff2");
+}
+@font-face {
+  font-family: "UbuntuTh";
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-Th.woff2");
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-Th.woff2") format("woff2");
+}
+@font-face {
+  font-family: "UbuntuMonoBold";
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/UbuntuMono-B.woff2");
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/UbuntuMono-B.woff2") format("woff");
+}
+@font-face {
+  font-family: "UbuntuMonoR";
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/UbuntuMono-R.woff2");
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/UbuntuMono-R.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Trebuchet-MS";
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Trebuchet MS/trebuc.ttf");
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Trebuchet MS/trebuc.ttf") format("woff2");
+}
+@font-face {
+  font-family: "Classwiz-X";
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Calculator font/Casio/Classwiz X/ClassWizXDisplay-Regular.woff2");
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Calculator font/Casio/Classwiz X/ClassWizXDisplay-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Classwiz-CW";
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Calculator%20font/Casio/Classwiz%20CW/cwcwd.woff2");
+  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Calculator%20font/Casio/Classwiz%20CW/cwcwd.woff2") format("woff2");
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+  height: 15px;
+}
+
+::-webkit-resizer {
+  background: #ff9040;
+  border-top-left-radius: 7px;
+  border-bottom-right-radius: 6px;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.resizable {
+  overflow: hidden;
+  resize: both;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  accent-color: #ff9d00;
+  font-family: UbuntuR;
+  background-color: #0a0a0a;
+  color: #ffffff;
+  margin: 10px;
+  font-size: 15px;
+  width: auto;
+  overflow-x: auto;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  font-family: UbuntuR;
+  color: #ffffff;
+  box-sizing: border-box;
+  padding: 0px;
+  margin: 0px;
+}
+
+label {
+  margin: 0px;
+  font-family: UbuntuR;
+  color: #ffffff;
+  box-sizing: border-box;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+input {
+  background-color: #000;
+  color: #e0e0e0;
+  border: 3px solid #ea7010;
+  padding: 2px;
+  border-radius: 4px;
+  font-family: Classwiz-X;
+  font-size: 12px;
+  max-width: 300px;
+  vertical-align: middle;
+  line-height: normal;
+  display: inline-block;
+}
+
+select {
+  background-color: #000;
+  color: #e0e0e0;
+  border: 3px solid #ea7010;
+  padding: 2px;
+  border-radius: 4px;
+  font-family: UbuntuR;
+  font-size: 15px;
+  margin-right: 5px;
+}
+
+textarea {
+  background-color: #000;
+  color: #e0e0e0;
+  border: 3px solid #ea7010;
+  padding: 4px;
+  border-radius: 4px;
+  font-family: Classwiz-X;
+  font-size: 10px;
+  margin-right: 10px;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  padding: 2px;
+  cursor: pointer;
+  display: inline-block;
+  width: 200px;
+  height: 13px;
+}
+
+input[type="range"]:hover {
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+input[type="checkbox"] {
+  display: inline-flex;
+  justify-content: center;
+  position: relative;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+input[type="file"] {
+  padding: 3px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+input:hover,
+button:hover,
+select:hover {
+  background-color: #793400;
+  border-color: #ea7010;
+}
+button {
+  background-color: #000;
+  color: #e0e0e0;
+  border: 2px solid #ea7010;
+  padding: 3px;
+  border-radius: 4px;
+  font-family: UbuntuBold;
+  font-size: 13px;
+  margin-right: 10px;
+  max-width: 100%;
+}
+button[disabled] {
+  background-color: #333333;
+  color: #e0e0e0;
+  border: 2px solid #555555;
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 15px;
+  margin-right: 10px;
+}
+
+button[disabled]:hover {
+  background-color: #555555;
+  border-color: #555555;
+}
+
+audio {
+  align-self: center;
+}
+
+canvas {
+  aspect-ratio: inherit;
+  text-align: left;
+  transform-origin: top left;
+  position: relative;
+  display: inline-block;
+  align-self: center;
+  image-rendering: pixelated;
+}
+
+#console {
+  background: #000000;
+  color: #00ff00;
+  font-family: Unifont, monospace;
+  font-size: 16px;
+  height: 1000px;
+  padding: 4px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+hr {
+  text-align: left;
+  width: 100%;
+}
+
+.glowfire {
+  background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00);
+  background-size: cover;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+}
+
+select {
+  background-color: #000;
+  color: #fff;
+}
+
+#docs {
+  text-align: left;
+}
+
+.controls {
+  background-color: #a4947b;
+  border: 3px solid #ea7010;
+  padding: 3px;
+  margin: 0px;
+  position: relative;
+  resize: both;
+}
+
+.previewContainer {
+  display: flex;
+  flex-direction: column;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.canvasControls {
+  background-color: #e14f00;
+  border: 8px solid #1b1b1b;
+  padding: 10px;
+  border-radius: 4px;
+  max-width: max-content;
+}
+
+a {
+  color: #ea7030;
+}
+
+.recorder button {
+  padding: 7px;
+  font-size: 15px;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+}
+
+.bigContainer {
+  display: flex;
+  justify-items: center;
+  align-items: center;
+  overflow: auto;
+  resize: both;
+}
+
+.previewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mainAudio {
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mainCanvas {
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: auto;
+  border: 2px solid #ea7010;
+}
+
+.firehr {
+  width: 99%;
+  height: 2px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  margin-left: auto;
+  margin-right: auto;
+  background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00);
+}
+
+.whitehr {
+  width: 99%;
+  height: 2px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  margin-left: auto;
+  margin-right: auto;
+  background: #fff;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.settings_label-input {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: fit-content;
+  gap: 5px;
+}
+
+.settings_label-input span {
+  width: 100%;
+  height: fit-content;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 0px;
+  margin-right: auto;
+  font-size: 16px;
+  text-wrap: nowrap;
+}
+
+.settings_label-input input {
+  width: 90px;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: 0px;
+}
+
+.settings_label-slider-input {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: fit-content;
+}
+
+.settings_label-slider-input span {
+  width: 100%;
+  height: fit-content;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 0px;
+  margin-right: auto;
+  font-size: 16px;
+  text-wrap: nowrap;
+}
+
+.settings_label-slider-input input[type="range"] {
+  width: 210px;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: 2px;
+}
+
+.settings_label-slider-input input {
+  width: 90px;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: 0px;
+}
+
+.settings_checkbox-label {
+  display: flex;
+  flex-direction: row;
+  width: fit-content;
+  height: fit-content;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.settings_checkbox-label input[type="checkbox"] {
+  margin-top: auto;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: auto;
+}
+
+.settings_checkbox-label span {
+  width: 100%;
+  margin-top: auto;
+  margin-left: 5px;
+  margin-right: auto;
+  margin-bottom: auto;
+  text-wrap: nowrap;
+}
+
+.settings_button-label {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: fit-content;
+}
+
+.settings_button-label button {
+  margin-top: auto;
+  margin-left: 0px;
+  margin-right: 5px;
+  margin-bottom: auto;
+}
+
+.settings_button-label span {
+  margin-top: auto;
+  margin-left: 0px;
+  margin-right: auto;
+  margin-bottom: auto;
+  text-wrap: nowrap;
+}
+
+.settings_label_title {
+  font-weight: bold;
+  font-size: 25px;
+  width: fit-content;
+  height: fit-content;
+}
+
+.settings_container {
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  gap: 6px;
+  min-width: 300px;
+}
+
+.settings_checkbox-label-select {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: fit-content;
+}
+
+.settings_checkbox-label-select input[type="checkbox"] {
+  margin-top: auto;
+  margin-left: 0px;
+  margin-right: auto;
+  margin-bottom: auto;
+}
+
+.settings_checkbox-label-select span {
+  width: 100%;
+  height: fit-content;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 5px;
+  margin-right: auto;
+  text-wrap: nowrap;
+}
+
+.settings_checkbox-label-select select {
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: 0px;
+}
+
+.settings_label-select {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: fit-content;
+}
+
+.settings_label-select span {
+  width: 100%;
+  height: fit-content;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 0px;
+  margin-right: auto;
+  font-size: 16px;
+  text-wrap: nowrap;
+}
+
+.settings_label-select select {
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: 0px;
+}
+
+.settings_container_info {
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  gap: 6px;
+  min-width: 300px;
+  padding: 2px;
+  border: 2px solid #10101010;
+}
+
+.info_indicator {
+  margin-top: 2px;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: 2px;
+  font-family: Classwiz-X;
+  font-size: 14px;
+  opacity: 0.5;
+}
+
+.settings_label-label_info {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: fit-content;
+}
+
+.settings_label-label_info span {
+  width: 100%;
+  height: fit-content;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 2px;
+  margin-right: 0px;
+  font-family: Classwiz-X;
+  font-size: 14px;
+  text-wrap: nowrap;
+}
+
+.settings_label-label_info .info {
+  width: fit-content;
+  height: fit-content;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: 2px;
+  font-family: Classwiz-X;
+  font-size: 14px;
+  text-wrap: nowrap;
+}
+
+.barsPerBinIndic {
+  color: #ffbb2e;
+}
