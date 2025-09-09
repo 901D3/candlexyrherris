@@ -1,34 +1,80 @@
 var chunks = [];
 
-const option = {
-  mimeType: "video/webm; codecs=vp9", //see freevideodither.glitch.com/avc1_options.txt for custom avc1 options
-  videoBitsPerSecond: 5000000, //media recorder bitrate
-  frameRate: frameRate,
-};
-
-const mediaRecorder = new MediaRecorder(canvasStream, option);
-
-mediaRecorder.ondataavailable = (e) => {
-  chunks.push(e.data);
-  printLog("chunks pushed");
-};
+var mediaRecorder = new MediaRecorder(canvasStream);
 
 var startRec = gId("startRecording");
 var stopRec = gId("stopRecording");
 var pauseRec = gId("pauseRecording");
 var resumeRec = gId("resumeRecording");
 
-mediaRecorder.onstop = () => {
-  const blob = new Blob(chunks);
-  const recordedVideoUrl = URL.createObjectURL(blob);
-  const downloadLink = document.createElement("a");
-  downloadLink.download = "video.webm";
-  downloadLink.href = recordedVideoUrl;
-  downloadLink.click();
-  printLog(`Download link: ${downloadLink}`);
-};
-
 function startRecording() {
+  mediaRecorder = new MediaRecorder(canvasStream, {
+    mimeType: recorderMimeType + ";" + " codecs=" + recorderVideoCodec,
+    videoBitsPerSecond: recorderVideoBitrate,
+    frameRate: recorderFrameRate,
+  });
+
+  const allowedMimes = ["video/webm", "video/mp4", "video/matroska", "video/quicktime", "video/x-m4v", "video/mp2t"];
+  const allowedMimesLength = allowedMimes.length;
+  let isValidMime = false;
+
+  for (let i = 0; i < allowedMimesLength; i++) {
+    if (recorderMimeType === allowedMimes[i]) {
+      isValidMime = true;
+      break;
+    }
+  }
+
+  if (!isValidMime) {
+    printLog("Invalid MIME type");
+    return;
+  }
+
+  mediaRecorder.ondataavailable = (e) => {
+    chunks.push(e.data);
+    printLog("chunks pushed");
+  };
+
+  mediaRecorder.onstop = () => {
+    let recorderVideoFileExt = "webm";
+
+    const mime = recorderMimeType.trim().toLowerCase();
+
+    if (mime === "video/webm") {
+      recorderVideoFileExt = "webm";
+    } else if (mime === "video/mp4") {
+      recorderVideoFileExt = "mp4";
+    } else if (mime === "video/x-matroska") {
+      recorderVideoFileExt = "mkv";
+    } else if (mime === "video/quicktime") {
+      recorderVideoFileExt = "mov";
+    } else if (mime === "video/x-m4v") {
+      recorderVideoFileExt = "m4v";
+    } else if (mime === "video/ogg") {
+      recorderVideoFileExt = "ogv";
+    } else if (mime === "video/mp2t") {
+      recorderVideoFileExt = "ts";
+    } else {
+      console.log("Invalid MIME type:", recorderMimeType);
+      return;
+    }
+
+    const blob = new Blob(chunks);
+    const recordedVideoUrl = URL.createObjectURL(blob);
+    const downloadLink = document.createElement("a");
+    downloadLink.download = (gId("recorderFileName").value || "video") + "." + recorderVideoFileExt;
+    downloadLink.href = recordedVideoUrl;
+    downloadLink.click();
+    printLog(`Download link: ${downloadLink}`);
+  };
+
+  const mimeTypeString = recorderMimeType + ";" + " codecs=" + recorderVideoCodec;
+  const isTypeSupportedMimeType = MediaRecorder.isTypeSupported(mimeTypeString);
+  printLog("mimeType: " + mimeTypeString);
+  printLog("videoBitsPerSecond: " + recorderVideoBitrate);
+  printLog("frameRate: " + recorderFrameRate);
+  printLog("isTypeSupported: " + isTypeSupportedMimeType);
+
   chunks = [];
   mediaRecorder.start();
   printLog("MediaRecorder started");
@@ -36,15 +82,26 @@ function startRecording() {
   stopRec.removeAttribute("disabled");
   pauseRec.removeAttribute("disabled");
   resumeRec.setAttribute("disabled", "");
+  gId("recorderMimeTypeInput").setAttribute("disabled", "");
+  gId("recorderCodecInput").setAttribute("disabled", "");
+  gId("recorderFrameRateRange").setAttribute("disabled", "");
+  gId("recorderFrameRateInput").setAttribute("disabled", "");
+  gId("recorderVideoBitrateRange").setAttribute("disabled", "");
+  gId("recorderVideoBitrateInput").setAttribute("disabled", "");
 }
 
 function stopRecording() {
   mediaRecorder.stop();
-  chunks = [];
   startRec.removeAttribute("disabled");
   stopRec.setAttribute("disabled", "");
   pauseRec.setAttribute("disabled", "");
   resumeRec.setAttribute("disabled", "");
+  gId("recorderMimeTypeInput").removeAttribute("disabled", "");
+  gId("recorderCodecInput").removeAttribute("disabled", "");
+  gId("recorderFrameRateRange").removeAttribute("disabled", "");
+  gId("recorderFrameRateInput").removeAttribute("disabled", "");
+  gId("recorderVideoBitrateRange").removeAttribute("disabled", "");
+  gId("recorderVideoBitrateInput").removeAttribute("disabled", "");
 }
 
 function pauseRecording() {
@@ -66,7 +123,68 @@ function resumeRecording() {
   resumeRec.setAttribute("disabled", "");
 }
 
-startRec.addEventListener("click", startRecording);
-stopRec.addEventListener("click", stopRecording);
-pauseRec.addEventListener("click", pauseRecording);
-resumeRec.addEventListener("click", resumeRecording);
+(function () {
+  startRec.addEventListener("click", startRecording);
+  stopRec.addEventListener("click", stopRecording);
+  pauseRec.addEventListener("click", pauseRecording);
+  resumeRec.addEventListener("click", resumeRecording);
+
+  gId("recorderMimeTypeInput").addEventListener("input", function () {
+    recorderMimeType = gId("recorderMimeTypeInput").value.trim().toLowerCase();
+    recorderOption = {
+      mimeType: recorderMimeType + ";" + " codecs=" + recorderVideoCodec,
+      videoBitsPerSecond: recorderVideoBitrate,
+      frameRate: recorderFrameRate,
+    };
+  });
+
+  gId("recorderCodecInput").addEventListener("input", function () {
+    recorderMimeType = gId("recorderMimeTypeInput").value.trim().toLowerCase();
+    recorderOption = {
+      mimeType: recorderMimeType + ";" + " codecs=" + recorderVideoCodec,
+      videoBitsPerSecond: recorderVideoBitrate,
+      frameRate: recorderFrameRate,
+    };
+  });
+
+  gId("recorderFrameRateRange").addEventListener("input", function () {
+    sliderInputSync(gId("recorderFrameRateRange"), gId("recorderFrameRateInput"), "recorderFrameRate", undefined, "slider");
+    canvasStream = canvas.captureStream(recorderFrameRate);
+    recorderOption = {
+      mimeType: recorderMimeType + ";" + " codecs=" + recorderVideoCodec,
+      videoBitsPerSecond: recorderVideoBitrate,
+      frameRate: recorderFrameRate,
+    };
+  });
+
+  gId("recorderFrameRateInput").addEventListener("input", function () {
+    sliderInputSync(gId("recorderFrameRateRange"), gId("recorderFrameRateInput"), "recorderFrameRate", 30, "input");
+    canvasStream = canvas.captureStream(recorderFrameRate);
+    recorderOption = {
+      mimeType: recorderMimeType + ";" + " codecs=" + recorderVideoCodec,
+      videoBitsPerSecond: recorderVideoBitrate,
+      frameRate: recorderFrameRate,
+    };
+  });
+
+  gId("recorderVideoBitrateRange").addEventListener("input", function () {
+    sliderInputSync(
+      gId("recorderVideoBitrateRange"),
+      gId("recorderVideoBitrateInput"),
+      "recorderVideoBitrate",
+      undefined,
+      "slider"
+    );
+    canvasStream = canvas.captureStream(recorderFrameRate);
+    recorderOption = {
+      mimeType: recorderMimeType + ";" + " codecs=" + recorderVideoCodec,
+      videoBitsPerSecond: recorderVideoBitrate,
+      frameRate: recorderFrameRate,
+    };
+  });
+
+  gId("recorderVideoBitrateInput").addEventListener("input", function () {
+    sliderInputSync(gId("recorderVideoBitrateRange"), gId("recorderVideoBitrateInput"), "recorderVideoBitrate", 30, "input");
+    canvasStream = canvas.captureStream(recorderFrameRate);
+  });
+})();
