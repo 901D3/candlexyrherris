@@ -53,8 +53,54 @@ function defVAdv(v1, v2, vmin = 0, vmax = 100, ltvmin = false, gtvmax = false) {
 
 //Valve's ConVars style
 
-var {floor, ceil, round, trunc, sign, abs, exp, log, log2, log10, pow, random, min, max, sqrt, sin, cos, tan, PI} = Math;
+var {
+  abs,
+  acos,
+  acosh,
+  asin,
+  asinh,
+  atan,
+  atan2,
+  atanh,
+  cbrt,
+  ceil,
+  cos,
+  cosh,
+  exp,
+  floor,
+  fround,
+  log,
+  log10,
+  log1p,
+  log2,
+  max,
+  min,
+  pow,
+  random,
+  round,
+  sign,
+  sin,
+  sinh,
+  sqrt,
+  tan,
+  tanh,
+  trunc,
+  LN10,
+  LN2,
+  LOG10E,
+  LOG2E,
+  PI,
+  SQRT1_2,
+  SQRT2,
+} = Math;
+
 var _2PI = PI * 2;
+
+function sinc(x) {
+  if (x == 0) return 1;
+  const PIx = PI * x;
+  return sin(PIx) / PIx;
+}
 
 var canvas = gId("canvas");
 var ctx = canvas.getContext("2d");
@@ -84,10 +130,9 @@ var audio = gId("audio");
 
 //var source = audioCtx.createMediaElementSource(audio);
 //var analyser;
+//var dataArray;
 var bytesArray;
 var audioDataArray;
-var convertedAudioDataArray;
-var dataArray;
 var stftRe;
 var stftIm;
 
@@ -96,23 +141,37 @@ var channels;
 var sampleRate;
 var bitDepth;
 
-var fftSize = 2048;
-var frameRate = 30;
-var frameLatency = 1000 / frameRate;
-var volMultiplier = 1;
-var minAmplitude = 1;
-var maxAmplitude = 255;
-var threshold = 0;
-var minFreq = 20;
-var maxFreq = 4000;
+var fftSize;
+var frameLatency;
+var volMultiplier;
+var minAmplitude;
+var maxAmplitude;
+var threshold;
+var minFreq;
+var maxFreq;
 
-var bars = 100;
-var barColorRed = 255;
-var barColorGreen = 255;
-var barColorBlue = 255;
+var bars;
+var barColorRed;
+var barColorGreen;
+var barColorBlue;
+
+var barWidth;
+var barSpace;
+
 var barStyle = "rect";
-var barWidth = 2.78;
-var barSpace = 2;
+var barStyleCapsuleRadius = 0.3;
+
+var recorderFrameRate = 30;
+var recorderVideoBitrate = 2000000;
+var recorderMimeType = "video/webm";
+var recorderVideoCodec = "vp9";
+var recorderOption = {
+  mimeType: recorderMimeType + ";" + " codecs=" + recorderVideoCodec,
+  videoBitsPerSecond: recorderVideoBitrate,
+  frameRate: recorderFrameRate,
+};
+
+var windowFunc = new Function("n", "N", sinc.toString() + "; return " + gId("windowFuncInput").value + ";");
 
 let logEntries = [];
 
@@ -133,35 +192,15 @@ function escapeHTML(str) {
 function printLog(message) {
   let console = gId("console");
   let maxLogEntries = 500;
-  let urlRegex = /https?:\/\/[^\s]+/g;
-  let codeRegex = /`([^`]+)`/g;
 
-  let messageWithLinks = escapeHTML(message).replace(urlRegex, function (url) {
-    return `<a href="${url}" target="_blank">${url}</a>`;
-  });
-
-  messageWithLinks = messageWithLinks.replace(codeRegex, function (_, code) {
-    return `<code style="background:#eee;padding:2px 4px;border-radius:4px;font-family:monospace">${code}</code>`;
-  });
-
-  urlRegex = /blob?:[^\s]+/g;
-
-  messageWithLinks = escapeHTML(message).replace(urlRegex, function (url) {
-    return `<a href="${url}" target="_blank">${url}</a>`;
-  });
-
-  messageWithLinks = messageWithLinks.replace(codeRegex, function (_, code) {
-    return `<code style="background:#eee;padding:2px 4px;border-radius:4px;font-family:monospace">${code}</code>`;
-  });
-
-  logEntries.push(messageWithLinks);
+  logEntries.push(message);
 
   if (logEntries.length > maxLogEntries) {
     logEntries.shift();
   }
 
-  let logEntry = document.createElement("div");
-  logEntry.innerHTML = messageWithLinks + "<br>";
+  let logEntry = document.createElement("span");
+  logEntry.innerHTML = message;
   console.appendChild(logEntry);
 
   if (console.children.length > maxLogEntries) {
@@ -251,151 +290,11 @@ function binSearch(array, text, start = 0, end = array.length) {
   return -1;
 }
 
-//connect sliders, inputs and vars, returna default value to slider if input is out of slider's range
-gId("fftSizeRange").addEventListener("input", function () {
-  sliderInputSync(gId("fftSizeRange"), gId("fftSizeInput"), "fftSize", 2048, "slider");
-  displayInfo();
-});
+function createBlobFromElement(el) {
+  if (!el) return;
 
-gId("fftSizeInput").addEventListener("input", function () {
-  sliderInputSync(gId("fftSizeRange"), gId("fftSizeInput"), "fftSize", 2048, "input");
-  displayInfo();
-});
+  const blob = new Blob([el.text], {type: "plain/text"});
+  const url = URL.createObjectURL(blob);
 
-gId("frameRateRange").addEventListener("input", function () {
-  sliderInputSync(gId("frameRateRange"), gId("frameRateInput"), "frameRate", 30, "slider");
-  frameLatency = 1000 / frameRate;
-  canvasStream = canvas.captureStream(frameRate);
-});
-
-gId("frameRateInput").addEventListener("input", function () {
-  sliderInputSync(gId("frameRateRange"), gId("frameRateInput"), "frameRate", 30, "input");
-  frameLatency = 1000 / frameRate;
-  canvasStream = canvas.captureStream(frameRate);
-});
-
-gId("volumeMultiplierRange").addEventListener("input", function () {
-  sliderInputSync(gId("volumeMultiplierRange"), gId("volumeMultiplierInput"), "volMultiplier", 1, "slider");
-});
-
-gId("volumeMultiplierInput").addEventListener("input", function () {
-  sliderInputSync(gId("volumeMultiplierRange"), gId("volumeMultiplierInput"), "volMultiplier", 1, "input");
-});
-
-gId("minAmplitudeRange").addEventListener("input", function () {
-  sliderInputSync(gId("minAmplitudeRange"), gId("minAmplitudeInput"), "minAmplitude", 1, "slider");
-});
-
-gId("minAmplitudeInput").addEventListener("input", function () {
-  sliderInputSync(gId("minAmplitudeRange"), gId("minAmplitudeInput"), "minAmplitude", 1, "input");
-});
-
-gId("maxAmplitudeRange").addEventListener("input", function () {
-  sliderInputSync(gId("maxAmplitudeRange"), gId("maxAmplitudeInput"), "maxAmplitude", 1, "slider");
-});
-
-gId("maxAmplitudeInput").addEventListener("input", function () {
-  sliderInputSync(gId("maxAmplitudeRange"), gId("maxAmplitudeInput"), "maxAmplitude", 1, "input");
-});
-
-gId("thresholdRange").addEventListener("input", function () {
-  sliderInputSync(gId("thresholdRange"), gId("thresholdInput"), "threshold", 1, "slider");
-});
-
-gId("thresholdInput").addEventListener("input", function () {
-  sliderInputSync(gId("thresholdRange"), gId("thresholdInput"), "threshold", 1, "input");
-});
-
-gId("minFrequencyRange").addEventListener("input", function () {
-  sliderInputSync(gId("minFrequencyRange"), gId("minFrequencyInput"), "minFreq", 0, "slider");
-  displayInfo();
-});
-
-gId("minFrequencyInput").addEventListener("input", function () {
-  sliderInputSync(gId("minFrequencyRange"), gId("minFrequencyInput"), "minFreq", 0, "input");
-  displayInfo();
-});
-
-gId("maxFrequencyRange").addEventListener("input", function () {
-  sliderInputSync(gId("maxFrequencyRange"), gId("maxFrequencyInput"), "maxFreq", 1, "slider");
-  displayInfo();
-});
-
-gId("maxFrequencyInput").addEventListener("input", function () {
-  sliderInputSync(gId("maxFrequencyRange"), gId("maxFrequencyInput"), "maxFreq", 1, "input");
-  displayInfo();
-});
-
-gId("barStyle").addEventListener("change", function () {
-  barStyle = gId("barStyle").value;
-});
-
-gId("barsRange").addEventListener("input", function () {
-  sliderInputSync(gId("barsRange"), gId("barsInput"), "bars", 100, "slider");
-  displayInfo();
-});
-
-gId("barsInput").addEventListener("input", function () {
-  sliderInputSync(gId("barsRange"), gId("barsInput"), "bars", 100, "input");
-  displayInfo();
-});
-
-gId("barWidthRange").addEventListener("input", function () {
-  sliderInputSync(gId("barWidthRange"), gId("barWidthInput"), "barWidth", 255, "slider");
-});
-
-gId("barWidthInput").addEventListener("input", function () {
-  sliderInputSync(gId("barWidthRange"), gId("barWidthInput"), "barWidth", 255, "input");
-});
-
-gId("barSpaceRange").addEventListener("input", function () {
-  sliderInputSync(gId("barSpaceRange"), gId("barSpaceInput"), "barSpace", 255, "slider");
-});
-
-gId("barSpaceInput").addEventListener("input", function () {
-  sliderInputSync(gId("barSpaceRange"), gId("barSpaceInput"), "barSpace", 255, "input");
-});
-
-gId("barColorRedRange").addEventListener("input", function () {
-  sliderInputSync(gId("barColorRedRange"), gId("barColorRedInput"), "barColorRed", 255, "slider");
-});
-
-gId("barColorRedInput").addEventListener("input", function () {
-  sliderInputSync(gId("barColorRedRange"), gId("barColorRedInput"), "barColorRed", 255, "input");
-});
-
-gId("barColorGreenRange").addEventListener("input", function () {
-  sliderInputSync(gId("barColorGreenRange"), gId("barColorGreenInput"), "barColorGreen", 255, "slider");
-});
-
-gId("barColorGreenInput").addEventListener("input", function () {
-  sliderInputSync(gId("barColorGreenRange"), gId("barColorGreenInput"), "barColorGreen", 255, "input");
-});
-
-gId("barColorBlueRange").addEventListener("input", function () {
-  sliderInputSync(gId("barColorBlueRange"), gId("barColorBlueInput"), "barColorBlue", 255, "slider");
-});
-
-gId("barColorBlueInput").addEventListener("input", function () {
-  sliderInputSync(gId("barColorBlueRange"), gId("barColorBlueInput"), "barColorBlue", 255, "input");
-});
-
-(function () {
-  //init all vars based on input value
-  sliderInputSync(gId("fftSizeRange"), gId("fftSizeInput"), "fftSize", 2048, "input");
-  sliderInputSync(gId("frameRateRange"), gId("frameRateInput"), "frameRate", 30, "input");
-  sliderInputSync(gId("volumeMultiplierRange"), gId("volumeMultiplierInput"), "volMultiplier", 1, "input");
-  sliderInputSync(gId("minAmplitudeRange"), gId("minAmplitudeInput"), "minAmplitude", 1, "input");
-  sliderInputSync(gId("maxAmplitudeRange"), gId("maxAmplitudeInput"), "maxAmplitude", 1, "input");
-  sliderInputSync(gId("thresholdRange"), gId("thresholdInput"), "threshold", 1, "input");
-  sliderInputSync(gId("minFrequencyRange"), gId("minFrequencyInput"), "minFreq", 0, "input");
-  sliderInputSync(gId("maxFrequencyRange"), gId("maxFrequencyInput"), "maxFreq", 1, "input");
-  sliderInputSync(gId("barsRange"), gId("barsInput"), "bars", 100, "input");
-  sliderInputSync(gId("barWidthRange"), gId("barWidthInput"), "barWidth", 255, "input");
-  sliderInputSync(gId("barSpaceRange"), gId("barSpaceInput"), "barSpace", 255, "input");
-  sliderInputSync(gId("barColorRedRange"), gId("barColorRedInput"), "barColorRed", 255, "input");
-  sliderInputSync(gId("barColorGreenRange"), gId("barColorGreenInput"), "barColorGreen", 255, "input");
-  sliderInputSync(gId("barColorBlueRange"), gId("barColorBlueInput"), "barColorBlue", 255, "input");
-  frameLatency = 1000 / frameRate;
-  canvasStream = canvas.captureStream(frameRate);
-})();
+  return url;
+}
