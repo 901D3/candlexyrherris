@@ -9,8 +9,8 @@
     <link rel="icon" href="favicon.ico" />
     <script src="https://unpkg.com/default-passive-events"></script>
   </head>
-  <body class="display-flex top-bottom-flow gap" style="--gap: 5px">
-    <div class="display-flex top-bottom-flow margin gap" style="--margin: 20px; --gap: 15px">
+  <body class="display-flex top-bottom-flow" style="gap: 8px">
+    <div class="display-flex top-bottom-flow" style="gap: 15px">
       <span
         class="glowfire font-size text-align-center vertical-align-top-margin color font-weight-bold"
         style="--font-size: 175px"
@@ -23,10 +23,10 @@
         data-text-id="subtitle"></span>
       <div class="firehr"></div>
     </div>
-    <div class="display-flex left-right-flow gap width-fit-content" style="--gap: 15px">
-      <div class="display-flex top-bottom-flow gap" style="--gap: 12px">
+    <div class="display-flex left-right-flow width-fit-content" style="gap: 15px">
+      <div class="display-flex top-bottom-flow" style="gap: 12px">
         <span class="font-weight-bold font-size" style="--font-size: 20px" data-text="$upload" data-text-id="loadAudio"></span>
-        <input type="file" id="uploadFile" class="height-fit-content" title=".wav" accept=".wav" />
+        <input type="file" id="uploadFile" class="height-fit-content" title=".wav, .mp3" accept=".wav, .mp3" />
         <span
           class="font-weight-bold font-size"
           style="--font-size: 20px"
@@ -37,9 +37,9 @@
           <span data-text="$update" data-text-id="linkAudio"></span>
         </button>
       </div>
-      <div class="display-flex top-bottom-flow gap width-fit-content" style="--gap: 12px">
+      <div class="display-flex top-bottom-flow width-fit-content" style="gap: 12px">
         <span class="font-weight-bold font-size" style="--font-size: 20px" data-text="$recorder" data-text-id="recorder"></span>
-        <div class="display-flex left-right-flow gap width-fit-content" style="--gap: 12px">
+        <div class="display-flex left-right-flow width-fit-content" style="gap: 12px">
           <button
             id="startRecording"
             class="width height margin padding"
@@ -57,10 +57,11 @@
           </button>
           <span class="vertical-align-center-margin">[F1] [SHIFT + F1]</span>
         </div>
-        <div class="display-flex left-right-flow gap width-fit-content" style="--gap: 12px">
+        <div class="display-flex left-right-flow width-fit-content" style="gap: 12px">
           <button
             id="pauseRecording"
             class="width height margin padding"
+            disabled=""
             type="button"
             style="--width: 40px; --height: 40px; --margin: 0px; --padding: 0px">
             <div class="horizontal-align-center width-fit-content height-fit-content display-flex left-right-flow">
@@ -91,41 +92,59 @@
             type="button"
             disabled=""
             style="--width: 40px; --height: 40px; --margin: 0px; --padding: 0px">
-            <div></div>
+            <div>resume</div>
           </button>
           <span class="vertical-align-center-margin">[F4]</span>
         </div>
       </div>
+      <div class="settings_container">
+        <div class="settings_label-input_long">
+          <span data-text="$mime_type"></span>
+          <input id="recorderMimeTypeInput" placeholder="video/webm" value="video/webm" />
+        </div>
+        <div class="settings_label-input_long">
+          <span data-text="$codec"></span>
+          <input id="recorderCodecInput" placeholder="vp9" value="vp9" />
+        </div>
+        <div class="settings_label-slider-input">
+          <span data-text="$frame_rate"></span>
+          <input type="range" id="recorderFrameRateRange" min="0" max="120" step="0.00000000001" />
+          <input type="number" id="recorderFrameRateInput" placeholder="30" value="30" />
+        </div>
+        <div class="settings_label-slider-input">
+          <span data-text="$bitrate"></span>
+          <input type="range" id="recorderVideoBitrateRange" min="0" max="100000000" step="1" />
+          <input type="number" id="recorderVideoBitrateInput" placeholder="2000000" value="2000000" />
+        </div>
+        <div class="settings_label-input_long">
+          <span data-text="$file_name"></span>
+          <input id="recorderFileName" placeholder="" value="" />
+        </div>
+      </div>
     </div>
-    <div class="bigContainer left-right-flow gap" style="--gap: 20px">
+    <div class="bigContainer left-right-flow" style="gap: 20px">
       <div class="controls">
-        <div class="display-flex top-bottom-flow gap width" style="--width: 100%; --gap: 10px">
+        <div class="display-flex top-bottom-flow width" style="--width: 100%; gap: 10px">
           <div class="settings_container">
             <span class="settings_label_title" data-text="$audio_settings_title"></span>
-            <div class="settings_label-slider-input">
-              <span data-text="$fft_size" class="barsPerBinIndic"></span>
-              <input type="range" id="fftSizeRange" min="1" max="16384" step="1" />
-              <input type="number" id="fftSizeInput" placeholder="1200" value="1200" />
-            </div>
-            <div class="settings_label-slider-input">
-              <span data-text="$frame_rate"></span>
-              <input type="range" id="frameRateRange" min="0" max="60" step="0.00000000001" />
-              <input type="number" id="frameRateInput" placeholder="30" value="30" />
-            </div>
             <div class="settings_label-slider-input">
               <span data-text="$vol_multiplier"></span>
               <input type="range" id="volumeMultiplierRange" min="0" max="10" step="0.00000000001" />
               <input type="number" id="volumeMultiplierInput" placeholder="1" value="1" />
             </div>
-            <div class="whitehr"></div>
+            <div class="settings_label-slider-input">
+              <span data-text="$fft_size" class="barsPerBinIndic"></span>
+              <input type="range" id="fftSizeRange" min="1" max="16384" step="1" />
+              <input type="number" id="fftSizeInput" placeholder="1600" value="1600" />
+            </div>
             <div class="settings_label-slider-input">
               <span data-text="$min_amplitude"></span>
-              <input type="range" id="minAmplitudeRange" min="0" max="10" step="0.00000000001" />
-              <input type="number" id="minAmplitudeInput" placeholder="0.05 " value="0.02" />
+              <input type="range" id="minAmplitudeRange" min="0" max="1" step="0.00000000001" />
+              <input type="number" id="minAmplitudeInput" placeholder="0" value="0" />
             </div>
             <div class="settings_label-slider-input">
               <span data-text="$max_amplitude"></span>
-              <input type="range" id="maxAmplitudeRange" min="0" max="10" step="0.00000000001" />
+              <input type="range" id="maxAmplitudeRange" min="0" max="1" step="0.00000000001" />
               <input type="number" id="maxAmplitudeInput" placeholder="1" value="1" />
             </div>
             <div class="settings_label-slider-input">
@@ -141,8 +160,36 @@
             <div class="settings_label-slider-input">
               <span data-text="$max_frequency" class="barsPerBinIndic"></span>
               <input type="range" id="maxFrequencyRange" min="0" max="20000" step="1" />
-              <input type="number" id="maxFrequencyInput" placeholder="4000" value="4000" />
+              <input type="number" id="maxFrequencyInput" placeholder="3000" value="3000" />
             </div>
+            <div class="settings_label-label_info">
+              <span data-text="$current_freq_range"></span>
+              <span id="freqRangeLbl" class="info">Hz</span>
+            </div>
+            <div class="whitehr"></div>
+            <div class="settings_label-select">
+              <span data-text="$window_function"></span>
+              <select id="windowFuncSelect">
+                <option value="rect" selected="true" data-text="$rect"></option>
+                <option value="triangular" data-text="$triangular"></option>
+                <option value="welch" data-text="$welch"></option>
+                <option value="cosine" data-text="$cosine"></option>
+                <option value="bartlett" data-text="$bartlett"></option>
+                <option value="barthann" data-text="$barthann"></option>
+                <option value="hann" data-text="$hann"></option>
+                <option value="hamming" data-text="$hamming"></option>
+                <option value="blackman" data-text="$blackman"></option>
+                <option value="nuttall" data-text="$nuttall"></option>
+                <option value="blackmanNuttall" data-text="$blackman_nuttall"></option>
+                <option value="blackmanHarris" data-text="$blackman_harris"></option>
+                <option value="flatTop" data-text="$flat_top"></option>
+                <option value="bartlettHann" data-text="$bartlett_hann"></option>
+                <option value="gaussian" data-text="$gaussian"></option>
+                <option value="exponential" data-text="$exponential"></option>
+                <option value="lanczos" data-text="$lanczos"></option>
+              </select>
+            </div>
+            <textarea id="windowFuncInput">1</textarea>
           </div>
           <div class="whitehr"></div>
           <div class="settings_container">
@@ -150,10 +197,16 @@
             <div class="settings_label-select">
               <span data-text="$bar_style"></span>
               <select id="barStyle">
-                <option value="rect" selected="selected" data-text="$rect"></option>
-                <option value="rounded" data-text="$rounded_ends"></option>
+                <option value="rect" selected="true" data-text="$rect"></option>
+                <option value="capsule" data-text="$capsule"></option>
               </select>
             </div>
+            <div id="capsuleRadiusDisp" class="settings_label-slider-input hidden">
+              <span data-text="$capsule_radius"></span>
+              <input type="range" id="barStyleCapsuleRadiusRange" min="0" max="0.5" step="0.00000000001" />
+              <input type="number" id="barStyleCapsuleRadiusInput" placeholder="0.5" value="0.5" />
+            </div>
+            <div class="whitehr"></div>
             <div class="settings_label-slider-input">
               <span data-text="$number" class="barsPerBinIndic"></span>
               <input type="range" id="barsRange" min="1" value="100" max="512" step="1" />
@@ -183,6 +236,11 @@
               <span></span>
               <input type="range" id="barColorBlueRange" min="0" max="255" step="1" />
               <input type="number" id="barColorBlueInput" placeholder="255" value="255" />
+            </div>
+            <div class="settings_label-slider-input">
+              <span data-text="$frame_latency"></span>
+              <input type="range" id="frameLatencyRange" min="0" max="60" step="0.00000000001" />
+              <input type="number" id="frameLatencyInput" placeholder="30" value="30" />
             </div>
           </div>
           <div class="whitehr"></div>
@@ -224,25 +282,29 @@
               <span data-text="$variables"></span>
             </div>
             <div class="settings_label-label_info">
-              <span>Sample Rate</span>
+              <span data-text="$sample_rate"></span>
               <span id="sampleRateLbl" class="info">Hz</span>
             </div>
             <div class="settings_label-label_info">
-              <span>Bit Depth</span>
+              <span data-text="$bit_depth"></span>
               <span id="bitDepthLbl" class="info">Bits</span>
             </div>
             <div class="settings_label-label_info">
-              <span>Number of channels</span>
+              <span data-text="$number_of_channels"></span>
               <span id="channelsLbl" class="info">[Int]</span>
             </div>
             <div class="whitehr"></div>
             <div class="settings_label-label_info">
-              <span data-text="$current_freq_range"></span>
-              <span id="currentFreqRangeLbl" class="info">Hz</span>
-            </div>
-            <div class="settings_label-label_info">
               <span data-text="$desired_freq_range"></span>
               <span id="desiredFreqRangeLbl" class="info">Hz</span>
+            </div>
+            <div class="settings_label-label_info">
+              <span data-text="$desired_fft_size"></span>
+              <span id="desiredFftSizeLbl" class="info">[Int{ceil}]</span>
+            </div>
+            <div class="settings_label-label_info">
+              <span data-text="$desired_bars"></span>
+              <span id="desiredBarsLbl" class="info">[Int{ceil}]</span>
             </div>
             <div class="whitehr"></div>
             <div class="settings_label-label_info">
@@ -292,12 +354,20 @@
     <div class="firehr"></div>
   </body>
   <script src="scripts/init.js"></script>
-  <script src="scripts/binUtils.js"></script>
-  <script src="scripts/lib/fft.js"></script>
+
+  <!--Resources-->
+  <script src="scripts/resource/windowFunc.js"></script>
+
+  <!--Libraries-->
+  <script src="scripts/lib/901D3/binUtils.js"></script>
+  <script src="scripts/lib/901D3/wav.js"></script>
+  <script src="scripts/lib/nayuki/fft.js"></script>
+  <script src="scripts/lib/aurora/aurora.js"></script>
+  <script src="scripts/lib/aurora/flac.js"></script>
+
   <script src="scripts/recorder.js"></script>
   <script src="scripts/locale.js"></script>
   <script src="scripts/sizing.js"></script>
-  <script src="scripts/wav.js"></script>
   <script src="scripts/audio.js"></script>
   <script src="scripts/process.js"></script>
   <script>
@@ -307,13 +377,13 @@
       if (!file) return;
       const buffer = await file.arrayBuffer();
       bytesArray = new Uint8Array(buffer);
-      readWavHeader(bytesArray);
-      convertWavData(sampleRate, bitDepth, format, audioDataArray);
-      displayInfo();
+      readWavHeader(bytesArray, bytesArray);
+      audioDataArray = convertWavData(sampleRate, bitDepth, format, bytesArray, audioDataArray, 1);
       const blobUrl = URL.createObjectURL(file);
       audio.src = blobUrl;
-
-      //initAudioContext();
+      audio.play;
+      audio.pause;
+      displayInfo();
     });
 
     async function updateAudioSrc() {
@@ -326,12 +396,12 @@
       const res = await fetch(linkUrl);
       const buffer = await res.arrayBuffer();
       bytesArray = new Uint8Array(buffer);
-      readWavHeader(bytesArray);
-      convertWavData(sampleRate, bitDepth, format, audioDataArray);
-      displayInfo();
+      readWavHeader(bytesArray, bytesArray);
+      audioDataArray = convertWavData(sampleRate, bitDepth, format, bytesArray, audioDataArray, 1);
       audio.src = linkUrl;
-
-      //initAudioContext();
+      audio.play;
+      audio.pause;
+      displayInfo();
     }
   </script>
 </html>
