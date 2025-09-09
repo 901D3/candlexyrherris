@@ -56,7 +56,7 @@
   src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Trebuchet MS/trebuc.ttf") format("woff2");
 }
 @font-face {
-  font-family: "Classwiz-X";
+  font-family: "Unifont";
   src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Calculator font/Casio/Classwiz X/ClassWizXDisplay-Regular.woff2");
   src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Calculator font/Casio/Classwiz X/ClassWizXDisplay-Regular.woff2") format("woff2");
 }
@@ -78,8 +78,7 @@
 
 ::-webkit-resizer {
   background: #ff9040;
-  border-top-left-radius: 7px;
-  border-bottom-right-radius: 6px;
+  border-top-left-radius: 50%;
 }
 
 input[type="number"]::-webkit-outer-spin-button,
@@ -89,6 +88,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 input[type="number"] {
+  appearance: textfield;
   -moz-appearance: textfield;
 }
 
@@ -133,18 +133,32 @@ label {
   cursor: pointer;
 }
 
+audio {
+  width: 500px;
+}
+
 input {
   background-color: #000;
   color: #e0e0e0;
   border: 3px solid #ea7010;
   padding: 2px;
   border-radius: 4px;
-  font-family: Classwiz-X;
-  font-size: 12px;
+  font-family: Unifont;
+  font-size: 16px;
   max-width: 300px;
   vertical-align: middle;
   line-height: normal;
   display: inline-block;
+}
+
+input [disabled] {
+  background-color: #333333;
+  color: #e0e0e0;
+  border: 2px solid #555555;
+  padding: 4px;
+  border-radius: 4px;
+  cursor: not-allowed;
+  margin-right: 10px;
 }
 
 select {
@@ -156,6 +170,17 @@ select {
   font-family: UbuntuR;
   font-size: 15px;
   margin-right: 5px;
+  cursor: pointer;
+}
+
+select [disabled] {
+  background-color: #333333;
+  color: #e0e0e0;
+  border: 2px solid #555555;
+  padding: 4px;
+  border-radius: 4px;
+  cursor: not-allowed;
+  margin-right: 10px;
 }
 
 textarea {
@@ -164,16 +189,15 @@ textarea {
   border: 3px solid #ea7010;
   padding: 4px;
   border-radius: 4px;
-  font-family: Classwiz-X;
-  font-size: 10px;
-  margin-right: 10px;
+  font-family: Unifont;
+  font-size: 16px;
 }
 
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   padding: 2px;
-  cursor: pointer;
+  cursor: e-resize;
   display: inline-block;
   width: 200px;
   height: 13px;
@@ -182,7 +206,7 @@ input[type="range"] {
 input[type="range"]:hover {
   -webkit-appearance: none;
   appearance: none;
-  cursor: pointer;
+  cursor: e-resize;
 }
 
 input[type="checkbox"] {
@@ -216,6 +240,7 @@ button {
   font-size: 13px;
   margin-right: 10px;
   max-width: 100%;
+  cursor: pointer;
 }
 button[disabled] {
   background-color: #333333;
@@ -223,8 +248,7 @@ button[disabled] {
   border: 2px solid #555555;
   padding: 4px;
   border-radius: 4px;
-  cursor: pointer;
-  font-size: 15px;
+  cursor: not-allowed;
   margin-right: 10px;
 }
 
@@ -248,6 +272,8 @@ canvas {
 }
 
 #console {
+  display: flex;
+  flex-direction: column;
   background: #000000;
   color: #00ff00;
   font-family: Unifont, monospace;
@@ -307,7 +333,7 @@ select {
 }
 
 a {
-  color: #ea7030;
+  color: #ffaa00;
 }
 
 .recorder button {
@@ -395,7 +421,7 @@ a {
 }
 
 .settings_label-input input {
-  width: 90px;
+  width: 120px;
   margin-top: auto;
   margin-bottom: auto;
   margin-left: auto;
@@ -429,7 +455,7 @@ a {
 }
 
 .settings_label-slider-input input {
-  width: 90px;
+  width: 120px;
   margin-top: auto;
   margin-bottom: auto;
   margin-left: auto;
@@ -562,6 +588,7 @@ a {
   min-width: 300px;
   padding: 2px;
   border: 2px solid #10101010;
+  background-color: #10101050;
 }
 
 .info_indicator {
@@ -569,8 +596,8 @@ a {
   margin-bottom: auto;
   margin-left: auto;
   margin-right: 2px;
-  font-family: Classwiz-X;
-  font-size: 14px;
+  font-family: Unifont;
+  font-size: 16px;
   opacity: 0.5;
 }
 
@@ -588,8 +615,8 @@ a {
   margin-bottom: auto;
   margin-left: 2px;
   margin-right: 0px;
-  font-family: Classwiz-X;
-  font-size: 14px;
+  font-family: Unifont;
+  font-size: 16px;
   text-wrap: nowrap;
 }
 
@@ -600,11 +627,44 @@ a {
   margin-bottom: auto;
   margin-left: auto;
   margin-right: 2px;
-  font-family: Classwiz-X;
-  font-size: 14px;
+  font-family: Unifont;
+  font-size: 16px;
   text-wrap: nowrap;
 }
 
 .barsPerBinIndic {
   color: #ffbb2e;
+}
+
+#windowFuncInput {
+  width: 438;
+  height: 200px;
+  text-overflow: ellipsis;
+}
+
+.settings_label-input_long {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: fit-content;
+  gap: 5px;
+}
+
+.settings_label-input_long span {
+  width: 100%;
+  height: fit-content;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 0px;
+  margin-right: auto;
+  font-size: 16px;
+  text-wrap: nowrap;
+}
+
+.settings_label-input_long input {
+  width: 100%;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: 0px;
 }
