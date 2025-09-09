@@ -2,7 +2,7 @@ var locales = {
   none: "None",
   elN_A: "Your browser does not support this element",
   title: "Candlexyrherris",
-  subtitle: "A web-based reimplementation of Sonic Candle with enhanced stuff.",
+  subtitle: "A web-based reimplementation of Sonic Candle with enhanced stuff",
 
   upload: "Upload file",
   paste_link: "Paste link",
@@ -15,6 +15,10 @@ var locales = {
   update: "Update",
   play_pause: "Play/Pause",
 
+  mime_type: "MIME type",
+  codec: "Codec",
+  file_name: "File name(ext is auto)",
+
   width: "Width",
   height: "Height",
   volume: "Volume",
@@ -25,11 +29,34 @@ var locales = {
   threshold: "Threshold",
   variables: "Variables",
 
+  rect: "Rectangle",
+  triangular: "Triangular",
+  welch: "Welch",
+  cosine: "Cosine",
+  bartlett: "Bartlett",
+  barthann: "Barthann",
+  hann: "Hann",
+  hamming: "Hamming",
+  blackman: "Blackman",
+  nuttall: "Nuttall",
+  blackman_nuttall: "Blackman Nuttall",
+  blackman_harris: "Blackman Harris",
+  flat_top: "Flat top",
+  bartlett_hann: "Bartlett Hann",
+  gaussian: "Gaussian",
+  exponential: "Exponential",
+  lanczos: "Lanczos",
+
   audio_settings_title: "Audio",
   visualizer_settings_title: "Visualizer",
   fft_size: "FFT Size",
-  frame_rate: "Frame Rate",
+  frame_rate: "Frame rate",
+  frame_latency: "Frame latency",
   vol_multiplier: "Volume Multiplier",
+
+  sample_rate: "Sample Rate",
+  bit_depth: "Bit Depth",
+  number_of_channels: "Number of channels",
 
   min_amplitude: "Min Amplitude",
   max_amplitude: "Max Amplitude",
@@ -42,11 +69,19 @@ var locales = {
   bar_color_green: "Green",
   bar_color_blue: "Blue",
 
-  rect: "Rectangle",
-  rounded_ends: "Rounded Ends",
+  capsule: "Capsule",
 
-  current_freq_range: "Current Freq Range",
-  desired_freq_range: "Desired Freq Range",
+  capsule_radius: "Capsule radius",
+
+  window_function: "Window function",
+
+  process_time: "Process time",
+
+  current_freq_range: "Curr Freq Range",
+
+  desired_freq_range: "Desr Freq Range",
+  desired_fft_size: "Desr FFT Size",
+  desired_bars: "Desr Bars",
 
   bars_per_freq: "Bars/freq",
   bars_per_bin: "Bars/bin",
@@ -60,8 +95,7 @@ var locales = {
   canvas_desync: "Canvas Desynchronize",
   canvas_fullscreen: "Fullscreen Mode",
   Telemetries: "Show Telemetries(drop fps)",
-  //: "",
-  //: "",
+  bitrate: "Bitrate",
   //: "",
   //: "",
   //: "",
@@ -121,12 +155,11 @@ var $locale = (function () {
     });
   }
 
-  //  gId("console").innerHTML = `Check out the source code!<a href="https://github.com/901D3/freevideodither" target="_blank">
-  //github.com/901D3/freevideodither</a>
-  //View avc1 options for custom MediaRecorder settings <a href="/avc1_options.txt" target="_blank">
-  //avc1_options.txt</a>`;
+  gId("windowFuncInput").placeholder = `"n" for index\n`;
 
-  gId(
-    "console"
-  ).innerHTML = `This is just an experiment version of candlexyehrris, expect it to see bugs and unstable stuff\nMediaRecorder gives a less compatible video file and may not be able to play on every device, consider using ffmpeg to convert after record`;
+  gId("console").innerHTML =
+    "This is just an experiment version of candlexyehrris, expect it to see bugs and unstable stuff...\n" +
+    "MediaRecorder gives a less compatible video file and may not be able to play on every device, consider using FFmpeg to convert after record!\n\n" +
+    "Check out the source code!<a href='https://github.com/901D3/candlexyrherris' target='_blank'>github.com/901D3/candlexyrherris</a>" +
+    "View MP4 codecs to ensure compability for MediaRecorder<a href='https://cconcolato.github.io/media-mime-support/' target='_blank'>cconcolato.github.io/media-mime-support/</a>";
 })();
