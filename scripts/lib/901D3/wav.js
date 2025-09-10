@@ -98,14 +98,16 @@ function convertWavData(sampleRateValue, bitDepthValue, formatValue, array, outA
       outArray[i] = sample / norm;
       ofs += bytesPerSample * channels;
     }
-  } else if (bitDepthValue == 32 && formatValue == 3) {
-    const dv = new DataView(array, array.byteOffset, array.byteLength);
-    for (let i = 0; i < numFrames; i++) {
-      const sample = dv.getFloat32(ofs, true);
-      outArray[i] = sample;
-      ofs += bytesPerSample * channels;
-    }
-  } else {
+  }
+  //else if (bitDepthValue == 32 && formatValue == 3) {
+  //const dv = new DataView(array, array.byteOffset, array.byteLength);
+  //for (let i = 0; i < numFrames; i++) {
+  //  const sample = dv.getFloat32(ofs, true);
+  //  outArray[i] = sample;
+  //  ofs += bytesPerSample * channels;
+  //  }
+  //}
+  else {
     printLog("Unsupported bit depth");
     return;
   }
