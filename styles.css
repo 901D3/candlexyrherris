@@ -151,14 +151,11 @@ input {
   display: inline-block;
 }
 
-input [disabled] {
+input:disabled {
   background-color: #333333;
   color: #e0e0e0;
-  border: 2px solid #555555;
-  padding: 4px;
-  border-radius: 4px;
+  border: 3px solid #555555;
   cursor: not-allowed;
-  margin-right: 10px;
 }
 
 select {
@@ -173,14 +170,11 @@ select {
   cursor: pointer;
 }
 
-select [disabled] {
+select:disabled {
   background-color: #333333;
   color: #e0e0e0;
-  border: 2px solid #555555;
-  padding: 4px;
-  border-radius: 4px;
+  border: 3px solid #555555;
   cursor: not-allowed;
-  margin-right: 10px;
 }
 
 textarea {
@@ -204,9 +198,14 @@ input[type="range"] {
 }
 
 input[type="range"]:hover {
-  -webkit-appearance: none;
-  appearance: none;
   cursor: e-resize;
+}
+
+input[type="range"]:disabled {
+  background-color: #333333;
+  color: #e0e0e0;
+  border: 3px solid #555555;
+  cursor: not-allowed;
 }
 
 input[type="checkbox"] {
@@ -230,10 +229,11 @@ select:hover {
   background-color: #793400;
   border-color: #ea7010;
 }
+
 button {
   background-color: #000;
   color: #e0e0e0;
-  border: 2px solid #ea7010;
+  border: 3px solid #ea7010;
   padding: 3px;
   border-radius: 4px;
   font-family: UbuntuBold;
@@ -242,14 +242,12 @@ button {
   max-width: 100%;
   cursor: pointer;
 }
+
 button[disabled] {
   background-color: #333333;
   color: #e0e0e0;
-  border: 2px solid #555555;
-  padding: 4px;
-  border-radius: 4px;
+  border: 3px solid #555555;
   cursor: not-allowed;
-  margin-right: 10px;
 }
 
 button[disabled]:hover {
@@ -269,6 +267,8 @@ canvas {
   display: inline-block;
   align-self: center;
   image-rendering: pixelated;
+  margin: 0px;
+  padding: 0px;
 }
 
 #console {
@@ -370,6 +370,8 @@ a {
 }
 
 .mainCanvas {
+  width: fit-content;
+  height: fit-content;
   margin-top: auto;
   margin-bottom: auto;
   margin-left: auto;
