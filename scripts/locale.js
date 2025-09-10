@@ -117,9 +117,14 @@ var locales = {
 };
 
 var $locale = (function () {
-  function _updText(i, id, newKey) {
+  function _getDataText(i, id) {
     const el = document.querySelector(`[data-text="${i}"][data-text-id="${id}"]`);
     if (!el) return;
+    return el;
+  }
+
+  function _updText(i, id, newKey) {
+    const el = _getDataText(i, id);
 
     el.setAttribute("data-text", newKey);
 
@@ -128,13 +133,14 @@ var $locale = (function () {
       el.innerHTML = locales[keyName];
     }
   }
+
   function _updTextDirty(i, id, newText) {
-    const el = document.querySelector(`[data-text="${i}"][data-text-id="${id}"]`);
-    if (!el) return;
+    const el = _getDataText(i, id);
 
     el.dataset.text = newText;
     el.innerText = newText;
   }
+
   return {
     updText: _updText,
     updTextDirty: _updTextDirty,
@@ -155,7 +161,7 @@ var $locale = (function () {
     });
   }
 
-  gId("windowFuncInput").placeholder = `"n" for index\n`;
+  gId("windowFuncInput").placeholder = "'n' for index\n" + "'N' for frame length\n" + "'Math' namespace is defined globally and any operators is allowed";
 
   gId("console").innerHTML =
     "This is just an experiment version of candlexyehrris, expect it to see bugs and unstable stuff...\n" +
