@@ -21,10 +21,6 @@
  *   Software.
  */
 
-//===== NOTICE =====
-//This fft.js is a modded version of nayuki's fft.js. mostly optimized bluestein.
-//
-
 "use strict";
 /*
  * Computes the discrete Fourier _transform (DFT) of the given complex vector, storing the result back into the vector.
