@@ -165,12 +165,6 @@ var recorderFrameRate = 30;
 var recorderVideoBitrate = 2000000;
 var recorderMimeType = "video/webm";
 var recorderVideoCodec = "vp9";
-var recorderOption = {
-  mimeType: recorderMimeType + ";" + " codecs=" + recorderVideoCodec,
-  videoBitsPerSecond: recorderVideoBitrate,
-  frameRate: recorderFrameRate,
-};
-
 var windowFunc = new Function("n", "N", sinc.toString() + "; return " + gId("windowFuncInput").value + ";");
 
 let logEntries = [];
@@ -202,6 +196,7 @@ function printLog(message) {
   let logEntry = document.createElement("span");
   logEntry.innerHTML = message;
   console.appendChild(logEntry);
+  orangeFlashChangeText(logEntry, 200);
 
   if (console.children.length > maxLogEntries) {
     console.removeChild(console.firstChild);
@@ -297,4 +292,63 @@ function createBlobFromElement(el) {
   const url = URL.createObjectURL(blob);
 
   return url;
+}
+
+function flashChanges(el, fades, time, ...fadeColors) {
+  if (!el) return;
+
+  for (let i = 0; i < fades; i++) {
+    setTimeout(() => {
+      const stepColor = fadeColors[i % fadeColors.length];
+      el.style.backgroundColor = stepColor;
+    }, i * time);
+  }
+}
+
+function redFlashChangeText(el, time) {
+  if (!el) return;
+
+  flashChanges(
+    el,
+    6,
+    time,
+    "rgba(255, 0, 0, 1)",
+    "rgba(255, 0, 0, 0.8)",
+    "rgba(255, 0, 0, 0.6)",
+    "rgba(255, 0, 0, 0.4)",
+    "rgba(255, 0, 0, 0.2)",
+    "rgba(255, 0, 0, 0)"
+  );
+}
+
+function orangeFlashChangeText(el, time) {
+  if (!el) return;
+
+  flashChanges(
+    el,
+    6,
+    time,
+    "rgba(255, 127, 0, 1)",
+    "rgba(255, 127, 0, 0.8)",
+    "rgba(255, 127, 0, 0.6)",
+    "rgba(255, 127, 0, 0.4)",
+    "rgba(255, 127, 0, 0.2)",
+    "rgba(255, 127, 0, 0)"
+  );
+}
+
+function yellowFlashChangeText(el, time) {
+  if (!el) return;
+
+  flashChanges(
+    el,
+    6,
+    time,
+    "rgba(255, 255, 0, 1)",
+    "rgba(255, 255, 0, 0.8)",
+    "rgba(255, 255, 0, 0.6)",
+    "rgba(255, 255, 0, 0.4)",
+    "rgba(255, 255, 0, 0.2)",
+    "rgba(255, 255, 0, 0)"
+  );
 }
