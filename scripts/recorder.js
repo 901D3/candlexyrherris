@@ -79,7 +79,7 @@ function startRecording() {
   chunks = [];
   mediaRecorder.start();
   printLog("MediaRecorder started");
-  sessionStorage.setItem("isRecording", "1");
+  //sessionStorage.setItem("isRecording", "1");
 
   startRec.setAttribute("disabled", "");
   stopRec.removeAttribute("disabled");
@@ -98,7 +98,7 @@ function startRecording() {
 function stopRecording() {
   mediaRecorder.stop();
   printLog("MediaRecorder stopped");
-  sessionStorage.removeItem("isRecording");
+  //sessionStorage.removeItem("isRecording");
 
   startRec.removeAttribute("disabled");
   stopRec.setAttribute("disabled", "");
