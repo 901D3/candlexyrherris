@@ -55,7 +55,15 @@
             style="--width: 40px; --height: 40px; --margin: 0px; --padding: 0px">
             <div class="horizontal-align-center vertical-align-center-margin stopRecord"></div>
           </button>
-          <span class="vertical-align-center-margin">[F1] [SHIFT + F1]</span>
+          <!--<span class="vertical-align-center-margin">[F1] [SHIFT + F1]</span>-->
+          <button
+            id="startRendering"
+            class="width height margin padding"
+            type="button"
+            disabled=""
+            style="--width: 40px; --height: 40px; --margin: 0px; --padding: 0px">
+            <div>|-></div>
+          </button>
         </div>
         <div class="display-flex left-right-flow width-fit-content" style="gap: 12px">
           <button
@@ -94,7 +102,7 @@
             style="--width: 40px; --height: 40px; --margin: 0px; --padding: 0px">
             <div>resume</div>
           </button>
-          <span class="vertical-align-center-margin">[F4]</span>
+          <!--<span class="vertical-align-center-margin">[F4]</span>-->
         </div>
       </div>
       <div class="settings_container">
@@ -219,8 +227,8 @@
             </div>
             <div class="settings_label-slider-input">
               <span data-text="$space"></span>
-              <input type="range" id="barSpaceRange" min="0" max="10" step="0.00000000001" />
-              <input type="number" id="barSpaceInput" placeholder="2" value="2" />
+              <input type="range" id="barSpaceRange" min="0" max="100" step="0.00000000001" />
+              <input type="number" id="barSpaceInput" placeholder="1" value="1" />
             </div>
             <div class="settings_label-slider-input" style="background-color: #ff0000; border-radius: 4px">
               <span></span>
@@ -240,7 +248,7 @@
             <div class="settings_label-slider-input">
               <span data-text="$frame_latency"></span>
               <input type="range" id="frameLatencyRange" min="0" max="60" step="0.00000000001" />
-              <input type="number" id="frameLatencyInput" placeholder="30" value="30" />
+              <input type="number" id="frameLatencyInput" placeholder="33.333333333333" value="33.333333333333" />
             </div>
           </div>
           <div class="whitehr"></div>
@@ -339,7 +347,9 @@
           <audio id="audio" controls loop crossorigin="anonymous" src="" data-text="$elN_A"></audio>
         </div>
         <div class="firehr"></div>
-        <div class="mainCanvas"><canvas id="canvas" width="1280" height="720" data-text="$elN_A"></canvas></div>
+        <div class="mainCanvas">
+          <canvas id="canvas" width="1280" height="720" data-text="$elN_A"></canvas>
+        </div>
       </div>
     </div>
     <div class="settings_container">
@@ -384,6 +394,7 @@
       audio.play;
       audio.pause;
       displayInfo();
+      startRend.removeAttribute("disabled", "");
     });
 
     async function updateAudioSrc() {
@@ -402,6 +413,7 @@
       audio.play;
       audio.pause;
       displayInfo();
+      startRend.removeAttribute("disabled", "");
     }
   </script>
 </html>
