@@ -1,5 +1,5 @@
-function getCurrentFrameFFT() {
-  const startSample = audio.currentTime * sampleRate;
+function getCurrentFrameFFT(audioTime) {
+  const startSample = audioTime * sampleRate;
   const frame = audioDataArray.subarray(startSample, startSample + fftSize);
   const frameLength = frame.length;
 
@@ -25,9 +25,8 @@ function getCurrentFrameFFT() {
 }
 
 function process() {
-  getCurrentFrameFFT();
+  getCurrentFrameFFT(audio.currentTime);
   const buffer = getVisualizerBufferFromFFT(stftRe, stftIm, bars, threshold, minFreq, maxFreq);
-
   drawVisualizerBufferToCanvas(ctx, buffer);
 
   if (audio.paused || audio.ended) {
@@ -36,9 +35,50 @@ function process() {
     return;
   }
 
+  if (t) frameCounter();
   setTimeout(() => {
     process();
   }, frameLatency);
+}
+
+function render() {
+  const totalFrames = ceil(audio.duration * recorderFrameRate);
+  let frameIndex = 0;
+  audio.currentTime = 0;
+  audio.muted = true;
+  audio.loop = false;
+  startRecording();
+
+  function renderFrame() {
+    const t0 = performance.now();
+    if (!sessionStorage.getItem("isRendering")) return; //when user wants to stop rendering
+    if (frameIndex >= totalFrames || audio.ended) {
+      stftRe = [];
+      stftIm = [];
+      stopRecording();
+      audio.muted = false;
+      audio.loop = true;
+      return;
+    }
+
+    const frameTime = frameIndex / recorderFrameRate;
+    audio.currentTime = frameTime;
+    getCurrentFrameFFT(frameTime);
+
+    const buffer = getVisualizerBufferFromFFT(stftRe, stftIm, bars, threshold, minFreq, maxFreq);
+    drawVisualizerBufferToCanvas(ctx, buffer);
+
+    const wait = max(0, 1000 / recorderFrameRate - (performance.now() - t0));
+
+    mediaRecorder.resume();
+    setTimeout(() => {
+      mediaRecorder.pause();
+      frameIndex++;
+      renderFrame();
+    }, wait);
+  }
+
+  renderFrame();
 }
 
 function drawVisualizerBufferToCanvas(ctx, buffer) {
@@ -56,7 +96,6 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
   } else if (barStyle === "capsule") {
     drawCapsuleBar(ctx, buffer, bars, offsetX, halfHeight, barWidth, barSpace, minAmplitudeHalfHeight, maxAmplitudeHalfHeight);
   }
-  if (t) frameCounter();
 }
 
 function drawRectBar(ctx, buffer, Nbars, posX, posY, barWidthValue, barSpaceValue, minAmplitudeValue, maxAmplitudeValue) {
@@ -98,21 +137,11 @@ function drawCapsuleBar(ctx, buffer, Nbars, posX, posY, barWidthValue, barSpaceV
 
 function frameCounter() {
   frm++;
-  let elapsed = (performance.now() - startTime) / 1000;
-  let avgFps = frm / elapsed;
   let dlT = (performance.now() - lastUpdatedTime) / 1000;
-  let currentFps = dlT > 0 ? 1 / dlT : 0;
+  let currentFps = 1 / dlT;
   lastUpdatedTime = performance.now();
   if (performance.now() - lLT >= 1000) {
-    printLog(
-      "elapsed: " +
-        elapsed.toString().padEnd(22) +
-        " | Fps: " +
-        currentFps.toString().padEnd(22) +
-        " | AvgFps: " +
-        avgFps.toString().padEnd(22) +
-        " | "
-    );
+    printLog("Fps: " + currentFps.toString().padEnd(22) + " | Latency: " + (dlT * 1000).toString().padEnd(22));
     lLT = performance.now();
   }
 }
