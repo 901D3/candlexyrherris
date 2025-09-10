@@ -51,7 +51,7 @@ function render() {
 
   function renderFrame() {
     const t0 = performance.now();
-    if (!sessionStorage.getItem("isRendering")) return; //when user wants to stop rendering
+    //if (!sessionStorage.getItem("isRendering")) return; //when user wants to stop rendering
     if (frameIndex >= totalFrames || audio.ended) {
       stftRe = [];
       stftIm = [];
@@ -68,11 +68,12 @@ function render() {
     const buffer = getVisualizerBufferFromFFT(stftRe, stftIm, bars, threshold, minFreq, maxFreq);
     drawVisualizerBufferToCanvas(ctx, buffer);
 
+    //compensate drift latency to next (1000 / recorderFrameRate)ms to ensure the result is consistent frames
     const wait = max(0, 1000 / recorderFrameRate - (performance.now() - t0));
 
     mediaRecorder.resume();
     setTimeout(() => {
-      mediaRecorder.pause();
+      mediaRecorder.pause(); //leave some space for capturing the frame
       frameIndex++;
       renderFrame();
     }, wait);
