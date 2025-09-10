@@ -264,7 +264,7 @@ function targetResolution(barWidth, barSpace, Nbars) {
       gId("barStyleCapsuleRadiusRange"),
       gId("barStyleCapsuleRadiusInput"),
       "barStyleCapsuleRadius",
-      100,
+      0.3,
       "input"
     );
   });
@@ -342,6 +342,7 @@ function targetResolution(barWidth, barSpace, Nbars) {
   sliderInputSync(gId("minFrequencyRange"), gId("minFrequencyInput"), "minFreq", 0, "input");
   sliderInputSync(gId("maxFrequencyRange"), gId("maxFrequencyInput"), "maxFreq", 1, "input");
   sliderInputSync(gId("barsRange"), gId("barsInput"), "bars", 100, "input");
+  sliderInputSync(gId("barStyleCapsuleRadiusRange"), gId("barStyleCapsuleRadiusInput"), "barStyleCapsuleRadius", 0.3, "input");
   sliderInputSync(gId("barWidthRange"), gId("barWidthInput"), "barWidth", 255, "input");
   sliderInputSync(gId("barSpaceRange"), gId("barSpaceInput"), "barSpace", 255, "input");
   sliderInputSync(gId("barColorRedRange"), gId("barColorRedInput"), "barColorRed", 255, "input");
