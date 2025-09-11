@@ -25,6 +25,7 @@ function getCurrentFrameFFT(audioTime) {
 }
 
 function process() {
+  const t0 = performance.now();
   getCurrentFrameFFT(audio.currentTime);
   const buffer = getVisualizerBufferFromFFT(stftRe, stftIm, bars, threshold, minFreq, maxFreq);
   drawVisualizerBufferToCanvas(ctx, buffer);
@@ -36,50 +37,114 @@ function process() {
   }
 
   if (t) frameCounter();
-  setTimeout(() => {
-    process();
-  }, frameLatency);
+  const wait = 1000 / frameRate - (performance.now() - t0);
+  setTimeout(process, wait);
 }
 
-function render() {
+async function render() {
+  if (isRecording == true) {
+    printLog("Stop recording to start rendering");
+    return;
+  }
+  if (isRendering == true) {
+    printLog("Rendering process has already started");
+    return;
+  }
+  isRendering = true;
+  startRec.setAttribute("disabled", "");
+  stopRec.setAttribute("disabled", "");
+  pauseRec.setAttribute("disabled", "");
+  resumeRec.setAttribute("disabled", "");
+
+  printLog("Starting rendering");
+  recorderWebmWriterSettings = new WebMWriter({
+    quality: recorderWebmWriterQuality,
+    fileWriter: gId("webmWriterFileWriterSelect").value,
+
+    frameRate: recorderFrameRate,
+    transparent: false, //enabling transparent is kinda useless
+  });
+
   const totalFrames = ceil(audio.duration * recorderFrameRate);
+  printLog("Total frames:" + totalFrames);
   let frameIndex = 0;
+  let buffer;
+  let blob;
   audio.currentTime = 0;
+  audio.pause();
   audio.muted = true;
   audio.loop = false;
-  startRecording();
 
-  function renderFrame() {
-    const t0 = performance.now();
-    //if (!sessionStorage.getItem("isRendering")) return; //when user wants to stop rendering
-    if (frameIndex >= totalFrames || audio.ended) {
-      stftRe = [];
-      stftIm = [];
-      stopRecording();
-      audio.muted = false;
-      audio.loop = true;
-      return;
-    }
-
-    const frameTime = frameIndex / recorderFrameRate;
-    audio.currentTime = frameTime;
-    getCurrentFrameFFT(frameTime);
-
-    const buffer = getVisualizerBufferFromFFT(stftRe, stftIm, bars, threshold, minFreq, maxFreq);
-    drawVisualizerBufferToCanvas(ctx, buffer);
-
-    //compensate drift latency to next (1000 / recorderFrameRate)ms to ensure the result is consistent frames
-    const wait = max(0, 1000 / recorderFrameRate - (performance.now() - t0));
-
-    mediaRecorder.resume();
-    setTimeout(() => {
-      mediaRecorder.pause(); //leave some space for capturing the frame
-      frameIndex++;
-      renderFrame();
-    }, wait);
+  function seekAudio(time) {
+    return new Promise((resolve) => {
+      audio.currentTime = time;
+      audio.addEventListener("seeked", function handler() {
+        audio.removeEventListener("seeked", handler);
+        resolve();
+      });
+    });
   }
 
-  renderFrame();
+  function canvasToWebPBlob(canvas, quality) {
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => resolve(blob), "image/webp", quality);
+    });
+  }
+
+  const t0 = performance.now();
+  while (frameIndex < totalFrames && !audio.ended) {
+    const frameTime = frameIndex / recorderFrameRate;
+    await seekAudio(frameTime);
+
+    getCurrentFrameFFT(frameTime);
+    buffer = getVisualizerBufferFromFFT(stftRe, stftIm, bars, threshold, minFreq, maxFreq);
+    drawVisualizerBufferToCanvas(ctx, buffer);
+
+    blob = await canvasToWebPBlob(canvas, recorderWebmWriterQuality);
+    recorderWebmWriterSettings.addFrame(new Uint8Array(await blob.arrayBuffer()));
+
+    if (isRendering == false) {
+      printLog("Rendering stopped manually");
+
+      stftRe = [];
+      stftIm = [];
+
+      startRec.removeAttribute("disabled");
+      stopRec.removeAttribute("disabled");
+      pauseRec.removeAttribute("disabled");
+      resumeRec.removeAttribute("disabled");
+
+      await recorderWebmWriterSettings.complete().then((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "video.webm";
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+      return;
+    }
+    frameIndex++;
+  }
+  const totalTime = performance.now() - t0;
+  printLog("Elapsed: " + totalTime + "\n" + "Rendering takes " + totalTime / (audio.duration * 1000) + "% of audio duration");
+
+  stftRe = [];
+  stftIm = [];
+
+  startRec.setAttribute("disabled");
+  stopRec.setAttribute("disabled");
+  pauseRec.setAttribute("disabled");
+  resumeRec.setAttribute("disabled");
+
+  await recorderWebmWriterSettings.complete().then((blob) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "video.webm";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
 }
 
 function drawVisualizerBufferToCanvas(ctx, buffer) {
@@ -89,7 +154,8 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
   const minAmplitudeHalfHeight = minAmplitude * halfHeight;
   const maxAmplitudeHalfHeight = maxAmplitude * halfHeight;
 
-  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = "rgb(" + backgroundColorRed + ", " + backgroundColorGreen + ", " + backgroundColorBlue + ")";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "rgb(" + barColorRed + ", " + barColorGreen + ", " + barColorBlue + ")";
 
   if (barStyle === "rect") {
