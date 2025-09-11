@@ -142,6 +142,7 @@ var sampleRate;
 var bitDepth;
 
 var fftSize;
+var frameRate;
 var frameLatency;
 var volMultiplier;
 var minAmplitude;
@@ -154,6 +155,9 @@ var bars;
 var barColorRed;
 var barColorGreen;
 var barColorBlue;
+var backgroundColorRed;
+var backgroundColorGreen;
+var backgroundColorBlue;
 
 var barWidth;
 var barSpace;
@@ -165,6 +169,11 @@ var recorderFrameRate = 30;
 var recorderVideoBitrate = 2000000;
 var recorderMimeType = "video/webm";
 var recorderVideoCodec = "vp9";
+var recorderWebmWriterQuality = 0.95;
+var recorderWebmWriterSettings;
+var isRecording = false;
+var isRendering = false;
+
 var windowFunc = new Function("n", "N", sinc.toString() + "; return " + gId("windowFuncInput").value + ";");
 
 let logEntries = [];
@@ -249,10 +258,24 @@ function sliderInputSync(slider, input, variable, defaultValue, source) {
   window[variable] = value;
 }
 
+/**
+ * Search binary inside an array
+ *
+ * @param array Input array for searching
+ *
+ * @param text Hex keyword
+ *
+ * @param start Start position
+ *
+ * @param end End position, default to array.length
+ *
+ * @returns position of the keyword, -1 if not found
+ */
+
 function binSearch(array, text, start = 0, end = array.length) {
   if (!array) return -1;
   const arrayLength = array.length;
-  end = Math.min(end ?? arrayLength, arrayLength);
+  end = min(end ?? arrayLength, arrayLength);
 
   const textLength = text.length;
   const startEndLength = end - start;
@@ -352,3 +375,29 @@ function yellowFlashChangeText(el, time) {
     "rgba(255, 255, 0, 0)"
   );
 }
+
+function hexToStr(bytes) {
+  let str = "";
+  const bytesLength = bytes.length;
+  for (let i = 0; i < bytesLength; i++) {
+    str += String.fromCharCode(bytes[i]);
+  }
+  return str;
+}
+
+function strToU8(str) {
+  const u8 = new Uint8Array(str.length);
+  for (let i = 0; i < str.length; i++) {
+    u8[i] = str.charCodeAt(i) & 0xff;
+  }
+  return u8;
+}
+
+(function () {
+  if (window.RequestFileSystem || window.webkitRequestFileSystem) {
+    printLog("Chrome FileSystem API is available");
+  } else {
+    printLog("No FileSystem API, fallback to memory buffering");
+    gId("webmWriterFileWriterSelect").setAttribute("disabled", "");
+  }
+})();
