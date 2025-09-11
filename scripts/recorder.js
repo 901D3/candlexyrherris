@@ -136,8 +136,8 @@ function resumeRecording() {
 }
 
 function startRendering() {
-  isRendering = true;
   render();
+  isRendering = true;
 
   startRend.setAttribute("disabled", "");
   stopRend.removeAttribute("disabled", "");
