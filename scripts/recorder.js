@@ -7,6 +7,7 @@ var stopRec = gId("stopRecording");
 var pauseRec = gId("pauseRecording");
 var resumeRec = gId("resumeRecording");
 var startRend = gId("startRendering");
+var stopRend = gId("stopRendering");
 
 function startRecording() {
   mediaRecorder = new MediaRecorder(canvasStream, {
@@ -79,6 +80,7 @@ function startRecording() {
   chunks = [];
   mediaRecorder.start();
   printLog("MediaRecorder started");
+  isRecording = true;
   //sessionStorage.setItem("isRecording", "1");
 
   startRec.setAttribute("disabled", "");
@@ -98,6 +100,7 @@ function startRecording() {
 function stopRecording() {
   mediaRecorder.stop();
   printLog("MediaRecorder stopped");
+  isRecording = false;
   //sessionStorage.removeItem("isRecording");
 
   startRec.removeAttribute("disabled");
@@ -133,9 +136,27 @@ function resumeRecording() {
 }
 
 function startRendering() {
+  isRendering = true;
   render();
 
   startRend.setAttribute("disabled", "");
+  stopRend.removeAttribute("disabled", "");
+
+  startRec.setAttribute("disabled", "");
+  stopRec.setAttribute("disabled", "");
+  pauseRec.setAttribute("disabled", "");
+  resumeRec.setAttribute("disabled", "");
+}
+
+function stopRendering() {
+  isRendering = false;
+  startRend.removeAttribute("disabled", "");
+  stopRend.setAttribute("disabled", "");
+
+  startRec.removeAttribute("disabled");
+  stopRec.setAttribute("disabled", "");
+  pauseRec.setAttribute("disabled", "");
+  resumeRec.setAttribute("disabled", "");
 }
 
 (function () {
@@ -144,6 +165,7 @@ function startRendering() {
   pauseRec.addEventListener("click", pauseRecording);
   resumeRec.addEventListener("click", resumeRecording);
   startRend.addEventListener("click", startRendering);
+  stopRend.addEventListener("click", stopRendering);
 
   gId("recorderMimeTypeInput").addEventListener("input", function () {
     recorderMimeType = gId("recorderMimeTypeInput").value.trim().toLowerCase();
@@ -155,7 +177,7 @@ function startRendering() {
   });
 
   gId("recorderCodecInput").addEventListener("input", function () {
-    recorderMimeType = gId("recorderMimeTypeInput").value.trim().toLowerCase();
+    recorderVideoCodec = gId("recorderCodecInput").value.trim().toLowerCase();
     recorderOption = {
       mimeType: recorderMimeType + ";" + " codecs=" + recorderVideoCodec,
       videoBitsPerSecond: recorderVideoBitrate,
@@ -204,6 +226,26 @@ function startRendering() {
     canvasStream = canvas.captureStream(recorderFrameRate);
   });
 
+  gId("recorderWebmWriterQualityRange").addEventListener("input", function () {
+    sliderInputSync(
+      gId("recorderWebmWriterQualityRange"),
+      gId("recorderWebmWriterQualityInput"),
+      "recorderWebmWriterQuality",
+      undefined,
+      "slider"
+    );
+  });
+
+  gId("recorderWebmWriterQualityInput").addEventListener("input", function () {
+    sliderInputSync(
+      gId("recorderWebmWriterQualityRange"),
+      gId("recorderWebmWriterQualityInput"),
+      "recorderWebmWriterQuality",
+      0.9,
+      "input"
+    );
+  });
+
   //stop recording and download the video when user reload
   window.addEventListener("load", () => {
     const nav = performance.getEntriesByType("navigation")[0];
@@ -233,4 +275,21 @@ function startRendering() {
       sessionStorage.removeItem("isRendering");
     }
   });
+
+  recorderMimeType = gId("recorderMimeTypeInput").value.trim().toLowerCase();
+  recorderVideoCodec = gId("recorderCodecInput").value.trim().toLowerCase();
+  sliderInputSync(gId("recorderFrameRateRange"), gId("recorderFrameRateInput"), "recorderFrameRate", 30, "input");
+  canvasStream = canvas.captureStream(recorderFrameRate);
+  recorderOption = {
+    mimeType: recorderMimeType + ";" + " codecs=" + recorderVideoCodec,
+    videoBitsPerSecond: recorderVideoBitrate,
+    frameRate: recorderFrameRate,
+  };
+  sliderInputSync(
+    gId("recorderWebmWriterQualityRange"),
+    gId("recorderWebmWriterQualityInput"),
+    "recorderWebmWriterQuality",
+    0.9,
+    "input"
+  );
 })();
