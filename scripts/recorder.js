@@ -100,7 +100,6 @@ function startRecording() {
 function stopRecording() {
   mediaRecorder.stop();
   printLog("MediaRecorder stopped");
-  isRecording = false;
   //sessionStorage.removeItem("isRecording");
 
   startRec.removeAttribute("disabled");
