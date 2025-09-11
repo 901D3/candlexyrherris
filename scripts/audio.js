@@ -90,7 +90,7 @@ function getVisualizerBufferFromFFT(real, imag, Nbars, threshold, minFreq, maxFr
     for (let j = startBin; j < endBin; j++) {
       const realValue = real[j];
       const imagValue = imag[j];
-      const mag = sqrt(realValue ** 2 + imagValue ** 2) * 0.0009765625; // divide by 1024
+      const mag = sqrt(pow(realValue, 2) + pow(imagValue, 2)) * 0.0009765625; // divide by 1024
       if (abs(realValue) > barBufferValue) barBuffer[i] = mag;
     }
 
@@ -175,12 +175,12 @@ function targetResolution(barWidth, barSpace, Nbars) {
     displayInfo();
   });
 
-  gId("frameLatencyRange").addEventListener("input", function () {
-    sliderInputSync(gId("frameLatencyRange"), gId("frameLatencyInput"), "frameLatency", undefined, "slider");
+  gId("frameRateRange").addEventListener("input", function () {
+    sliderInputSync(gId("frameRateRange"), gId("frameRateInput"), "frameRate", undefined, "slider");
   });
 
-  gId("frameLatencyInput").addEventListener("input", function () {
-    sliderInputSync(gId("frameLatencyRange"), gId("frameLatencyInput"), "frameLatency", 33.3333333333333, "input");
+  gId("frameRateInput").addEventListener("input", function () {
+    sliderInputSync(gId("frameRateRange"), gId("frameRateInput"), "frameRate", 30, "input");
   });
 
   gId("volumeMultiplierRange").addEventListener("input", function () {
@@ -319,6 +319,42 @@ function targetResolution(barWidth, barSpace, Nbars) {
     sliderInputSync(gId("barColorBlueRange"), gId("barColorBlueInput"), "barColorBlue", 255, "input");
   });
 
+  gId("backgroundColorRedRange").addEventListener("input", function () {
+    sliderInputSync(gId("backgroundColorRedRange"), gId("backgroundColorRedInput"), "backgroundColorRed", undefined, "slider");
+  });
+
+  gId("backgroundColorRedInput").addEventListener("input", function () {
+    sliderInputSync(gId("backgroundColorRedRange"), gId("backgroundColorRedInput"), "backgroundColorRed", 20, "input");
+  });
+
+  gId("backgroundColorGreenRange").addEventListener("input", function () {
+    sliderInputSync(
+      gId("backgroundColorGreenRange"),
+      gId("backgroundColorGreenInput"),
+      "backgroundColorGreen",
+      undefined,
+      "slider"
+    );
+  });
+
+  gId("backgroundColorGreenInput").addEventListener("input", function () {
+    sliderInputSync(gId("backgroundColorGreenRange"), gId("backgroundColorGreenInput"), "backgroundColorGreen", 20, "input");
+  });
+
+  gId("backgroundColorBlueRange").addEventListener("input", function () {
+    sliderInputSync(
+      gId("backgroundColorBlueRange"),
+      gId("backgroundColorBlueInput"),
+      "backgroundColorBlue",
+      undefined,
+      "slider"
+    );
+  });
+
+  gId("backgroundColorBlueInput").addEventListener("input", function () {
+    sliderInputSync(gId("backgroundColorBlueRange"), gId("backgroundColorBlueInput"), "backgroundColorBlue", 20, "input");
+  });
+
   gId("windowFuncInput").addEventListener("input", function () {
     try {
       windowFunc = new Function("n", "N", sinc.toString() + "; return " + gId("windowFuncInput").value + ";");
@@ -334,7 +370,7 @@ function targetResolution(barWidth, barSpace, Nbars) {
 
   //init all vars based on input value
   sliderInputSync(gId("fftSizeRange"), gId("fftSizeInput"), "fftSize", 2048, "input");
-  sliderInputSync(gId("frameLatencyRange"), gId("frameLatencyInput"), "frameLatency", 33.3333333333333, "input");
+  sliderInputSync(gId("frameRateRange"), gId("frameRateInput"), "frameRate", 33.3333333333333, "input");
   sliderInputSync(gId("volumeMultiplierRange"), gId("volumeMultiplierInput"), "volMultiplier", 1, "input");
   sliderInputSync(gId("minAmplitudeRange"), gId("minAmplitudeInput"), "minAmplitude", 1, "input");
   sliderInputSync(gId("maxAmplitudeRange"), gId("maxAmplitudeInput"), "maxAmplitude", 1, "input");
@@ -343,11 +379,18 @@ function targetResolution(barWidth, barSpace, Nbars) {
   sliderInputSync(gId("maxFrequencyRange"), gId("maxFrequencyInput"), "maxFreq", 1, "input");
   sliderInputSync(gId("barsRange"), gId("barsInput"), "bars", 100, "input");
   sliderInputSync(gId("barStyleCapsuleRadiusRange"), gId("barStyleCapsuleRadiusInput"), "barStyleCapsuleRadius", 0.3, "input");
+
   sliderInputSync(gId("barWidthRange"), gId("barWidthInput"), "barWidth", 255, "input");
   sliderInputSync(gId("barSpaceRange"), gId("barSpaceInput"), "barSpace", 255, "input");
+
   sliderInputSync(gId("barColorRedRange"), gId("barColorRedInput"), "barColorRed", 255, "input");
   sliderInputSync(gId("barColorGreenRange"), gId("barColorGreenInput"), "barColorGreen", 255, "input");
   sliderInputSync(gId("barColorBlueRange"), gId("barColorBlueInput"), "barColorBlue", 255, "input");
+
+  sliderInputSync(gId("backgroundColorRedRange"), gId("backgroundColorRedInput"), "backgroundColorRed", 20, "input");
+  sliderInputSync(gId("backgroundColorGreenRange"), gId("backgroundColorGreenInput"), "backgroundColorGreen", 20, "input");
+  sliderInputSync(gId("backgroundColorBlueRange"), gId("backgroundColorBlueInput"), "backgroundColorBlue", 20, "input");
+
   sliderInputSync(gId("recorderFrameRateRange"), gId("recorderFrameRateInput"), "recorderFrameRate", 30, "input");
   gId("windowFuncInput").value = $windowFunc.getPreset(gId("windowFuncSelect").value);
   try {
