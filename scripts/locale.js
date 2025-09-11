@@ -28,6 +28,7 @@ var locales = {
   number: "Number",
   threshold: "Threshold",
   variables: "Variables",
+  bitrate: "Bitrate",
 
   rect: "Rectangle",
   triangular: "Triangular",
@@ -90,12 +91,26 @@ var locales = {
   bins_per_bar: "Bins/bar",
   bins_per_freq: "Bins/freq",
 
+  true: "True",
+  false: "False",
+  null: "Null",
+
+  enable_file_writer: "Enable file writer",
+
   canvas_size_change: "Change canvas size",
   pixelated_render: "Pixelated Rendering",
   canvas_desync: "Canvas Desynchronize",
   canvas_fullscreen: "Fullscreen Mode",
   Telemetries: "Show Telemetries(drop fps)",
-  bitrate: "Bitrate",
+  webm_writer_quality: "Webm writer quality",
+  //: "",
+  //: "",
+  //: "",
+  //: "",
+  //: "",
+  //: "",
+  //: "",
+  //: "",
   //: "",
   //: "",
   //: "",
@@ -161,7 +176,8 @@ var $locale = (function () {
     });
   }
 
-  gId("windowFuncInput").placeholder = "'n' for index\n" + "'N' for frame length\n" + "'Math' namespace is defined globally and any operators is allowed";
+  gId("windowFuncInput").placeholder =
+    "'n' for index\n" + "'N' for frame length\n" + "'Math' namespace is defined globally and any operators is allowed";
 
   gId("console").innerHTML =
     "This is just an experiment version of candlexyehrris, expect it to see bugs and unstable stuff...\n" +
