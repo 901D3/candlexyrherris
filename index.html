@@ -40,38 +40,19 @@
       <div class="display-flex top-bottom-flow width-fit-content" style="gap: 12px">
         <span class="font-weight-bold font-size" style="--font-size: 20px" data-text="$recorder" data-text-id="recorder"></span>
         <div class="display-flex left-right-flow width-fit-content" style="gap: 12px">
-          <button
-            id="startRecording"
-            class="width height margin padding"
-            type="button"
-            style="--width: 40px; --height: 40px; --margin: 0px; --padding: 0px">
+          <button id="startRecording" class="sqrButton" type="button">
             <div class="horizontal-align-center vertical-align-center-margin record"></div>
           </button>
-          <button
-            id="stopRecording"
-            class="width height margin padding"
-            type="button"
-            disabled=""
-            style="--width: 40px; --height: 40px; --margin: 0px; --padding: 0px">
+          <button id="stopRecording" class="sqrButton" type="button" disabled="">
             <div class="horizontal-align-center vertical-align-center-margin stopRecord"></div>
           </button>
           <!--<span class="vertical-align-center-margin">[F1] [SHIFT + F1]</span>-->
-          <button
-            id="startRendering"
-            class="width height margin padding"
-            type="button"
-            disabled=""
-            style="--width: 40px; --height: 40px; --margin: 0px; --padding: 0px">
+          <button id="startRendering" type="button" class="sqrButton">
             <div>|-></div>
           </button>
         </div>
         <div class="display-flex left-right-flow width-fit-content" style="gap: 12px">
-          <button
-            id="pauseRecording"
-            class="width height margin padding"
-            disabled=""
-            type="button"
-            style="--width: 40px; --height: 40px; --margin: 0px; --padding: 0px">
+          <button id="pauseRecording" class="sqrButton" disabled="" type="button">
             <div class="horizontal-align-center width-fit-content height-fit-content display-flex left-right-flow">
               <div
                 class="vertical-align-center-margin width height background-color"
@@ -94,13 +75,11 @@
                 "></div>
             </div>
           </button>
-          <button
-            id="resumeRecording"
-            class="width height margin padding"
-            type="button"
-            disabled=""
-            style="--width: 40px; --height: 40px; --margin: 0px; --padding: 0px">
+          <button id="resumeRecording" class="sqrButton" type="button" disabled="">
             <div>resume</div>
+          </button>
+          <button id="stopRendering" class="sqrButton" type="button" disabled="">
+            <div>stop render-ing</div>
           </button>
           <!--<span class="vertical-align-center-margin">[F4]</span>-->
         </div>
@@ -127,6 +106,19 @@
         <div class="settings_label-input_long">
           <span data-text="$file_name"></span>
           <input id="recorderFileName" placeholder="" value="" />
+        </div>
+      </div>
+      <div class="settings_container">
+        <div class="settings_label-slider-input">
+          <span data-text="$webm_writer_quality"></span>
+          <input type="range" id="recorderWebmWriterQualityRange" min="0" max="1" step="0.00000000001" />
+          <input type="number" id="recorderWebmWriterQualityInput" placeholder="0.90" value="0.90" />
+        </div>
+        <div class="settings_label-select">
+          <span data-text="$enable_file_writer"></span>
+          <select id="webmWriterFileWriterSelect">
+            <option value="null" selected="true" data-text="$null"></option>
+          </select>
         </div>
       </div>
     </div>
@@ -245,10 +237,25 @@
               <input type="range" id="barColorBlueRange" min="0" max="255" step="1" />
               <input type="number" id="barColorBlueInput" placeholder="255" value="255" />
             </div>
+            <div class="settings_label-slider-input" style="background-color: #ff0000; border-radius: 4px">
+              <span></span>
+              <input type="range" id="backgroundColorRedRange" min="0" max="255" step="1" />
+              <input type="number" id="backgroundColorRedInput" placeholder="50" value="50" />
+            </div>
+            <div class="settings_label-slider-input" style="background-color: #00ff00; border-radius: 4px">
+              <span></span>
+              <input type="range" id="backgroundColorGreenRange" min="0" max="255" step="1" />
+              <input type="number" id="backgroundColorGreenInput" placeholder="50" value="50" />
+            </div>
+            <div class="settings_label-slider-input" style="background-color: #0000ff; border-radius: 4px">
+              <span></span>
+              <input type="range" id="backgroundColorBlueRange" min="0" max="255" step="1" />
+              <input type="number" id="backgroundColorBlueInput" placeholder="50" value="50" />
+            </div>
             <div class="settings_label-slider-input">
-              <span data-text="$frame_latency"></span>
-              <input type="range" id="frameLatencyRange" min="0" max="60" step="0.00000000001" />
-              <input type="number" id="frameLatencyInput" placeholder="33.333333333333" value="33.333333333333" />
+              <span data-text="$frame_rate"></span>
+              <input type="range" id="frameRateRange" min="0" max="120" step="0.00000000001" />
+              <input type="number" id="frameRateInput" placeholder="30" value="30" />
             </div>
           </div>
           <div class="whitehr"></div>
@@ -374,6 +381,7 @@
   <script src="scripts/lib/nayuki/fft.js"></script>
   <script src="scripts/lib/aurora/aurora.js"></script>
   <script src="scripts/lib/aurora/flac.js"></script>
+  <script src="scripts/lib/thenickdude/webm-writer-0.3.0.js"></script>
 
   <script src="scripts/recorder.js"></script>
   <script src="scripts/locale.js"></script>
