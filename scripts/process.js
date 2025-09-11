@@ -105,6 +105,9 @@ async function render() {
 
     if (isRendering == false) {
       printLog("Rendering stopped manually");
+      isRendering = false;
+      audio.muted = false;
+      audio.loop = true;
 
       stftRe = [];
       stftIm = [];
