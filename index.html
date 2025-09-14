@@ -45,14 +45,14 @@
       <div class="display-flex top-bottom-flow width-fit-content" style="gap: 12px">
         <span class="font-weight-bold font-size" style="--font-size: 20px" data-text="$recorder" data-text-id="recorder"></span>
         <div class="display-flex left-right-flow width-fit-content" style="gap: 12px">
-          <button id="startRecording" class="sqrButton" type="button">
+          <button id="startRecording" class="sqrButton" type="button" disabled="">
             <div class="horizontal-align-center vertical-align-center-margin record"></div>
           </button>
           <button id="stopRecording" class="sqrButton" type="button" disabled="">
             <div class="horizontal-align-center vertical-align-center-margin stopRecord"></div>
           </button>
           <!--<span class="vertical-align-center-margin">[F1] [SHIFT + F1]</span>-->
-          <button id="startRendering" type="button" class="sqrButton">
+          <button id="startRendering" type="button" class="sqrButton" disabled="">
             <div>|-></div>
           </button>
         </div>
@@ -447,6 +447,7 @@
       const blobUrl = URL.createObjectURL(file);
       audio.src = blobUrl;
       displayInfo();
+      startRec.removeAttribute("disabled", "");
       startRend.removeAttribute("disabled", "");
       printLog("Initializing took " + (performance.now() - t0) + "ms");
     });
@@ -462,7 +463,9 @@
 
       bytesArray = new Uint8Array(buffer);
       const wavInfo = wavjs.readWavHeader(bytesArray);
-      let mp3Info = binUtils.binSearch(bytesArray, [0x49, 0x44, 0x33], 0, 3);
+      const mp3Info = binUtils.binSearch(bytesArray, [0x49, 0x44, 0x33], 0, 3);
+      const oggInfo = binUtils.binSearch(bytesArray, [0x4f, 0x67, 0x67, 0x53], 0, 4);
+      const m4aInfo = binUtils.isM4A(bytesArray);
 
       if (wavInfo !== false) {
         printLog("File type: wav");
@@ -478,14 +481,16 @@
             resolve();
           }, 0);
         });
-      } else if (mp3Info !== false || oggInfo !== false) {
-        printLog("File type: " + (mp3Info !== false ? "mp3" : oggInfo !== false ? "ogg" : null));
-        mp3Info = await audioBufferDecode.decode(bytesArray);
+      } else if (mp3Info !== false || oggInfo !== false || m4aInfo !== false) {
+        printLog(
+          "File type: " + (mp3Info !== false ? "mp3" : oggInfo !== false ? "ogg" : m4aInfo !== false ? "m4a" : "unknown")
+        );
+        let result = await audioBufferDecode.decode(bytesArray);
 
-        channels = mp3Info.channels;
-        sampleRate = mp3Info.sampleRate;
-        leftChannelArray = mp3Info.leftChannel;
-        rightChannelArray = mp3Info.rightChannel;
+        channels = result.channels;
+        sampleRate = result.sampleRate;
+        leftChannelArray = result.leftChannel;
+        rightChannelArray = result.rightChannel;
         bitDepth = "Unknown";
       }
 
@@ -493,6 +498,7 @@
 
       audio.src = linkUrl;
       displayInfo();
+      startRec.removeAttribute("disabled", "");
       startRend.removeAttribute("disabled", "");
       printLog("Initializing took " + (performance.now() - t0) + "ms");
     }
