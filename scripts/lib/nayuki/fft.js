@@ -28,26 +28,40 @@
  */
 var FFTUtils = (function () {
   function _transform(real, imag) {
-    const L = real.length;
+    const realLength = real.length;
     const imagLength = imag.length;
-    if (L != imagLength) throw new RangeError("Mismatched lengths | real: " + n + " | imag: " + imagLength);
+    if (realLength != imagLength)
+      printLog("Mismatched lengths | real: " + realLength + " | imag: " + imagLength, 1, "red", "red");
 
-    if (L == 0) return;
+    if (realLength == 0) return;
     // Is power of 2
-    else if ((L & (L - 1)) == 0) _transformRadix2(real, imag);
+    else if ((realLength & (realLength - 1)) == 0) _transformRadix2(real, imag);
     // More complicated algorithm for arbitrary sizes
     else _transformBluestein(real, imag);
   }
 
   // Returns the integer whose value is the reverse of the lowest 'width' bits of the integer 'val'.
-  function _reverseBits(val, width) {
-    let result = 0;
-    for (let i = 0; i < width; i++) {
-      result = (result << 1) | (val & 1);
-      val >>>= 1;
+  //LUT for reverse bit
+  const bitReverseCache = new Map();
+
+  function getBitReversal(n) {
+    if (!bitReverseCache.has(n)) {
+      const levels = log2(n) | 0;
+      const reverse = new Uint32Array(n);
+      for (let i = 0; i < n; i++) {
+        let val = i,
+          result = 0;
+        for (let j = 0; j < levels; j++) {
+          result = (result << 1) | (val & 1);
+          val >>>= 1;
+        }
+        reverse[i] = result;
+      }
+      bitReverseCache.set(n, reverse);
     }
-    return result;
+    return bitReverseCache.get(n);
   }
+
   //LUT table for radix-2
   const radix2Cache = new Map();
 
@@ -73,53 +87,43 @@ var FFTUtils = (function () {
   function _transformRadix2(real, imag) {
     const realLength = real.length;
     const imagLength = imag.length;
-    if (realLength != imagLength) throw new RangeError("Mismatched lengths | real: " + realLength + " | imag: " + imagLength);
+    if (realLength != imagLength)
+      printLog("Mismatched lengths | real: " + realLength + " | imag: " + imagLength, 1, "red", "red");
     if (realLength == 1) return;
 
-    let j;
-    let size;
-    let temp;
+    const levels = log2(realLength) | 0;
+    if (levels == -1) printLog("Length is not a power of 2", 1, "red");
 
-    let levels = -1;
-    for (let i = 0; i < 32; i++) {
-      if (1 << i == realLength) levels = i; // Equal to log2(realLength)
-    }
-    if (levels == -1) throw new RangeError("Length is not a power of 2");
-
-    let {cosTable, sinTable} = getRadix2Tables(realLength);
+    const {cosTable, sinTable} = getRadix2Tables(realLength);
+    const reverseIndices = getBitReversal(realLength);
 
     // Bit-reversed addressing permutation
     for (let i = 0; i < realLength; i++) {
-      const j = _reverseBits(i, levels);
+      const j = reverseIndices[i];
       if (j > i) {
-        temp = real[i];
-        real[i] = real[j];
-        real[j] = temp;
-
-        temp = imag[i];
-        imag[i] = imag[j];
-        imag[j] = temp;
+        [real[i], real[j]] = [real[j], real[i]];
+        [imag[i], imag[j]] = [imag[j], imag[i]];
       }
     }
 
     // Cooley-Tukey decimation-in-time radix-2 FFT
-    for (size = 2; size <= realLength; size *= 2) {
-      const halfsize = size / 2;
+    for (let size = 2; size <= realLength; size <<= 1) {
+      const halfsize = size >> 1;
       const tablestep = realLength / size;
       for (let i = 0; i < realLength; i += size) {
-        for (j = i; j < i + halfsize; j++) {
+        let k = 0;
+        for (let j = i; j < i + halfsize; j++, k++) {
+          const kTablestep = k * tablestep;
           const l = j + halfsize;
-          const k = (j - i) * tablestep;
-          const reallValue = real[l];
-          const imaglValue = imag[l];
-          const realjValue = real[j];
-          const imagjValue = imag[j];
-          const cosTablekValue = cosTable[k];
-          const sinTablekValue = sinTable[k];
-          const tpre = reallValue * cosTablekValue + imaglValue * sinTablekValue;
-          const tpim = -reallValue * sinTablekValue + imaglValue * cosTablekValue;
-          real[l] = realjValue - tpre;
-          imag[l] = imagjValue - tpim;
+          const realLValue = real[l];
+          const imagLValue = imag[l];
+          const cosTableValue = cosTable[kTablestep];
+          const sinTableValue = sinTable[kTablestep];
+          const tpre = realLValue * cosTableValue + imagLValue * sinTableValue;
+          const tpim = -realLValue * sinTableValue + imagLValue * cosTableValue;
+
+          real[l] = real[j] - tpre;
+          imag[l] = imag[j] - tpim;
           real[j] += tpre;
           imag[j] += tpim;
         }
@@ -133,21 +137,40 @@ var FFTUtils = (function () {
    * Uses Bluestein's chirp z-transform algorithm.
    */
 
-  const bluesteinCache = new Map();
+  const bluesteinTrigCache = new Map();
 
   function getBluesteinTables(n) {
-    if (!bluesteinCache.has(n)) {
+    if (!bluesteinTrigCache.has(n)) {
       const cosTable = new Float32Array(n);
       const sinTable = new Float32Array(n);
       const n2 = n * 2;
       for (let i = 0; i < n; i++) {
-        const j = (i * i) % n2;
-        cosTable[i] = cos((PI * j) / n);
-        sinTable[i] = sin((PI * j) / n);
+        const PI_n = (PI * (pow(i, 2) % n2)) / n;
+        cosTable[i] = cos(PI_n);
+        sinTable[i] = sin(PI_n);
       }
-      bluesteinCache.set(n, {cosTable, sinTable});
+      bluesteinTrigCache.set(n, {cosTable, sinTable});
     }
-    return bluesteinCache.get(n);
+    return bluesteinTrigCache.get(n);
+  }
+
+  const bluesteinWorkCache = new Map();
+
+  function getBluesteinWork(n) {
+    let m = 1;
+    while (m < n * 2 + 1) m <<= 1;
+    if (!bluesteinWorkCache.has(n)) {
+      bluesteinWorkCache.set(n, {
+        aReal: new Float32Array(m),
+        aImag: new Float32Array(m),
+        bReal: new Float32Array(m),
+        bImag: new Float32Array(m),
+        cReal: new Float32Array(m),
+        cImag: new Float32Array(m),
+        m,
+      });
+    }
+    return bluesteinWorkCache.get(n);
   }
 
   /*
@@ -157,55 +180,43 @@ var FFTUtils = (function () {
    */
   function _transformBluestein(real, imag) {
     let i = 0;
-    let mBlstein = 1;
     const realLength = real.length;
-    const realLength2 = realLength * 2;
-    if (realLength != imag.length) throw new RangeError("Mismatched lengths");
+    if (realLength != imag.length)
+      printLog("Mismatched lengths | real: " + realLength + " | imag: " + imag.length, 1, "red", "red");
     const {cosTable, sinTable} = getBluesteinTables(realLength);
+    const {aReal, aImag, bReal, bImag, cReal, cImag, m} = getBluesteinWork(realLength);
 
-    while (mBlstein <= realLength2) mBlstein *= 2;
-
-    const brealBlstein = new Float32Array(mBlstein);
-    const bimagBlstein = new Float32Array(mBlstein);
-    brealBlstein[0] = cosTable[0];
-    bimagBlstein[0] = sinTable[0];
-
-    const arealBlstein = new Float32Array(mBlstein); //Preprocessing
-    const aimagBlstein = new Float32Array(mBlstein); //Preprocessing
-    const crealBlstein = new Float32Array(mBlstein); //Convolution
-    const cimagBlstein = new Float32Array(mBlstein); //Convolution
+    bReal[0] = cosTable[0];
+    bImag[0] = sinTable[0];
 
     // Temporary vectors and preprocessing
     for (i = 0; i < realLength; i++) {
-      const cosTableValue = cosTable[i];
-      const sinTableValue = sinTable[i];
-      const imagValue = imag[i];
-      const realValue = real[i];
-      arealBlstein[i] = realValue * cosTableValue + imagValue * sinTableValue;
-      aimagBlstein[i] = -realValue * sinTableValue + imagValue * cosTableValue;
+      const cosValue = cosTable[i];
+      const sinValue = sinTable[i];
+      const re = real[i];
+      const im = imag[i];
+      aReal[i] = re * cosValue + im * sinValue;
+      aImag[i] = -re * sinValue + im * cosValue;
     }
 
     for (i = 1; i < realLength; i++) {
-      brealBlstein[i] = cosTable[i];
-      bimagBlstein[i] = sinTable[i];
+      bReal[i] = cosTable[i];
+      bImag[i] = sinTable[i];
     }
+
     for (i = 1; i < realLength; i++) {
-      const mBlsteinMi = mBlstein - i;
-      brealBlstein[mBlsteinMi] = cosTable[i];
-      bimagBlstein[mBlsteinMi] = sinTable[i];
+      const idx = m - i;
+      bReal[idx] = cosTable[i];
+      bImag[idx] = sinTable[i];
     }
 
     // Convolution
-    _convolveComplex(arealBlstein, aimagBlstein, brealBlstein, bimagBlstein, crealBlstein, cimagBlstein);
+    _convolveComplex(aReal, aImag, bReal, bImag, cReal, cImag);
 
-    // Postprocessing
+    // We dont need postprocessing because we only need the magnitude
     for (let i = 0; i < realLength; i++) {
-      const cosTableValue = cosTable[i];
-      const sinTableValue = sinTable[i];
-      const realValue = crealBlstein[i];
-      const imagValue = cimagBlstein[i];
-      real[i] = realValue * cosTableValue + imagValue * sinTableValue;
-      imag[i] = -realValue * sinTableValue + imagValue * cosTableValue;
+      real[i] = cReal[i];
+      imag[i] = cImag[i];
     }
   }
 
@@ -214,57 +225,84 @@ var FFTUtils = (function () {
    */
   function _convolveReal(xvec, yvec, outvec) {
     const n = xvec.length;
-    if (n != yvec.length || n != outvec.length) throw new RangeError("Mismatched lengths");
+    if (n != yvec.length || n != outvec.length) printLog("Mismatched lengths", 1, "red", "red");
     _convolveComplex(xvec, newArrayOfZeros(n), yvec, newArrayOfZeros(n), outvec, newArrayOfZeros(n));
   }
 
-  let scratchXreal, scratchXimag, scratchYreal, scratchYimag;
+  function _convolveComplex(xReal, xImag, yReal, yImag, outReal, outImag) {
+    const XRealLength = xReal.length;
+    if (
+      XRealLength != xImag.length ||
+      XRealLength != yReal.length ||
+      XRealLength != yImag.length ||
+      XRealLength != outReal.length ||
+      XRealLength != outImag.length
+    )
+      printLog("Mismatched lengths", 1, "red", "red");
+    xReal = xReal.slice();
+    xImag = xImag.slice();
+    yReal = yReal.slice();
+    yImag = yImag.slice();
 
-  function ensureScratch(n) {
-    if (!scratchXreal || scratchXreal.length !== n) {
-      scratchXreal = new Float32Array(n);
-      scratchXimag = new Float32Array(n);
-      scratchYreal = new Float32Array(n);
-      scratchYimag = new Float32Array(n);
+    _transform(xReal, xImag);
+    _transform(yReal, yImag);
+
+    for (let i = 0; i < XRealLength; i++) {
+      const xRealValue = xReal[i];
+      const xImagValue = xImag[i];
+      const yRealValue = yReal[i];
+      const yImagValue = yImag[i];
+      xReal[i] = xRealValue * yRealValue - xImagValue * yImagValue;
+      xImag[i] = xImagValue * yRealValue + xRealValue * yImagValue;
+    }
+
+    _transform(xImag, xReal);
+    // Scaling (because this FFT implementation omits it)
+    for (let i = 0; i < XRealLength; i++) {
+      outReal[i] = xReal[i] / XRealLength;
+      outImag[i] = xImag[i] / XRealLength;
     }
   }
 
-  function _convolveComplex(xreal, ximag, yreal, yimag, outreal, outimag) {
-    const n = xreal.length;
-    ensureScratch(n);
+  //DFT
 
-    scratchXreal.set(xreal);
-    scratchXimag.set(ximag);
-    scratchYreal.set(yreal);
-    scratchYimag.set(yimag);
+  function _dft(real, imag) {
+    const size = real.length;
+    const minus2PI = -2 * Math.PI;
 
-    _transform(scratchXreal, scratchXimag);
-    _transform(scratchYreal, scratchYimag);
+    const outputRe = new Float32Array(size);
+    const outputIm = new Float32Array(size);
 
-    for (let i = 0; i < n; i++) {
-      const xr = scratchXreal[i];
-      const xi = scratchXimag[i];
-      const yr = scratchYreal[i];
-      const yi = scratchYimag[i];
-      scratchXreal[i] = xr * yr - xi * yi;
-      scratchXimag[i] = xi * yr + xr * yi;
+    for (let k = 0; k < size; k++) {
+      let sumRe = 0;
+      let sumIm = 0;
+      for (let n = 0; n < size; n++) {
+        const angle = (minus2PI * k * n) / size;
+        const cosAngle = Math.cos(angle);
+        const sinAngle = Math.sin(angle);
+
+        sumRe += real[n] * cosAngle - imag[n] * sinAngle;
+        sumIm += real[n] * sinAngle + imag[n] * cosAngle;
+      }
+      outputRe[k] = sumRe;
+      outputIm[k] = sumIm;
     }
 
-    //inverse transform
-    _transform(scratchXimag, scratchXreal);
-
-    for (let i = 0; i < n; i++) {
-      outreal[i] = scratchXreal[i] / n;
-      outimag[i] = scratchXimag[i] / n;
+    // Copy results back
+    for (let i = 0; i < size; i++) {
+      real[i] = outputRe[i];
+      imag[i] = outputIm[i];
     }
   }
+
+  //End of DFT
 
   return {
     transform: _transform,
     transformRadix2: _transformRadix2,
     transformBluestein: _transformBluestein,
 
-    reverseBits: _reverseBits,
+    dft: _dft,
 
     convolveReal: _convolveReal,
     convolveComplex: _convolveComplex,
