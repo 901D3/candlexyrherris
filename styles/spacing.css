@@ -56,11 +56,11 @@
 
 .gap {gap: var(--gap, 10px) !important;}
 
-.margin {margin: var(--margin, 0px) !important;}
-.margin-top {margin-top: var(--margin-top, 0px) !important;}
-.margin-bottom {margin-bottom: var(--margin-bottom, 0px) !important;}
-.margin-left {margin-left: var(--margin-left, 0px) !important;}
-.margin-right {margin-right: var(--margin-right, 0px) !important;}
+.margin-0 {margin: 0px !important;}
+.margin-top-0 {margin-top: 0px !important;}
+.margin-bottom-0 {margin-bottom: 0px !important;}
+.margin-left-0 {margin-left: 0px !important;}
+.margin-right-0 {margin-right: 0px !important;}
 
 .padding {padding: var(--padding, 0px) !important;}
 .padding-top {padding-top: var(--padding-top, 0px) !important;}
