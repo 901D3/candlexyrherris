@@ -14,6 +14,9 @@ var locales = {
   resume: "Resume",
   update: "Update",
   play_pause: "Play/Pause",
+  left: "Left",
+  right: "Right",
+  channel: "Channel",
 
   mime_type: "MIME type",
   codec: "Codec",
@@ -53,19 +56,25 @@ var locales = {
   fft_size: "FFT Size",
   frame_rate: "Frame rate",
   frame_latency: "Frame latency",
-  vol_multiplier: "Volume Multiplier",
+  vol_multiplier: "Volume multiplier",
 
-  sample_rate: "Sample Rate",
-  bit_depth: "Bit Depth",
+  sample_rate: "Sample rate",
+  bit_depth: "Bit depth",
   number_of_channels: "Number of channels",
 
-  min_amplitude: "Min Amplitude",
-  max_amplitude: "Max Amplitude",
+  audio_data_length: "Audio data length",
+  audio_duration: "Audio duration",
+  bin_range: "Bin range",
+  min_bin: "Min bin",
+  max_bin: "Max bin",
 
-  min_frequency: "Min Frequency",
-  max_frequency: "Max Frequency",
+  min_amplitude: "Min amplitude",
+  max_amplitude: "Max amplitude",
 
-  bar_style: "Bar Style",
+  min_frequency: "Min frequency",
+  max_frequency: "Max frequency",
+
+  bar_style: "Bar style",
   bar_color_red: "Red",
   bar_color_green: "Green",
   bar_color_blue: "Blue",
@@ -78,11 +87,11 @@ var locales = {
 
   process_time: "Process time",
 
-  current_freq_range: "Curr Freq Range",
+  freq_range: "Freq range",
 
-  desired_freq_range: "Desr Freq Range",
-  desired_fft_size: "Desr FFT Size",
-  desired_bars: "Desr Bars",
+  desired_freq_range: "Desr freq range",
+  desired_fft_size: "Desr FFT size",
+  desired_bars: "Desr bars",
 
   bars_per_freq: "Bars/freq",
   bars_per_bin: "Bars/bin",
@@ -134,7 +143,7 @@ var locales = {
 var $locale = (function () {
   function _getDataText(i, id) {
     const el = document.querySelector(`[data-text="${i}"][data-text-id="${id}"]`);
-    if (!el) return;
+    if (!el) return false;
     return el;
   }
 
