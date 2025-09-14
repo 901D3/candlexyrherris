@@ -1,74 +1,3 @@
-//function initAudioContext() {
-//  analyser = "";
-//  analyser = audioCtx.createAnalyser();
-//  analyser.fftSize = fftSize;
-//  analyser.smoothingTimeConstant = 0;
-//  reconnectAudio();
-//
-//  dataArray = new Float32Array(analyser.frequencyBinCount);
-//}
-
-//function reconnectAudio() {
-//  if (source) source.disconnect();
-//  source.connect(analyser);
-//  analyser.connect(audioCtx.destination);
-//}
-
-//function applyAudioSettings() {
-//  fftSize = parseInt(gIdV("fftSizeInput")) || 2048;
-//  frameRate = parseInt(gIdV("frameRateInput")) || 30;
-//  volMultiplier = parseFloat(gIdV("volumeMultiplierInput")) || 1;
-//
-//  if (!analyser) return;
-//
-//  if (fftSize != analyser.fftSize) {
-//    analyser.fftSize = fftSize;
-//    dataArray = new Float32Array(analyser.frequencyBinCount);
-//  } else {
-//    analyser.fftSize = fftSize;
-//  }
-//}
-
-//function getVisualizerBuffer(Nbars, threshold, minFreq, maxFreq) {
-//  Nbars = Nbars || 100;
-//  analyser.getFloatFrequencyData(dataArray);
-//  const dataLength = dataArray.length;
-//
-//  const minBin = (minFreq / (audioCtx.sampleRate * 0.5)) * dataLength;
-//  const maxBin = min((maxFreq / (audioCtx.sampleRate * 0.5)) * dataLength, dataLength - 1);
-//
-//  const scale = binRange / Nbars;
-//  const barBuffer = new Array(Nbars).fill(0);
-//  const _3dbScale = 1 / pow(10, -3 / 20);
-//
-//  for (let i = 0; i < Nbars; i++) {
-//    let sum = 0;
-//    const start = minBin + i * scale;
-//    const end = minBin + (i + 1) * scale;
-//
-//    for (let j = start; j < end; j += 1) {
-//      const idx = floor(j);
-//      const frac = j - idx;
-//      const next = min(idx + 1, maxBin);
-//
-//      // convert dB to linear amplitude
-//      const val = pow(10, dataArray[idx] / 20) * _3dbScale;
-//      const nextVal = pow(10, dataArray[next] / 20) * _3dbScale;
-//
-//      sum += val * (1 - frac) + nextVal * frac;
-//    }
-//
-//    let value = (sum / scale) * volMultiplier;
-//
-//    // apply threshold, min, max
-//    if (value < threshold) value = 0;
-//
-//    barBuffer[i] = value;
-//  }
-//
-//  return barBuffer;
-//}
-
 function getVisualizerBufferFromFFT(real, imag, Nbars, threshold, minFreq, maxFreq) {
   Nbars = Nbars || 100;
   const realLength = real.length;
@@ -76,7 +5,7 @@ function getVisualizerBufferFromFFT(real, imag, Nbars, threshold, minFreq, maxFr
   const halfSampleRate = sampleRate * 0.5;
 
   const minBin = floor((minFreq / halfSampleRate) * fftSizeValue);
-  const maxBin = min(floor((maxFreq / halfSampleRate) * fftSizeValue), fftSizeValue - 1);
+  const maxBin = min(floor((maxFreq / halfSampleRate) * fftSizeValue), fftSizeValue);
   const binRange = maxBin - minBin;
 
   const binsPerBar = binRange / Nbars;
@@ -106,19 +35,6 @@ function getVisualizerBufferFromFFT(real, imag, Nbars, threshold, minFreq, maxFr
 //===== MISC =====
 
 function displayInfo() {
-  let sampleRateLbl = gId("sampleRateLbl");
-  let bitDepthLbl = gId("bitDepthLbl");
-  let channelsLbl = gId("channelsLbl");
-
-  let barsPerFreqLbl = gId("barsPerFreqLbl");
-  let binsPerFreqLbl = gId("binsPerFreqLbl");
-
-  let freqPerBarLbl = gId("freqPerBarLbl");
-  let binsPerBarLbl = gId("binsPerBarLbl");
-
-  let barsPerBinLbl = gId("barsPerBinLbl");
-  let freqPerBinLbl = gId("freqPerBinLbl");
-
   const halfSampleRate = sampleRate * 0.5;
   const minBin = floor((minFreq / halfSampleRate) * fftSize);
   const maxBin = min(floor((maxFreq / halfSampleRate) * fftSize), fftSize - 1);
@@ -139,21 +55,25 @@ function displayInfo() {
   const fftSizeDesired = sampleRate / freqPerBar;
   const barsDesired = freqRange / freqPerBar;
 
-  sampleRateLbl.innerHTML = sampleRate + "Hz";
-  bitDepthLbl.innerHTML = bitDepth + " Bits";
-  channelsLbl.innerHTML = channels;
+  gId("minBinLbl").innerHTML = minBin;
+  gId("maxBinLbl").innerHTML = maxBin;
+  gId("audioDataLengthLbl").innerHTML = leftChannelArray.length;
+  gId("audioDurationLbl").innerHTML = audio.duration;
 
-  barsPerFreqLbl.innerHTML = barsPerFreq;
-  binsPerFreqLbl.innerHTML = binsPerFreq;
+  gId("sampleRateLbl").innerHTML = sampleRate + "Hz";
+  gId("bitDepthLbl").innerHTML = bitDepth + " Bits";
+  gId("channelsLbl").innerHTML = channels;
 
-  freqPerBarLbl.innerHTML = freqPerBar + "Hz";
-  binsPerBarLbl.innerHTML = binsPerBar;
+  gId("barsPerFreqLbl").innerHTML = barsPerFreq;
+  gId("binsPerFreqLbl").innerHTML = binsPerFreq;
 
-  freqPerBinLbl.innerHTML = freqPerBin + "Hz";
-  barsPerBinLbl.innerHTML = barsPerBin;
+  gId("freqPerBarLbl").innerHTML = freqPerBar + "Hz";
+  gId("binsPerBarLbl").innerHTML = binsPerBar;
 
-  gId("maxFrequencyInput").placeholder = frequencyRangeDesired;
-  gId("freqRangeLbl").innerHTML = freqRange;
+  gId("freqPerBinLbl").innerHTML = freqPerBin + "Hz";
+  gId("barsPerBinLbl").innerHTML = barsPerBin;
+
+  gId("freqRangeLbl").innerHTML = freqRange + "Hz";
   gId("desiredFreqRangeLbl").innerHTML = frequencyRangeDesired;
   gId("desiredFftSizeLbl").innerHTML = fftSizeDesired;
   gId("desiredBarsLbl").innerHTML = barsDesired;
@@ -181,6 +101,9 @@ function targetResolution(barWidth, barSpace, Nbars) {
 
   gId("frameRateInput").addEventListener("input", function () {
     sliderInputSync(gId("frameRateRange"), gId("frameRateInput"), "frameRate", 30, "input");
+    if (frameRateInput == 0) {
+      frameRate = 9999999999;
+    }
   });
 
   gId("volumeMultiplierRange").addEventListener("input", function () {
@@ -366,6 +289,11 @@ function targetResolution(barWidth, barSpace, Nbars) {
     try {
       windowFunc = new Function("n", "N", sinc.toString() + "; return " + gId("windowFuncInput").value + ";");
     } catch {}
+  });
+
+  gId("audioChannel").addEventListener("change", function () {
+    if (gId("audioChannel").value === "left") channelsIndex = 0;
+    if (gId("audioChannel").value === "right") channelsIndex = 1;
   });
 
   //init all vars based on input value
