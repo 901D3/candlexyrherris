@@ -29,7 +29,7 @@ function startRecording() {
 
   if (!isValidMime) {
     printLog("Invalid MIME type");
-    return;
+    return false;
   }
 
   mediaRecorder.ondataavailable = (e) => {
@@ -58,7 +58,7 @@ function startRecording() {
       recorderVideoFileExt = "ts";
     } else {
       console.log("Invalid MIME type:", recorderMimeType);
-      return;
+      return false;
     }
 
     const blob = new Blob(chunks);
@@ -100,6 +100,7 @@ function startRecording() {
 function stopRecording() {
   mediaRecorder.stop();
   printLog("MediaRecorder stopped");
+  isRecording = false;
   //sessionStorage.removeItem("isRecording");
 
   startRec.removeAttribute("disabled");
@@ -136,7 +137,6 @@ function resumeRecording() {
 
 function startRendering() {
   render();
-  isRendering = true;
 
   startRend.setAttribute("disabled", "");
   stopRend.removeAttribute("disabled", "");
