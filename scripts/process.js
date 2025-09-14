@@ -1,20 +1,15 @@
-function getCurrentFrameFFT(audioTime) {
+function getCurrentFrameFFT(audioTime, channelArray) {
   const startSample = audioTime * sampleRate;
-  const frame = audioDataArray.subarray(startSample, startSample + fftSize);
-  const frameLength = frame.length;
+  const frame = channelArray.subarray(startSample, startSample + fftSize);
 
-  stftRe = new Float32Array(fftSize).fill(0);
-  stftIm = new Float32Array(fftSize).fill(0);
+  stftRe = frame.slice();
+  stftIm = new Float32Array(fftSize);
   const N = stftRe.length;
-
-  for (let i = 0; i < frameLength; i++) {
-    stftRe[i] = frame[i];
-  }
 
   try {
     windowFunc("n", "N");
   } catch {
-    return;
+    return false;
   }
 
   for (let n = 0; n < N; n++) {
@@ -26,29 +21,29 @@ function getCurrentFrameFFT(audioTime) {
 
 function process() {
   const t0 = performance.now();
-  getCurrentFrameFFT(audio.currentTime);
+
+  getCurrentFrameFFT(audio.currentTime, channelIndex === 1 ? rightChannelArray : leftChannelArray);
   const buffer = getVisualizerBufferFromFFT(stftRe, stftIm, bars, threshold, minFreq, maxFreq);
   drawVisualizerBufferToCanvas(ctx, buffer);
 
   if (audio.paused || audio.ended) {
     stftRe = []; //save memory
     stftIm = [];
-    return;
+    return false;
   }
 
   if (t) frameCounter();
-  const wait = 1000 / frameRate - (performance.now() - t0);
-  setTimeout(process, wait);
+  setTimeout(process, max(0, 1000 / frameRate - (performance.now() - t0)));
 }
 
 async function render() {
   if (isRecording == true) {
     printLog("Stop recording to start rendering");
-    return;
+    return false;
   }
   if (isRendering == true) {
     printLog("Rendering process has already started");
-    return;
+    return false;
   }
   isRendering = true;
   startRec.setAttribute("disabled", "");
@@ -125,7 +120,7 @@ async function render() {
         a.click();
         URL.revokeObjectURL(url);
       });
-      return;
+      return false;
     }
     frameIndex++;
   }
@@ -170,11 +165,9 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
 
 function drawRectBar(ctx, buffer, Nbars, posX, posY, barWidthValue, barSpaceValue, minAmplitudeValue, maxAmplitudeValue) {
   const fullBarWidth = barWidthValue + barSpaceValue;
-  const minAmplitudeHalfHeight = minAmplitudeValue * posY;
-  const maxAmplitudeHalfHeight = maxAmplitudeValue * posY;
   for (let i = 0; i < Nbars; i++) {
     const x = posX + i * fullBarWidth;
-    const barHeight = max(minAmplitudeHalfHeight, min(buffer[i] * posY, maxAmplitudeHalfHeight));
+    const barHeight = max(minAmplitudeValue, min(buffer[i] * posY, maxAmplitudeValue));
 
     ctx.fillRect(x, posY - barHeight, barWidthValue, barHeight);
     ctx.fillRect(x, posY, barWidthValue, barHeight);
@@ -183,25 +176,19 @@ function drawRectBar(ctx, buffer, Nbars, posX, posY, barWidthValue, barSpaceValu
 
 function drawCapsuleBar(ctx, buffer, Nbars, posX, posY, barWidthValue, barSpaceValue, minAmplitudeValue, maxAmplitudeValue) {
   const fullBarWidth = barWidthValue + barSpaceValue;
-  const minAmplitudeHalfHeight = minAmplitudeValue * posY;
-  const maxAmplitudeHalfHeight = maxAmplitudeValue * posY;
-  const radius = barWidth * barStyleCapsuleRadius;
+  const radius = barWidthValue * barStyleCapsuleRadius;
   for (let i = 0; i < Nbars; i++) {
     const x = posX + i * fullBarWidth;
-    const barHeight = max(minAmplitudeHalfHeight, min(buffer[i] * posY, maxAmplitudeHalfHeight));
+    const barHeight = max(minAmplitudeValue, min(buffer[i] * posY, maxAmplitudeValue));
 
-    if (barHeight < 1) {
-      ctx.fillRect(x, posY - 1, barWidth, 2);
-    } else {
-      ctx.beginPath();
-      ctx.moveTo(x + radius, posY - barHeight);
-      try {
-        ctx.roundRect(x, posY - barHeight, barWidth, barHeight * 2, radius);
-      } catch {
-        ctx.roundRect(x, posY - barHeight, barWidth, barHeight * 2, 0.2);
-      }
-      ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(x + radius, posY - barHeight);
+    try {
+      ctx.roundRect(x, posY - barHeight, barWidthValue, barHeight * 2, radius);
+    } catch {
+      ctx.roundRect(x, posY - barHeight, barWidthValue, barHeight * 2, 0.2);
     }
+    ctx.fill();
   }
 }
 
