@@ -137,6 +137,11 @@ audio {
   width: 500px;
 }
 
+#audio {
+  margin-left: 0px;
+  margin-right: 0px
+}
+
 input {
   background-color: #000;
   color: #e0e0e0;
@@ -363,13 +368,21 @@ a {
 }
 
 .mainAudio {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 5px;
   margin-top: auto;
   margin-bottom: auto;
   margin-left: auto;
   margin-right: auto;
+  line-height: 0;
 }
 
 .mainCanvas {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
   width: fit-content;
   height: fit-content;
   margin-top: auto;
@@ -619,6 +632,7 @@ a {
   flex-direction: row;
   width: 100%;
   height: fit-content;
+  gap: 5px;
 }
 
 .settings_label-label_info span {
