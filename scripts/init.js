@@ -132,7 +132,8 @@ var audio = gId("audio");
 //var analyser;
 //var dataArray;
 var bytesArray;
-var audioDataArray;
+var leftChannelArray;
+var rightChannelArray;
 var stftRe;
 var stftIm;
 
@@ -140,6 +141,7 @@ var format;
 var channels;
 var sampleRate;
 var bitDepth;
+var channelIndex = 0;
 
 var fftSize;
 var frameRate;
@@ -192,8 +194,8 @@ function escapeHTML(str) {
   return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function printLog(message) {
-  let console = gId("console");
+function printLog(message, logToConsole, color, flag) {
+  let consoleEl = gId("console");
   let maxLogEntries = 500;
 
   logEntries.push(message);
@@ -204,21 +206,29 @@ function printLog(message) {
 
   let logEntry = document.createElement("span");
   logEntry.innerHTML = message;
-  console.appendChild(logEntry);
-  orangeFlashChangeText(logEntry, 200);
+  logEntry.style.color = color;
+  consoleEl.appendChild(logEntry);
+  if (flag === "red") redFlashChangeText(logEntry, 200);
+  if (flag === "orange") orangeFlashChangeText(logEntry, 200);
+  if (flag === "yellow") yellowFlashChangeText(logEntry, 200);
+  if (flag === "grey") greyFlashChangeText(logEntry, 200);
 
-  if (console.children.length > maxLogEntries) {
-    console.removeChild(console.firstChild);
+  if (consoleEl.children.length > maxLogEntries) {
+    consoleEl.removeChild(consoleEl.firstChild);
   }
 
-  console.scrollTop = console.scrollHeight;
+  consoleEl.scrollTop = consoleEl.scrollHeight;
+
+  if (logToConsole === 1) {
+    console.log(message);
+  }
 }
 
 function createInputOmitter(fn, delay = 250) {
   let waiting = false;
 
   return function (...args) {
-    if (waiting) return;
+    if (waiting) return false;
 
     waiting = true;
     setTimeout(() => {
@@ -258,58 +268,10 @@ function sliderInputSync(slider, input, variable, defaultValue, source) {
   window[variable] = value;
 }
 
-/**
- * Search binary inside an array
- *
- * @param array Input array for searching
- *
- * @param text Hex keyword
- *
- * @param start Start position
- *
- * @param end End position, default to array.length
- *
- * @returns position of the keyword, -1 if not found
- */
-
-function binSearch(array, text, start = 0, end = array.length) {
-  if (!array) return -1;
-  const arrayLength = array.length;
-  end = min(end ?? arrayLength, arrayLength);
-
-  const textLength = text.length;
-  const startEndLength = end - start;
-
-  //safety checks
-  if (start < 0) {
-    console.log(`Start offset out of range [0 - ${arrayLength}]: ${start}`);
-    return -1;
-  }
-  if (end > arrayLength) {
-    console.log(`End offset out of range [0 - ${arrayLength}]: ${end}`);
-    return -1;
-  }
-  if (textLength > startEndLength) {
-    console.log(`Pattern too long for search range: ${textLength} > ${startEndLength}`);
-    return -1;
-  }
-
-  //brute force search
-  for (let i = start; i <= end - textLength; i++) {
-    let ok = true;
-    for (let j = 0; j < textLength; j++) {
-      if (array[i + j] !== text[j]) {
-        ok = false;
-        break;
-      }
-    }
-    if (ok) return i;
-  }
-  return -1;
-}
+//binSearch moved to binUtils.js
 
 function createBlobFromElement(el) {
-  if (!el) return;
+  if (!el) return false;
 
   const blob = new Blob([el.text], {type: "plain/text"});
   const url = URL.createObjectURL(blob);
@@ -318,7 +280,7 @@ function createBlobFromElement(el) {
 }
 
 function flashChanges(el, fades, time, ...fadeColors) {
-  if (!el) return;
+  if (!el) return false;
 
   for (let i = 0; i < fades; i++) {
     setTimeout(() => {
@@ -329,50 +291,42 @@ function flashChanges(el, fades, time, ...fadeColors) {
 }
 
 function redFlashChangeText(el, time) {
-  if (!el) return;
+  if (!el) return false;
 
-  flashChanges(
-    el,
-    6,
-    time,
-    "rgba(255, 0, 0, 1)",
-    "rgba(255, 0, 0, 0.8)",
-    "rgba(255, 0, 0, 0.6)",
-    "rgba(255, 0, 0, 0.4)",
-    "rgba(255, 0, 0, 0.2)",
-    "rgba(255, 0, 0, 0)"
-  );
+  flashChanges(el, 4, time, "rgba(255, 0, 0, 1)", "rgba(255, 0, 0, 0.6)", "rgba(255, 0, 0, 0.3)", "rgba(255, 0, 0, 0.0)");
 }
 
 function orangeFlashChangeText(el, time) {
-  if (!el) return;
+  if (!el) return false;
 
-  flashChanges(
-    el,
-    6,
-    time,
-    "rgba(255, 127, 0, 1)",
-    "rgba(255, 127, 0, 0.8)",
-    "rgba(255, 127, 0, 0.6)",
-    "rgba(255, 127, 0, 0.4)",
-    "rgba(255, 127, 0, 0.2)",
-    "rgba(255, 127, 0, 0)"
-  );
+  flashChanges(el, 4, time, "rgba(255, 127, 0, 1)", "rgba(255, 127, 0, 0.6)", "rgba(255, 127, 0, 0.3)", "rgba(255, 127, 0, 0)");
 }
 
 function yellowFlashChangeText(el, time) {
-  if (!el) return;
+  if (!el) return false;
 
   flashChanges(
     el,
-    6,
+    4,
     time,
     "rgba(255, 255, 0, 1)",
-    "rgba(255, 255, 0, 0.8)",
     "rgba(255, 255, 0, 0.6)",
-    "rgba(255, 255, 0, 0.4)",
-    "rgba(255, 255, 0, 0.2)",
-    "rgba(255, 255, 0, 0)"
+    "rgba(255, 255, 0, 0.3)",
+    "rgba(255, 255, 0, 0.0)"
+  );
+}
+
+function greyFlashChangeText(el, time) {
+  if (!el) return false;
+
+  flashChanges(
+    el,
+    4,
+    time,
+    "rgba(127, 127, 127, 1)",
+    "rgba(127, 127, 127, 0.6)",
+    "rgba(127, 127, 127, 0.3)",
+    "rgba(127, 127, 127, 0)"
   );
 }
 
