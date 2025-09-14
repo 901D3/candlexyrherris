@@ -82,6 +82,7 @@ async function render() {
 
   function canvasToWebPBlob(canvas, quality) {
     return new Promise((resolve) => {
+      console.log("aisdaksjda");
       canvas.toBlob((blob) => resolve(blob), "image/webp", quality);
     });
   }
@@ -91,8 +92,8 @@ async function render() {
     const frameTime = frameIndex / recorderFrameRate;
     await seekAudio(frameTime);
 
-    getCurrentFrameFFT(frameTime);
-    buffer = getVisualizerBufferFromFFT(stftRe, stftIm, bars, threshold, minFreq, maxFreq);
+    getCurrentFrameFFT(audio.currentTime, channelIndex === 1 ? rightChannelArray : leftChannelArray);
+    const buffer = getVisualizerBufferFromFFT(stftRe, stftIm, bars, threshold, minFreq, maxFreq);
     drawVisualizerBufferToCanvas(ctx, buffer);
 
     blob = await canvasToWebPBlob(canvas, recorderWebmWriterQuality);
