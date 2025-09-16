@@ -189,8 +189,9 @@ var $locale = (function () {
     "'n' for index\n" + "'N' for frame length\n" + "'Math' namespace is defined globally and any operators is allowed";
 
   gId("console").innerHTML =
-    "This is just an experiment version of candlexyehrris, expect it to see bugs and unstable stuff...\n" +
+    "This is just an experiment version of candlexyehrris, expect to see bugs and unstable stuff...\n" +
     "MediaRecorder gives a less compatible video file and may not be able to play on every device, consider using FFmpeg to convert after record!\n\n" +
     "Check out the source code!<a href='https://github.com/901D3/candlexyrherris' target='_blank'>github.com/901D3/candlexyrherris</a>" +
     "View MP4 codecs to ensure compability for MediaRecorder<a href='https://cconcolato.github.io/media-mime-support/' target='_blank'>cconcolato.github.io/media-mime-support/</a>";
 })();
+
