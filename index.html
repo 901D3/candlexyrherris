@@ -14,36 +14,34 @@
       <span
         class="glowfire font-size text-align-center vertical-align-top-margin color font-weight-bold"
         style="--font-size: 175px"
-        data-text="$title"
-        data-text-id="title"></span>
-      <span
-        class="text-align-center font-weight-bold font-size"
-        style="--font-size: 25px"
-        data-text="$subtitle"
-        data-text-id="subtitle"></span>
+        data-text="$title"></span>
+      <span class="text-align-center font-weight-bold font-size" style="--font-size: 25px" data-text="$subtitle"></span>
       <div class="firehr"></div>
     </div>
     <div class="display-flex left-right-flow width-fit-content" style="gap: 15px">
       <div class="display-flex top-bottom-flow" style="gap: 12px">
-        <span class="font-weight-bold font-size" style="--font-size: 20px" data-text="$upload" data-text-id="loadAudio"></span>
+        <span class="font-weight-bold" style="font-size: 20px" data-text="$upload"></span>
         <input
           type="file"
           id="uploadFile"
           class="height-fit-content"
-          title=".wav, .mp3, .ogg, .opus, .aac, .m4a"
-          accept=".wav, .mp3, .ogg, .opus, .aac, .m4a" />
-        <span
-          class="font-weight-bold font-size"
-          style="--font-size: 20px"
-          data-text="$paste_link"
-          data-text-id="loadAudio"></span>
+          title=".wav, .flac, .mp3, .ogg, .opus, .m4a, .mp4, .mkv, .webm"
+          accept=".wav, .flac, .mp3, .ogg, .opus, .m4a, .mp4, .mkv, .webm" />
+        <span class="font-weight-bold" style="font-size: 20px" data-text="$image"></span>
+        <input
+          type="file"
+          id="uploadImageFile"
+          class="height-fit-content"
+          title=".png, .jpg, .jpeg, .webp, .gif, .bmp"
+          accept=".png, .jpg, .jpeg, .webp, .gif, .bmp" />
+        <span class="font-weight-bold" style="font-size: 20px" data-text="$paste_link"></span>
         <input type="text" id="linkUrl" />
-        <button id="updateAudioSrc" onclick="updateAudioSrc()" class="width height-fit-content" style="--width: 60px">
-          <span data-text="$update" data-text-id="linkAudio"></span>
+        <button id="updateAudioSrc" onclick="updateAudioSrc()" class="height-fit-content" style="width: 60px">
+          <span data-text="$update"></span>
         </button>
       </div>
       <div class="display-flex top-bottom-flow width-fit-content" style="gap: 12px">
-        <span class="font-weight-bold font-size" style="--font-size: 20px" data-text="$recorder" data-text-id="recorder"></span>
+        <span class="font-weight-bold" style="font-size: 20px" data-text="$recorder"></span>
         <div class="display-flex left-right-flow width-fit-content" style="gap: 12px">
           <button id="startRecording" class="sqrButton" type="button" disabled="">
             <div class="horizontal-align-center vertical-align-center-margin record"></div>
@@ -100,7 +98,7 @@
       </div>
       <div class="settings_container">
         <div class="settings_label-slider-input">
-          <span data-text="$webm_writer_quality"></span>
+          <span data-text="$webp_quality"></span>
           <input type="range" id="recorderWebmWriterQualityRange" min="0" max="1" step="0.00000000001" />
           <input type="number" id="recorderWebmWriterQualityInput" placeholder="0.90" value="0.90" />
         </div>
@@ -114,243 +112,263 @@
     </div>
     <div class="bigContainer left-right-flow" style="gap: 20px">
       <div class="controls">
-        <div class="display-flex top-bottom-flow width" style="--width: 100%; gap: 10px">
-          <div class="settings_container">
-            <span class="settings_label_title" data-text="$audio_settings_title"></span>
-            <div class="settings_label-slider-input">
-              <span data-text="$vol_multiplier"></span>
-              <input type="range" id="volumeMultiplierRange" min="0" max="10" step="0.00000000001" />
-              <input type="number" id="volumeMultiplierInput" placeholder="1" value="1" />
-            </div>
-            <div class="settings_label-slider-input">
-              <span data-text="$fft_size"></span>
-              <input type="range" id="fftSizeRange" min="1" max="16384" step="1" />
-              <input type="number" id="fftSizeInput" placeholder="1600" value="1600" />
-            </div>
-            <div class="settings_label-slider-input">
-              <span data-text="$min_amplitude"></span>
-              <input type="range" id="minAmplitudeRange" min="0" max="1" step="0.00000000001" />
-              <input type="number" id="minAmplitudeInput" placeholder="0" value="0" />
-            </div>
-            <div class="settings_label-slider-input">
-              <span data-text="$max_amplitude"></span>
-              <input type="range" id="maxAmplitudeRange" min="0" max="1" step="0.00000000001" />
-              <input type="number" id="maxAmplitudeInput" placeholder="1" value="1" />
-            </div>
-            <div class="settings_label-slider-input">
-              <span data-text="$threshold"></span>
-              <input type="range" id="thresholdRange" min="0" max="1" step="0.00000000001" />
-              <input type="number" id="thresholdInput" placeholder="0" value="0" />
-            </div>
-            <div class="settings_label-slider-input">
-              <span data-text="$min_frequency"></span>
-              <input type="range" id="minFrequencyRange" min="0" max="20000" step="1" />
-              <input type="number" id="minFrequencyInput" placeholder="0" value="0" />
-            </div>
-            <div class="settings_label-slider-input">
-              <span data-text="$max_frequency"></span>
-              <input type="range" id="maxFrequencyRange" min="0" max="20000" step="1" />
-              <input type="number" id="maxFrequencyInput" placeholder="3000" value="3000" />
-            </div>
-            <div class="settings_label-label_info">
-              <span data-text="$freq_range"></span>
-              <span id="freqRangeLbl" class="info">Hz</span>
-            </div>
-            <div class="whitehr"></div>
-            <div class="settings_label-select">
-              <span data-text="$window_function"></span>
-              <select id="windowFuncSelect">
-                <option value="rect" selected="true" data-text="$rect"></option>
-                <option value="triangular" data-text="$triangular"></option>
-                <option value="welch" data-text="$welch"></option>
-                <option value="cosine" data-text="$cosine"></option>
-                <option value="bartlett" data-text="$bartlett"></option>
-                <option value="barthann" data-text="$barthann"></option>
-                <option value="hann" data-text="$hann"></option>
-                <option value="hamming" data-text="$hamming"></option>
-                <option value="blackman" data-text="$blackman"></option>
-                <option value="nuttall" data-text="$nuttall"></option>
-                <option value="blackmanNuttall" data-text="$blackman_nuttall"></option>
-                <option value="blackmanHarris" data-text="$blackman_harris"></option>
-                <option value="flatTop" data-text="$flat_top"></option>
-                <option value="bartlettHann" data-text="$bartlett_hann"></option>
-                <option value="gaussian" data-text="$gaussian"></option>
-                <option value="exponential" data-text="$exponential"></option>
-                <option value="lanczos" data-text="$lanczos"></option>
-              </select>
-            </div>
-            <textarea id="windowFuncInput">1</textarea>
+        <div class="settings_container">
+          <span class="settings_label_title" data-text="$audio_settings_title"></span>
+          <div class="settings_label-slider-input">
+            <span data-text="$vol_multiplier"></span>
+            <input type="range" id="volumeMultiplierRange" min="0" max="10" step="0.00000000001" />
+            <input type="number" id="volumeMultiplierInput" placeholder="1" value="1" />
+          </div>
+          <div class="settings_label-slider-input">
+            <span data-text="$fft_size"></span>
+            <input type="range" id="fftSizeRange" min="1" max="16384" step="1" />
+            <input type="number" id="fftSizeInput" placeholder="1600" value="1600" />
+          </div>
+          <div class="settings_label-slider-input">
+            <span data-text="$min_amplitude"></span>
+            <input type="range" id="minAmplitudeRange" min="0" max="1" step="0.00000000001" />
+            <input type="number" id="minAmplitudeInput" placeholder="0" value="0" />
+          </div>
+          <div class="settings_label-slider-input">
+            <span data-text="$max_amplitude"></span>
+            <input type="range" id="maxAmplitudeRange" min="0" max="1" step="0.00000000001" />
+            <input type="number" id="maxAmplitudeInput" placeholder="1" value="1" />
+          </div>
+          <div class="settings_label-slider-input">
+            <span data-text="$threshold"></span>
+            <input type="range" id="thresholdRange" min="0" max="1" step="0.00000000001" />
+            <input type="number" id="thresholdInput" placeholder="0" value="0" />
+          </div>
+          <div class="settings_label-slider-input">
+            <span data-text="$min_frequency"></span>
+            <input type="range" id="minFrequencyRange" min="0" max="20000" step="1" />
+            <input type="number" id="minFrequencyInput" placeholder="0" value="0" />
+          </div>
+          <div class="settings_label-slider-input">
+            <span data-text="$max_frequency"></span>
+            <input type="range" id="maxFrequencyRange" min="0" max="20000" step="1" />
+            <input type="number" id="maxFrequencyInput" placeholder="3000" value="3000" />
+          </div>
+          <div class="settings_label-label_info">
+            <span data-text="$freq_range"></span>
+            <span id="freqRangeLbl" class="info">Hz</span>
           </div>
           <div class="whitehr"></div>
-          <div class="settings_container">
-            <span class="settings_label_title" data-text="$visualizer_settings_title"></span>
-            <div class="settings_label-select">
-              <span data-text="$bar_style"></span>
-              <select id="barStyle">
-                <option value="rect" selected="true" data-text="$rect"></option>
-                <option value="capsule" data-text="$capsule"></option>
-              </select>
-            </div>
-            <div id="capsuleRadiusDisp" class="settings_label-slider-input hidden">
-              <span data-text="$capsule_radius"></span>
-              <input type="range" id="barStyleCapsuleRadiusRange" min="0" max="0.5" step="0.00000000001" />
-              <input type="number" id="barStyleCapsuleRadiusInput" placeholder="0.5" value="0.5" />
-            </div>
-            <div class="whitehr"></div>
-            <div class="settings_label-slider-input">
-              <span data-text="$number"></span>
-              <input type="range" id="barsRange" min="1" value="100" max="512" step="1" />
-              <input type="number" id="barsInput" placeholder="100" value="100" />
-            </div>
-            <div class="settings_label-slider-input">
-              <span data-text="$width"></span>
-              <input type="range" id="barWidthRange" min="0.1" max="100" step="0.00000000001" />
-              <input type="number" id="barWidthInput" placeholder="10" value="10" />
-            </div>
-            <div class="settings_label-slider-input">
-              <span data-text="$space"></span>
-              <input type="range" id="barSpaceRange" min="0" max="100" step="0.00000000001" />
-              <input type="number" id="barSpaceInput" placeholder="1" value="1" />
-            </div>
-            <div class="settings_label-slider-input" style="background-color: #ff0000; border-radius: 4px">
-              <span></span>
-              <input type="range" id="barColorRedRange" min="0" max="255" step="1" />
-              <input type="number" id="barColorRedInput" placeholder="255" value="255" />
-            </div>
-            <div class="settings_label-slider-input" style="background-color: #00ff00; border-radius: 4px">
-              <span></span>
-              <input type="range" id="barColorGreenRange" min="0" max="255" step="1" />
-              <input type="number" id="barColorGreenInput" placeholder="255" value="255" />
-            </div>
-            <div class="settings_label-slider-input" style="background-color: #0000ff; border-radius: 4px">
-              <span></span>
-              <input type="range" id="barColorBlueRange" min="0" max="255" step="1" />
-              <input type="number" id="barColorBlueInput" placeholder="255" value="255" />
-            </div>
-            <div class="settings_label-slider-input" style="background-color: #ff0000; border-radius: 4px">
-              <span></span>
-              <input type="range" id="backgroundColorRedRange" min="0" max="255" step="1" />
-              <input type="number" id="backgroundColorRedInput" placeholder="50" value="50" />
-            </div>
-            <div class="settings_label-slider-input" style="background-color: #00ff00; border-radius: 4px">
-              <span></span>
-              <input type="range" id="backgroundColorGreenRange" min="0" max="255" step="1" />
-              <input type="number" id="backgroundColorGreenInput" placeholder="50" value="50" />
-            </div>
-            <div class="settings_label-slider-input" style="background-color: #0000ff; border-radius: 4px">
-              <span></span>
-              <input type="range" id="backgroundColorBlueRange" min="0" max="255" step="1" />
-              <input type="number" id="backgroundColorBlueInput" placeholder="50" value="50" />
-            </div>
-            <div class="settings_label-slider-input">
-              <span data-text="$frame_rate"></span>
-              <input type="range" id="frameRateRange" min="0" max="120" step="0.00000000001" />
-              <input type="number" id="frameRateInput" placeholder="30" value="30" />
-            </div>
+          <div class="settings_label-select">
+            <span data-text="$window_function"></span>
+            <select id="windowFuncSelect">
+              <option value="rect" selected="true" data-text="$rect"></option>
+              <option value="triangular" data-text="$triangular"></option>
+              <option value="welch" data-text="$welch"></option>
+              <option value="cosine" data-text="$cosine"></option>
+              <option value="bartlett" data-text="$bartlett"></option>
+              <option value="barthann" data-text="$barthann"></option>
+              <option value="hann" data-text="$hann"></option>
+              <option value="hamming" data-text="$hamming"></option>
+              <option value="blackman" data-text="$blackman"></option>
+              <option value="nuttall" data-text="$nuttall"></option>
+              <option value="blackmanNuttall" data-text="$blackman_nuttall"></option>
+              <option value="blackmanHarris" data-text="$blackman_harris"></option>
+              <option value="flatTop" data-text="$flat_top"></option>
+              <option value="bartlettHann" data-text="$bartlett_hann"></option>
+              <option value="gaussian" data-text="$gaussian"></option>
+              <option value="exponential" data-text="$exponential"></option>
+              <option value="lanczos" data-text="$lanczos"></option>
+            </select>
+          </div>
+          <textarea id="windowFuncInput">1</textarea>
+          <div class="settings_label-slider-input">
+            <span></span>
+            <input type="range" id="realShiftRange" min="0" max="10" step="1" />
+            <input type="number" id="realShiftInput" placeholder="0" value="0" />
+          </div>
+          <div class="settings_label-slider-input">
+            <span></span>
+            <input type="range" id="imagShiftRange" min="0" max="10" step="1" />
+            <input type="number" id="imagShiftInput" placeholder="0" value="0" />
+          </div>
+        </div>
+        <div class="whitehr"></div>
+        <div class="settings_container">
+          <span class="settings_label_title" data-text="$visualizer_settings_title"></span>
+          <div class="settings_label-select">
+            <span data-text="$bar_style"></span>
+            <select id="barStyle">
+              <option value="rect" selected="true" data-text="$rect"></option>
+              <option value="capsule" data-text="$capsule"></option>
+            </select>
+          </div>
+          <div id="capsuleRadiusDisp" class="settings_label-slider-input hidden">
+            <span data-text="$capsule_radius"></span>
+            <input type="range" id="barStyleCapsuleRadiusRange" min="0" max="0.5" step="0.00000000001" />
+            <input type="number" id="barStyleCapsuleRadiusInput" placeholder="0.5" value="0.5" />
           </div>
           <div class="whitehr"></div>
-          <div class="settings_container">
-            <div class="settings_label-input">
-              <span data-text="$width"></span>
-              <input type="number" id="canvasWidth" placeholder="1280" value="1280" />
-            </div>
-            <div class="settings_label-input">
-              <span data-text="$height"></span>
-              <input type="number" id="canvasHeight" placeholder="720" value="720" />
-            </div>
-            <div class="settings_button-label">
-              <button onclick="changecanvasSize()" data-text="$canvas_size_change"></button>
-            </div>
-            <div class="settings_checkbox-label">
-              <input
-                type="checkbox"
-                id="canvasRendering"
-                checked=""
-                onchange="
+          <div class="settings_label-slider-input">
+            <span data-text="$number"></span>
+            <input type="range" id="barsRange" min="1" value="100" max="512" step="1" />
+            <input type="number" id="barsInput" placeholder="100" value="100" />
+          </div>
+          <div class="settings_label-slider-input">
+            <span data-text="$width"></span>
+            <input type="range" id="barWidthRange" min="0.1" max="100" step="0.00000000001" />
+            <input type="number" id="barWidthInput" placeholder="10" value="10" />
+          </div>
+          <div class="settings_label-slider-input">
+            <span data-text="$space"></span>
+            <input type="range" id="barSpaceRange" min="0" max="100" step="0.00000000001" />
+            <input type="number" id="barSpaceInput" placeholder="1" value="1" />
+          </div>
+          <div class="settings_label-slider-input" style="background-color: #ff0000; border-radius: 4px">
+            <span></span>
+            <input type="range" id="barColorRedRange" min="0" max="255" step="1" />
+            <input type="number" id="barColorRedInput" placeholder="255" value="255" />
+          </div>
+          <div class="settings_label-slider-input" style="background-color: #00ff00; border-radius: 4px">
+            <span></span>
+            <input type="range" id="barColorGreenRange" min="0" max="255" step="1" />
+            <input type="number" id="barColorGreenInput" placeholder="255" value="255" />
+          </div>
+          <div class="settings_label-slider-input" style="background-color: #0000ff; border-radius: 4px">
+            <span></span>
+            <input type="range" id="barColorBlueRange" min="0" max="255" step="1" />
+            <input type="number" id="barColorBlueInput" placeholder="255" value="255" />
+          </div>
+          <div class="whitehr"></div>
+          <div class="settings_label-select">
+            <span data-text="$background_style"></span>
+            <select id="backgroundStyle">
+              <option value="solidColor" selected="true" data-text="$solid_color"></option>
+              <option value="image" data-text="$image"></option>
+            </select>
+          </div>
+          <div class="settings_label-slider-input" style="background-color: #ff0000; border-radius: 4px">
+            <span></span>
+            <input type="range" id="backgroundColorRedRange" min="0" max="255" step="1" />
+            <input type="number" id="backgroundColorRedInput" placeholder="50" value="50" />
+          </div>
+          <div class="settings_label-slider-input" style="background-color: #00ff00; border-radius: 4px">
+            <span></span>
+            <input type="range" id="backgroundColorGreenRange" min="0" max="255" step="1" />
+            <input type="number" id="backgroundColorGreenInput" placeholder="50" value="50" />
+          </div>
+          <div class="settings_label-slider-input" style="background-color: #0000ff; border-radius: 4px">
+            <span></span>
+            <input type="range" id="backgroundColorBlueRange" min="0" max="255" step="1" />
+            <input type="number" id="backgroundColorBlueInput" placeholder="50" value="50" />
+          </div>
+          <div class="settings_label-slider-input">
+            <span data-text="$frame_rate"></span>
+            <input type="range" id="frameRateRange" min="0" max="120" step="0.00000000001" />
+            <input type="number" id="frameRateInput" placeholder="30" value="30" />
+          </div>
+        </div>
+        <div class="whitehr"></div>
+        <div class="settings_container">
+          <div class="settings_label-input">
+            <span data-text="$width"></span>
+            <input type="number" id="canvasWidth" placeholder="1280" value="1280" />
+          </div>
+          <div class="settings_label-input">
+            <span data-text="$height"></span>
+            <input type="number" id="canvasHeight" placeholder="720" value="720" />
+          </div>
+          <div class="settings_button-label">
+            <button onclick="changecanvasSize()" data-text="$canvas_size_change"></button>
+          </div>
+          <div class="settings_checkbox-label">
+            <input
+              type="checkbox"
+              id="canvasRendering"
+              checked=""
+              onchange="
                   document.getElementById('canvas').style.imageRendering = canvasRendering.checked ? 'pixelated' : 'auto';
                 " />
-              <span data-text="$pixelated_render"></span>
-            </div>
-            <div class="settings_checkbox-label">
-              <input type="checkbox" id="desyncOpt" />
-              <span data-text="$canvas_desync"></span>
-            </div>
-            <div class="settings_button-label">
-              <button onclick="fullscreenCvs()" data-text="$canvas_fullscreen"></button>
-              <span>[F]</span>
-            </div>
+            <span data-text="$pixelated_render"></span>
+          </div>
+          <div class="settings_checkbox-label">
+            <input type="checkbox" id="desyncOpt" />
+            <span data-text="$canvas_desync"></span>
+          </div>
+          <div class="settings_button-label">
+            <button onclick="fullscreenCvs()" data-text="$canvas_fullscreen"></button>
+            <span>[F]</span>
+          </div>
+        </div>
+        <div class="whitehr"></div>
+        <div class="settings_container_info">
+          <span class="info_indicator">i</span>
+          <div class="settings_label-label_info">
+            <span data-text="$sample_rate"></span>
+            <span id="sampleRateLbl" class="info">Hz</span>
+          </div>
+          <div class="settings_label-label_info">
+            <span data-text="$bit_depth"></span>
+            <span id="bitDepthLbl" class="info">Bits</span>
+          </div>
+          <div class="settings_label-label_info">
+            <span data-text="$number_of_channels"></span>
+            <span id="channelsLbl" class="info">[Int]</span>
           </div>
           <div class="whitehr"></div>
-          <div class="settings_container_info">
-            <span class="info_indicator">i</span>
-            <div class="settings_label-label_info">
-              <span data-text="$sample_rate"></span>
-              <span id="sampleRateLbl" class="info">Hz</span>
-            </div>
-            <div class="settings_label-label_info">
-              <span data-text="$bit_depth"></span>
-              <span id="bitDepthLbl" class="info">Bits</span>
-            </div>
-            <div class="settings_label-label_info">
-              <span data-text="$number_of_channels"></span>
-              <span id="channelsLbl" class="info">[Int]</span>
-            </div>
-            <div class="whitehr"></div>
-            <div class="settings_label-label_info">
-              <span data-text="$audio_duration"></span>
-              <span id="audioDurationLbl" class="info">[Float]</span>
-            </div>
-            <div class="settings_label-label_info">
-              <span data-text="$audio_data_length"></span>
-              <span id="audioDataLengthLbl" class="info">[Int]</span>
-            </div>
-            <div class="whitehr"></div>
-            <div class="settings_label-label_info">
-              <span data-text="$min_bin"></span>
-              <span id="minBinLbl" class="info">[Int]</span>
-            </div>
-            <div class="settings_label-label_info">
-              <span data-text="$max_bin"></span>
-              <span id="maxBinLbl" class="info">[Int]</span>
-            </div>
-            <div class="whitehr"></div>
-            <div class="settings_label-label_info">
-              <span data-text="$desired_freq_range"></span>
-              <span id="desiredFreqRangeLbl" class="info">Hz</span>
-            </div>
-            <div class="settings_label-label_info">
-              <span data-text="$desired_fft_size"></span>
-              <span id="desiredFftSizeLbl" class="info">[Int{ceil}]</span>
-            </div>
-            <div class="settings_label-label_info">
-              <span data-text="$desired_bars"></span>
-              <span id="desiredBarsLbl" class="info">[Int{ceil}]</span>
-            </div>
-            <div class="whitehr"></div>
-            <div class="settings_label-label_info">
-              <span data-text="$bars_per_freq"></span>
-              <span id="barsPerFreqLbl" class="info">[Float]</span>
-            </div>
-            <div class="settings_label-label_info">
-              <span data-text="$bars_per_bin"></span>
-              <span id="barsPerBinLbl" class="info">[Float]</span>
-            </div>
-            <div class="settings_label-label_info">
-              <span data-text="$freq_pre_bar"></span>
-              <span id="freqPerBarLbl" class="info">Hz</span>
-            </div>
-            <div class="settings_label-label_info">
-              <span data-text="$freq_pre_bin"></span>
-              <span id="freqPerBinLbl" class="info">Hz</span>
-            </div>
-            <div class="settings_label-label_info">
-              <span data-text="$bins_per_bar"></span>
-              <span id="binsPerBarLbl" class="info">[Float]</span>
-            </div>
-            <div class="settings_label-label_info">
-              <span data-text="$bins_per_freq"></span>
-              <span id="binsPerFreqLbl" class="info">[Float]</span>
-            </div>
+          <div class="settings_label-label_info">
+            <span data-text="$audio_duration"></span>
+            <span id="audioDurationLbl" class="info">[Float]</span>
+          </div>
+          <div class="settings_label-label_info">
+            <span data-text="$audio_data_length"></span>
+            <span id="audioDataLengthLbl" class="info">[Int]</span>
+          </div>
+          <div class="settings_label-label_info">
+            <span data-text="$window_length"></span>
+            <span id="windowLengthLbl" class="info">ms</span>
+          </div>
+          <div class="whitehr"></div>
+          <div class="settings_label-label_info">
+            <span data-text="$min_bin"></span>
+            <span id="minBinLbl" class="info">[Int]</span>
+          </div>
+          <div class="settings_label-label_info">
+            <span data-text="$max_bin"></span>
+            <span id="maxBinLbl" class="info">[Int]</span>
+          </div>
+          <div class="whitehr"></div>
+          <div class="settings_label-label_info">
+            <span data-text="$desired_freq_range"></span>
+            <span id="desiredFreqRangeLbl" class="info">Hz</span>
+          </div>
+          <div class="settings_label-label_info">
+            <span data-text="$desired_fft_size"></span>
+            <span id="desiredFftSizeLbl" class="info">[Int{ceil}]</span>
+          </div>
+          <div class="settings_label-label_info">
+            <span data-text="$desired_bars"></span>
+            <span id="desiredBarsLbl" class="info">[Int{ceil}]</span>
+          </div>
+          <div class="whitehr"></div>
+          <div class="settings_label-label_info">
+            <span data-text="$freq_pre_bar"></span>
+            <span id="freqPerBarLbl" class="info">Hz</span>
+          </div>
+          <div class="settings_label-label_info">
+            <span data-text="$bars_per_freq"></span>
+            <span id="barsPerFreqLbl" class="info">[Float]</span>
+          </div>
+          <div class="settings_label-label_info">
+            <span data-text="$bins_per_bar"></span>
+            <span id="binsPerBarLbl" class="info">[Float]</span>
+          </div>
+          <div class="settings_label-label_info">
+            <span data-text="$bars_per_bin"></span>
+            <span id="barsPerBinLbl" class="info">[Float]</span>
+          </div>
+          <div class="settings_label-label_info">
+            <span data-text="$bins_per_freq"></span>
+            <span id="binsPerFreqLbl" class="info">[Float]</span>
+          </div>
+          <div class="settings_label-label_info">
+            <span data-text="$freq_pre_bin"></span>
+            <span id="freqPerBinLbl" class="info">Hz</span>
           </div>
         </div>
       </div>
@@ -391,19 +409,26 @@
   <!--Libraries-->
   <script src="scripts/lib/901D3/binUtils.js"></script>
   <script src="scripts/lib/901D3/wav.js"></script>
-  <script src="scripts/lib/nayuki/fft.js"></script>
-  <script src="scripts/lib/aurora/aurora.js"></script>
-  <script src="scripts/lib/aurora/flac.js"></script>
   <script src="scripts/lib/thenickdude/webm-writer-0.3.0.js"></script>
+
+  <!--FFTs-->
+  <!--<script src="scripts/lib/wendykierp/base.js"></script>-->
+  <!--<script src="scripts/lib/wendykierp/mixed_radix/mixed_radix.js"></script>-->
+  <!--<script src="scripts/lib/wendykierp/mixed_radix/passes.js"></script>-->
+  <script src="scripts/lib/nayuki/fft.js"></script>
+
+  <!--Decoders-->
   <script src="scripts/lib/webaudioAPI/audioBuffer.js"></script>
 
   <script src="scripts/recorder.js"></script>
   <script src="scripts/locale.js"></script>
   <script src="scripts/sizing.js"></script>
   <script src="scripts/audio.js"></script>
+  <script src="scripts/misc.js"></script>
   <script src="scripts/process.js"></script>
   <script>
     const upload = gId("uploadFile");
+    const uploadImg = gId("uploadImageFile");
     upload.addEventListener("change", async () => {
       let t0 = performance.now();
       const file = upload.files[0];
@@ -411,9 +436,11 @@
       let buffer = await file.arrayBuffer();
       bytesArray = new Uint8Array(buffer);
       const wavInfo = wavjs.readWavHeader(bytesArray);
-      const mp3Info = binUtils.binSearch(bytesArray, [0x49, 0x44, 0x33], 0, 3);
-      const oggInfo = binUtils.binSearch(bytesArray, [0x4f, 0x67, 0x67, 0x53], 0, 4);
-      const m4aInfo = binUtils.isM4A(bytesArray);
+      const flacInfo = binUtils.binSearch(bytesArray, [0x66, 0x4c, 0x61, 0x43], 0, 4) !== false;
+      const mp3Info = binUtils.binSearch(bytesArray, [0x49, 0x44, 0x33], 0, 3) !== false;
+      const oggInfo = binUtils.binSearch(bytesArray, [0x4f, 0x67, 0x67, 0x53], 0, 4) !== false;
+      const m4aInfo = binUtils.isM4A(bytesArray) !== false;
+      audio.pause();
 
       if (wavInfo !== false) {
         printLog("File type: wav");
@@ -429,10 +456,7 @@
             resolve();
           }, 0);
         });
-      } else if (mp3Info !== false || oggInfo !== false || m4aInfo !== false) {
-        printLog(
-          "File type: " + (mp3Info !== false ? "mp3" : oggInfo !== false ? "ogg" : m4aInfo !== false ? "m4a" : "unknown")
-        );
+      } else {
         let result = await audioBufferDecode.decode(bytesArray);
 
         channels = result.channels;
@@ -443,13 +467,20 @@
       }
 
       bytesArray = [];
+      gId("startRecording").removeAttribute("disabled");
+      gId("startRendering").removeAttribute("disabled");
 
       const blobUrl = URL.createObjectURL(file);
       audio.src = blobUrl;
       displayInfo();
-      startRec.removeAttribute("disabled", "");
-      startRend.removeAttribute("disabled", "");
       printLog("Initializing took " + (performance.now() - t0) + "ms");
+    });
+
+    uploadImg.addEventListener("change", function () {
+      const file = uploadImg.files[0];
+
+      image = new Image();
+      image.src = URL.createObjectURL(file);
     });
 
     async function updateAudioSrc() {
@@ -463,9 +494,11 @@
 
       bytesArray = new Uint8Array(buffer);
       const wavInfo = wavjs.readWavHeader(bytesArray);
-      const mp3Info = binUtils.binSearch(bytesArray, [0x49, 0x44, 0x33], 0, 3);
-      const oggInfo = binUtils.binSearch(bytesArray, [0x4f, 0x67, 0x67, 0x53], 0, 4);
-      const m4aInfo = binUtils.isM4A(bytesArray);
+      const flacInfo = binUtils.binSearch(bytesArray, [0x66, 0x4c, 0x61, 0x43], 0, 4) !== false;
+      const mp3Info = binUtils.binSearch(bytesArray, [0x49, 0x44, 0x33], 0, 3) !== false;
+      const oggInfo = binUtils.binSearch(bytesArray, [0x4f, 0x67, 0x67, 0x53], 0, 4) !== false;
+      const m4aInfo = binUtils.isM4A(bytesArray) !== false;
+      audio.pause;
 
       if (wavInfo !== false) {
         printLog("File type: wav");
@@ -481,10 +514,7 @@
             resolve();
           }, 0);
         });
-      } else if (mp3Info !== false || oggInfo !== false || m4aInfo !== false) {
-        printLog(
-          "File type: " + (mp3Info !== false ? "mp3" : oggInfo !== false ? "ogg" : m4aInfo !== false ? "m4a" : "unknown")
-        );
+      } else {
         let result = await audioBufferDecode.decode(bytesArray);
 
         channels = result.channels;
@@ -495,11 +525,11 @@
       }
 
       bytesArray = [];
+      gId("startRecording").removeAttribute("disabled");
+      gId("startRendering").removeAttribute("disabled");
 
       audio.src = linkUrl;
       displayInfo();
-      startRec.removeAttribute("disabled", "");
-      startRend.removeAttribute("disabled", "");
       printLog("Initializing took " + (performance.now() - t0) + "ms");
     }
   </script>
