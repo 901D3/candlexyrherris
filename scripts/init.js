@@ -116,6 +116,7 @@ var desyncOpt = false;
 var t = false;
 var sqSz;
 var audio = gId("audio");
+var image;
 //var audioCtx;
 //if (!audioCtx) {
 //  try {
@@ -152,6 +153,10 @@ var maxAmplitude;
 var threshold;
 var minFreq;
 var maxFreq;
+var realShift;
+var imagShift;
+
+var dupSize = 1;
 
 var bars;
 var barColorRed;
@@ -166,6 +171,7 @@ var barSpace;
 
 var barStyle = "rect";
 var barStyleCapsuleRadius = 0.3;
+var backgroundStyle = "solidColor";
 
 var recorderFrameRate = 30;
 var recorderVideoBitrate = 2000000;
