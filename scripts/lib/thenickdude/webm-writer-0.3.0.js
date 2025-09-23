@@ -8,6 +8,14 @@
 
 "use strict";
 
+function strToU8(str) {
+  const u8 = new Uint8Array(str.length);
+  for (let i = 0; i < str.length; i++) {
+    u8[i] = str.charCodeAt(i) & 0xff;
+  }
+  return u8;
+}
+
 (function () {
   /*
    * Create an ArrayBuffer of the given length and present it as a writable stream with methods
@@ -377,7 +385,7 @@
                   entry.data = newEntry.data;
 
                   // We're done
-                  return;
+                  return false;
                 } else {
                   return convertToUint8Array(entry.data)
                     .then(function (entryArray) {
@@ -514,7 +522,7 @@
    * @returns {{hasAlpha: boolean, frame: string}}
    */
   function extractKeyframeFromWebP(webP) {
-    let cursor = binSearch(webP, [0x56, 0x50, 0x38], 12); // Start the search after the 12-byte file header
+    let cursor = binUtils.binSearch(webP, [0x56, 0x50, 0x38], 12); // Start the search after the 12-byte file header
 
     if (cursor === -1) {
       throw new Error("Bad image format, does this browser support WebP?");
@@ -820,7 +828,7 @@
       /**
        * Write the WebM file header to the stream.
        */
-      function writeHeader() {
+      function writeHeader(PixelWidth, PixelHeight) {
         let ebmlHeader = {
             id: 0x1a45dfa3, // EBML
             data: [
@@ -843,8 +851,8 @@
             ],
           },
           videoProperties = [
-            {id: 0xb0, data: canvasWidth}, // PixelWidth
-            {id: 0xba, data: canvasHeight}, // PixelHeight
+            {id: 0xb0, data: PixelWidth}, // PixelWidth
+            {id: 0xba, data: PixelHeight}, // PixelHeight
           ];
 
         if (options.transparent) {
@@ -1043,7 +1051,7 @@
        */
       function flushClusterFrameBuffer() {
         if (clusterFrameBuffer.length === 0) {
-          return;
+          return false;
         }
 
         // First work out how large of a buffer we need to hold the cluster data
@@ -1169,9 +1177,9 @@
        * @param {Number} [overrideFrameDuration] - Set a duration for this frame (in milliseconds) that differs
        *                                           from the default
        */
-      this.addFrame = function (frame, alpha, overrideFrameDuration) {
+      this.addFrame = function (frame, PixelWidth, PixelHeight, alpha, overrideFrameDuration) {
         if (!writtenHeader) {
-          writeHeader();
+          writeHeader(PixelWidth, PixelHeight);
         }
 
         let keyframe = extractKeyframeFromWebP(frame),
