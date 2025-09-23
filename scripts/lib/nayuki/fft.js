@@ -26,7 +26,7 @@
  * Computes the discrete Fourier _transform (DFT) of the given complex vector, storing the result back into the vector.
  * The vector can have any length. This is a wrapper function.
  */
-var FFTUtils = (function () {
+var nayuki = (function () {
   function _transform(real, imag) {
     const realLength = real.length;
     const imagLength = imag.length;
@@ -264,11 +264,11 @@ var FFTUtils = (function () {
     }
   }
 
-  //DFT
+  //Other Fourier Transforms
 
   function _dft(real, imag) {
     const size = real.length;
-    const minus2PI = -2 * Math.PI;
+    const minus2PI = -2 * PI;
 
     const outputRe = new Float32Array(size);
     const outputIm = new Float32Array(size);
@@ -278,8 +278,8 @@ var FFTUtils = (function () {
       let sumIm = 0;
       for (let n = 0; n < size; n++) {
         const angle = (minus2PI * k * n) / size;
-        const cosAngle = Math.cos(angle);
-        const sinAngle = Math.sin(angle);
+        const cosAngle = cos(angle);
+        const sinAngle = sin(angle);
 
         sumRe += real[n] * cosAngle - imag[n] * sinAngle;
         sumIm += real[n] * sinAngle + imag[n] * cosAngle;
@@ -295,7 +295,7 @@ var FFTUtils = (function () {
     }
   }
 
-  //End of DFT
+  //End of Other Fourier Transforms
 
   return {
     transform: _transform,
