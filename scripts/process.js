@@ -1,25 +1,69 @@
-const d = {
-  none: () => {},
-  matrixThreshold: bayer,
-  arithmetic: arithmetic,
-  errDiffs: errDiffs,
-};
+function getCurrentFrameFFT(audioTime, channelArray, dupSize) {
+  const startSample = floor(audioTime * sampleRate);
+  const frame = new Float32Array(fftSize);
+  const fftSizeDupSize = fftSize * dupSize;
+  const a = channelArray.subarray(startSample, startSample + fftSize);
+  for (let i = 0; i < fftSizeDupSize; i++) {
+    for (let j = 0; j < dupSize; j++) {
+      frame[i * dupSize + j] = a[i];
+    }
+  }
+
+  stftRe = frame;
+  stftIm = new Float32Array(fftSize);
+  const N = stftRe.length;
+
+  try {
+    windowFunc("n", "N");
+  } catch {
+    return false;
+  }
+
+  for (let n = 0; n < N; n++) {
+    stftRe[n] *= windowFunc(n, N) * volMultiplier;
+  }
+
+  nayuki.transform(stftRe, stftIm);
+}
+
+//const wtable = new Float32Array(N * 4 + 15);
+//wendykierp.mixed_radix_cffti(N, wtable);
+
+//wendykierp.complexForward(stftRe, 0, wtable);
+
+//for (let i = 0, j = 0; i < N; i++, j += 2) {
+//  stftIm[i] = stftRe[j + 1];
+//  stftRe[i] = stftRe[j];
+//}
+
+function drawWrapper() {
+  getCurrentFrameFFT(audio.currentTime, channelIndex === 1 ? rightChannelArray : leftChannelArray, dupSize);
+  const buffer = getVisualizerBufferFromFFT(stftRe, stftIm, bars, threshold, minFreq, maxFreq, dupSize);
+  drawVisualizerBufferToCanvas(ctx, buffer);
+}
 
 function process() {
   const t0 = performance.now();
-  processFrame();
-  if (video.paused || video.ended) return;
+
+  drawWrapper();
+
+  if (audio.paused || audio.ended) {
+    stftRe = []; //save memory
+    stftIm = [];
+    return false;
+  }
+
   if (t) frameCounter();
   setTimeout(process, max(0, 1000 / frameRate - (performance.now() - t0)));
 }
 
 async function render() {
   if (isRecording == true) {
-    printLog("Stop recording to start rendering", null, "yellow", "yellow");
+    printLog("Stop recording to start rendering");
     return false;
   }
   if (isRendering == true) {
-    printLog("Rendering process has already started", null, "yellow", "yellow");
+    printLog("Rendering process has already started");
     return false;
   }
   isRendering = true;
@@ -37,22 +81,20 @@ async function render() {
     transparent: false, //enabling transparent is kinda useless
   });
 
-  const totalFrames = ceil(video.duration * recorderFrameRate);
+  const totalFrames = ceil(audio.duration * recorderFrameRate);
   printLog("Total frames:" + totalFrames);
   let frameIndex = 0;
   let blob;
-  video.currentTime = 0;
-  video.pause();
-  video.muted = true;
-  video.loop = false;
-  video.controls = false;
-  video.classList.add("offscreen_hide");
+  audio.currentTime = 0;
+  audio.pause();
+  audio.muted = true;
+  audio.loop = false;
 
   function seek(time) {
     return new Promise((resolve) => {
-      video.currentTime = time;
-      video.addEventListener("seeked", function handler() {
-        video.removeEventListener("seeked", handler);
+      audio.currentTime = time;
+      audio.addEventListener("seeked", function handler() {
+        audio.removeEventListener("seeked", handler);
         resolve();
       });
     });
@@ -65,7 +107,7 @@ async function render() {
   }
 
   const t0 = performance.now();
-  while (frameIndex < totalFrames && !video.ended) {
+  while (frameIndex < totalFrames && !audio.ended) {
     const frameTime = frameIndex / recorderFrameRate;
     let t1 = performance.now();
     await seek(frameTime);
@@ -80,7 +122,7 @@ async function render() {
     t4 = performance.now() - t4;
 
     printLog(
-      "Dither: " +
+      "Draw: " +
         t1 +
         "ms\n" +
         "Canvas to WebP: " +
@@ -93,6 +135,8 @@ async function render() {
         (t1 + t3 + t4) +
         "ms\n" +
         "Rendered: " +
+        frameIndex +
+        "/" +
         (frameIndex / totalFrames) * 100 +
         "%",
       1
@@ -100,6 +144,9 @@ async function render() {
 
     if (isRendering == false) {
       printLog("Rendering stopped manually");
+      isRendering = false;
+      audio.muted = false;
+      audio.loop = true;
 
       onComplete();
       return true;
@@ -108,16 +155,17 @@ async function render() {
   }
   const totalTime = performance.now() - t0;
   printLog(
-    "Elapsed: " + totalTime + "ms\n" + "Rendering takes " + (totalTime / (video.duration * 1000)) * 100 + "% of video duration"
+    "Elapsed: " + totalTime + "\n" + "Rendering takes " + (totalTime / (audio.duration * 1000)) * 100 + "% of audio duration"
   );
+
   onComplete();
 
   async function onComplete() {
     isRendering = false;
-    video.muted = false;
-    video.loop = true;
-    video.controls = true;
-    video.classList.remove("offscreen_hide");
+    audio.muted = false;
+    audio.loop = true;
+    audio.controls = true;
+    audio.classList.remove("offscreen_hide");
 
     await recorderWebmWriterSettings.complete().then((blob) => {
       const url = URL.createObjectURL(blob);
@@ -141,19 +189,56 @@ async function render() {
   }
 }
 
-function processFrame() {
-  ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
-  const frame = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-  const imageData = frame.data;
-  const imageDataLength = imageData.length;
-  if (useLinear) {
-    for (let i = 0; i < imageDataLength; i++) {
-      imageData[i] = floor(linearLUT[imageData[i]]);
-    }
-  }
-  d[ditherDropdownValue](imageData);
+function drawVisualizerBufferToCanvas(ctx, buffer) {
+  const fullBarWidth = barWidth + barSpace;
+  const halfHeight = canvasHeight * 0.5;
+  const offsetX = (canvasWidth - buffer.length * fullBarWidth + barSpace) * 0.5;
+  const minAmplitudeHalfHeight = minAmplitude * halfHeight;
+  const maxAmplitudeHalfHeight = maxAmplitude * halfHeight;
 
-  ctx.putImageData(frame, 0, 0);
+  if (backgroundStyle === "solidColor") {
+    ctx.fillStyle = "rgb(" + backgroundColorRed + ", " + backgroundColorGreen + ", " + backgroundColorBlue + ")";
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+  } else if (backgroundStyle === "image") {
+    ctx.drawImage(image, 0, 0);
+  }
+
+  ctx.fillStyle = "rgb(" + barColorRed + ", " + barColorGreen + ", " + barColorBlue + ")";
+
+  if (barStyle === "rect") {
+    drawRectBar(ctx, buffer, bars, offsetX, halfHeight, barWidth, barSpace, minAmplitudeHalfHeight, maxAmplitudeHalfHeight);
+  } else if (barStyle === "capsule") {
+    drawCapsuleBar(ctx, buffer, bars, offsetX, halfHeight, barWidth, barSpace, minAmplitudeHalfHeight, maxAmplitudeHalfHeight);
+  }
+}
+
+function drawRectBar(ctx, buffer, Nbars, posX, posY, barWidthValue, barSpaceValue, minAmplitudeValue, maxAmplitudeValue) {
+  const fullBarWidth = barWidthValue + barSpaceValue;
+  for (let i = 0; i < Nbars; i++) {
+    const x = posX + i * fullBarWidth;
+    const barHeight = max(minAmplitudeValue, min(buffer[i] * posY, maxAmplitudeValue));
+
+    ctx.fillRect(x, posY - barHeight, barWidthValue, barHeight);
+    ctx.fillRect(x, posY, barWidthValue, barHeight);
+  }
+}
+
+function drawCapsuleBar(ctx, buffer, Nbars, posX, posY, barWidthValue, barSpaceValue, minAmplitudeValue, maxAmplitudeValue) {
+  const fullBarWidth = barWidthValue + barSpaceValue;
+  const radius = barWidthValue * barStyleCapsuleRadius;
+  for (let i = 0; i < Nbars; i++) {
+    const x = posX + i * fullBarWidth;
+    const barHeight = max(minAmplitudeValue, min(buffer[i] * posY, maxAmplitudeValue));
+
+    ctx.beginPath();
+    ctx.moveTo(x + radius, posY - barHeight);
+    try {
+      ctx.roundRect(x, posY - barHeight, barWidthValue, barHeight * 2, radius);
+    } catch {
+      ctx.roundRect(x, posY - barHeight, barWidthValue, barHeight * 2, 0.2);
+    }
+    ctx.fill();
+  }
 }
 
 function frameCounter() {
@@ -167,16 +252,20 @@ function frameCounter() {
   }
 }
 
-gId("showTelemetry").addEventListener("change", function (e) {
+gId("showTelemetries").addEventListener("change", function (e) {
   t = e.target.checked;
 });
 
-video.addEventListener("play", function () {
+audio.addEventListener("play", function () {
   frm = 0;
   startTime = performance.now();
   lastUpdatedTime = startTime;
   lLT = startTime;
   process();
+  displayInfo();
 });
 
-video.addEventListener("seeking", processFrame);
+audio.addEventListener("seeking", function () {
+  drawWrapper();
+  displayInfo();
+});
