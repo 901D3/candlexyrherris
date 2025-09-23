@@ -64,6 +64,7 @@ var locales = {
 
   audio_data_length: "Audio data length",
   audio_duration: "Audio duration",
+  window_length: "Window length",
   bin_range: "Bin range",
   min_bin: "Min bin",
   max_bin: "Max bin",
@@ -78,6 +79,9 @@ var locales = {
   bar_color_red: "Red",
   bar_color_green: "Green",
   bar_color_blue: "Blue",
+  background_style: "Background Style",
+  solid_color: "Solid Color",
+  image: "Image",
 
   capsule: "Capsule",
 
@@ -105,13 +109,13 @@ var locales = {
   null: "Null",
 
   enable_file_writer: "Enable file writer",
+  webp_quality: "webP quality",
 
   canvas_size_change: "Change canvas size",
   pixelated_render: "Pixelated Rendering",
   canvas_desync: "Canvas Desynchronize",
   canvas_fullscreen: "Fullscreen Mode",
   Telemetries: "Show Telemetries(drop fps)",
-  webm_writer_quality: "Webm writer quality",
   //: "",
   //: "",
   //: "",
@@ -190,8 +194,7 @@ var $locale = (function () {
 
   gId("console").innerHTML =
     "This is just an experiment version of candlexyehrris, expect to see bugs and unstable stuff...\n" +
-    "MediaRecorder gives a less compatible video file and may not be able to play on every device, consider using FFmpeg to convert after record!\n\n" +
+    "MediaRecorder and WebM Writer gives a less compatible video file and may not be able to play on every device, consider using FFmpeg to convert after record!\n\n" +
     "Check out the source code!<a href='https://github.com/901D3/candlexyrherris' target='_blank'>github.com/901D3/candlexyrherris</a>" +
     "View MP4 codecs to ensure compability for MediaRecorder<a href='https://cconcolato.github.io/media-mime-support/' target='_blank'>cconcolato.github.io/media-mime-support/</a>";
 })();
-
