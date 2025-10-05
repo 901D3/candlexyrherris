@@ -40,6 +40,11 @@ var $windowFunc = (function () {
       exponential: "exp(-abs(n - N / 2) * (1 / (N / 2)))",
 
       lanczos: "sinc((2 * n) / N - 1)",
+
+      //other custom window functions
+      fun1: "exp(0.2 - (0.25 * cos((PI * n) / (N - 1))))",
+      fun2: "1 - 0.012 * ((PI * n) / N) + 0.05 * ((4 * PI * n) / N)",
+      fun3: "n > ( N / 2 ) ? ((n / N) / n) : n / (N / 4)"
     };
 
     const choosenPreset = presets[preset];
@@ -47,7 +52,7 @@ var $windowFunc = (function () {
     if (choosenPreset) {
       return choosenPreset;
     } else {
-      return;
+      return false;
     }
   }
 
