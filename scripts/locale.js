@@ -92,6 +92,7 @@ var locales = {
   process_time: "Process time",
 
   freq_range: "Freq range",
+  Interleave: "Interleave",
 
   desired_freq_range: "Desr freq range",
   desired_fft_size: "Desr FFT size",
