@@ -151,10 +151,12 @@ var volMultiplier;
 var minAmplitude;
 var maxAmplitude;
 var threshold;
-var minFreq;
-var maxFreq;
+var minBin;
+var maxBin;
 var realShift;
 var imagShift;
+var fftInterleave;
+var fftInterleaveFix = true;
 
 var dupSize = 1;
 
@@ -177,7 +179,7 @@ var recorderFrameRate = 30;
 var recorderVideoBitrate = 2000000;
 var recorderMimeType = "video/webm";
 var recorderVideoCodec = "vp9";
-var recorderWebmWriterQuality = 0.95;
+var webmWriterQuality = 0.95;
 var recorderWebmWriterSettings;
 var isRecording = false;
 var isRendering = false;
