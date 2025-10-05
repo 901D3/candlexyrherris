@@ -52,23 +52,23 @@
     sliderInputSync(gId("thresholdRange"), gId("thresholdInput"), "threshold", 1, "input");
   });
 
-  gId("minFrequencyRange").addEventListener("input", function () {
-    sliderInputSync(gId("minFrequencyRange"), gId("minFrequencyInput"), "minFreq", undefined, "slider");
+  gId("minBinRange").addEventListener("input", function () {
+    sliderInputSync(gId("minBinRange"), gId("minBinInput"), "minBin", undefined, "slider");
     displayInfo();
   });
 
-  gId("minFrequencyInput").addEventListener("input", function () {
-    sliderInputSync(gId("minFrequencyRange"), gId("minFrequencyInput"), "minFreq", 0, "input");
+  gId("minBinInput").addEventListener("input", function () {
+    sliderInputSync(gId("minBinRange"), gId("minBinInput"), "minBin", 0, "input");
     displayInfo();
   });
 
-  gId("maxFrequencyRange").addEventListener("input", function () {
-    sliderInputSync(gId("maxFrequencyRange"), gId("maxFrequencyInput"), "maxFreq", undefined, "slider");
+  gId("maxBinRange").addEventListener("input", function () {
+    sliderInputSync(gId("maxBinRange"), gId("maxBinInput"), "maxBin", undefined, "slider");
     displayInfo();
   });
 
-  gId("maxFrequencyInput").addEventListener("input", function () {
-    sliderInputSync(gId("maxFrequencyRange"), gId("maxFrequencyInput"), "maxFreq", 1, "input");
+  gId("maxBinInput").addEventListener("input", function () {
+    sliderInputSync(gId("maxBinRange"), gId("maxBinInput"), "maxBin", 1, "input");
     displayInfo();
   });
 
@@ -237,8 +237,8 @@
   sliderInputSync(gId("minAmplitudeRange"), gId("minAmplitudeInput"), "minAmplitude", 1, "input");
   sliderInputSync(gId("maxAmplitudeRange"), gId("maxAmplitudeInput"), "maxAmplitude", 1, "input");
   sliderInputSync(gId("thresholdRange"), gId("thresholdInput"), "threshold", 1, "input");
-  sliderInputSync(gId("minFrequencyRange"), gId("minFrequencyInput"), "minFreq", 0, "input");
-  sliderInputSync(gId("maxFrequencyRange"), gId("maxFrequencyInput"), "maxFreq", 1, "input");
+  sliderInputSync(gId("minBinRange"), gId("minBinInput"), "minBin", 0, "input");
+  sliderInputSync(gId("maxBinRange"), gId("maxBinInput"), "maxBin", 1, "input");
   sliderInputSync(gId("barsRange"), gId("barsInput"), "bars", 100, "input");
   sliderInputSync(gId("barStyleCapsuleRadiusRange"), gId("barStyleCapsuleRadiusInput"), "barStyleCapsuleRadius", 0.3, "input");
 
