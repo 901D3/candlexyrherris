@@ -1,17 +1,9 @@
-function getCurrentFrameFFT(audioTime, channelArray, dupSize) {
+function getCurrentFrameFFT(audioTime, channelArray) {
   const startSample = floor(audioTime * sampleRate);
-  const frame = new Float32Array(fftSize);
-  const fftSizeDupSize = fftSize * dupSize;
-  const a = channelArray.subarray(startSample, startSample + fftSize);
-  for (let i = 0; i < fftSizeDupSize; i++) {
-    for (let j = 0; j < dupSize; j++) {
-      frame[i * dupSize + j] = a[i];
-    }
-  }
 
-  stftRe = frame;
+  stftRe = new Float32Array(channelArray.subarray(startSample, startSample + fftSize));
   stftIm = new Float32Array(fftSize);
-  const N = stftRe.length;
+  const N = fftSize;
 
   try {
     windowFunc("n", "N");
@@ -26,19 +18,9 @@ function getCurrentFrameFFT(audioTime, channelArray, dupSize) {
   nayuki.transform(stftRe, stftIm);
 }
 
-//const wtable = new Float32Array(N * 4 + 15);
-//wendykierp.mixed_radix_cffti(N, wtable);
-
-//wendykierp.complexForward(stftRe, 0, wtable);
-
-//for (let i = 0, j = 0; i < N; i++, j += 2) {
-//  stftIm[i] = stftRe[j + 1];
-//  stftRe[i] = stftRe[j];
-//}
-
 function drawWrapper() {
-  getCurrentFrameFFT(audio.currentTime, channelIndex === 1 ? rightChannelArray : leftChannelArray, dupSize);
-  const buffer = getVisualizerBufferFromFFT(stftRe, stftIm, bars, threshold, minFreq, maxFreq, dupSize);
+  getCurrentFrameFFT(audio.currentTime, channelIndex === 1 ? rightChannelArray : leftChannelArray);
+  const buffer = getVisualizerBufferFromFFT(stftRe, stftIm, bars, threshold, minBin, maxBin, fftInterleave);
   drawVisualizerBufferToCanvas(ctx, buffer);
 }
 
@@ -47,10 +29,10 @@ function process() {
 
   drawWrapper();
 
-  if (audio.paused || audio.ended) {
+  if (audio.ended) {
     stftRe = []; //save memory
     stftIm = [];
-    return false;
+    return;
   }
 
   if (t) frameCounter();
@@ -74,18 +56,19 @@ async function render() {
 
   printLog("Starting rendering");
   recorderWebmWriterSettings = new WebMWriter({
-    quality: recorderWebmWriterQuality,
+    quality: webmWriterQuality,
     fileWriter: gId("webmWriterFileWriterSelect").value,
 
     frameRate: recorderFrameRate,
     transparent: false, //enabling transparent is kinda useless
   });
-
-  const totalFrames = ceil(audio.duration * recorderFrameRate);
+  const startPositionSeconds = Number(gId("rendererStartPosition").value);
+  const startFrame = floor(startPositionSeconds * recorderFrameRate);
+  const totalFrames = ceil(audio.duration * recorderFrameRate) - startFrame;
   printLog("Total frames:" + totalFrames);
-  let frameIndex = 0;
+  let frameIndex = startFrame;
   let blob;
-  audio.currentTime = 0;
+  audio.currentTime = startPositionSeconds;
   audio.pause();
   audio.muted = true;
   audio.loop = false;
@@ -114,7 +97,7 @@ async function render() {
     t1 = performance.now() - t1;
 
     let t3 = performance.now();
-    blob = await canvasToWebPBlob(canvas, recorderWebmWriterQuality);
+    blob = await canvasToWebPBlob(canvas, webmWriterQuality);
     t3 = performance.now() - t3;
 
     let t4 = performance.now();
@@ -206,38 +189,29 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
   ctx.fillStyle = "rgb(" + barColorRed + ", " + barColorGreen + ", " + barColorBlue + ")";
 
   if (barStyle === "rect") {
-    drawRectBar(ctx, buffer, bars, offsetX, halfHeight, barWidth, barSpace, minAmplitudeHalfHeight, maxAmplitudeHalfHeight);
+    barDrawer.drawRectBar(
+      ctx,
+      buffer,
+      bars,
+      offsetX,
+      halfHeight,
+      barWidth,
+      barSpace,
+      minAmplitudeHalfHeight,
+      maxAmplitudeHalfHeight
+    );
   } else if (barStyle === "capsule") {
-    drawCapsuleBar(ctx, buffer, bars, offsetX, halfHeight, barWidth, barSpace, minAmplitudeHalfHeight, maxAmplitudeHalfHeight);
-  }
-}
-
-function drawRectBar(ctx, buffer, Nbars, posX, posY, barWidthValue, barSpaceValue, minAmplitudeValue, maxAmplitudeValue) {
-  const fullBarWidth = barWidthValue + barSpaceValue;
-  for (let i = 0; i < Nbars; i++) {
-    const x = posX + i * fullBarWidth;
-    const barHeight = max(minAmplitudeValue, min(buffer[i] * posY, maxAmplitudeValue));
-
-    ctx.fillRect(x, posY - barHeight, barWidthValue, barHeight);
-    ctx.fillRect(x, posY, barWidthValue, barHeight);
-  }
-}
-
-function drawCapsuleBar(ctx, buffer, Nbars, posX, posY, barWidthValue, barSpaceValue, minAmplitudeValue, maxAmplitudeValue) {
-  const fullBarWidth = barWidthValue + barSpaceValue;
-  const radius = barWidthValue * barStyleCapsuleRadius;
-  for (let i = 0; i < Nbars; i++) {
-    const x = posX + i * fullBarWidth;
-    const barHeight = max(minAmplitudeValue, min(buffer[i] * posY, maxAmplitudeValue));
-
-    ctx.beginPath();
-    ctx.moveTo(x + radius, posY - barHeight);
-    try {
-      ctx.roundRect(x, posY - barHeight, barWidthValue, barHeight * 2, radius);
-    } catch {
-      ctx.roundRect(x, posY - barHeight, barWidthValue, barHeight * 2, 0.2);
-    }
-    ctx.fill();
+    barDrawer.drawCapsuleBar(
+      ctx,
+      buffer,
+      bars,
+      offsetX,
+      halfHeight,
+      barWidth,
+      barSpace,
+      minAmplitudeHalfHeight,
+      maxAmplitudeHalfHeight
+    );
   }
 }
 
