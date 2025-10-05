@@ -1,33 +1,45 @@
-function getVisualizerBufferFromFFT(real, imag, Nbars, threshold, minFreq, maxFreq, dupSize) {
-  Nbars = Nbars || 100;
-  const realLength = real.length;
-  const fftSizeValue = realLength * 0.5;
-  const nyquist = sampleRate * dupSize * 0.5;
-
-  const minBin = floor((minFreq / nyquist) * fftSizeValue);
-  const maxBin = min(floor((maxFreq / nyquist) * fftSizeValue), fftSizeValue);
-  const binRange = maxBin - minBin;
-
+function getVisualizerBufferFromFFT(real, imag, Nbars, threshold, minBin, maxBin, interleaved = false) {
   const barBuffer = new Float32Array(Nbars).fill(0);
+  const binRange = maxBin - minBin;
 
   let currentBin = minBin;
   const binStep = binRange / Nbars;
 
-  for (let i = 0; i < Nbars && currentBin < maxBin; i++) {
-    const endBin = min(currentBin + binStep, maxBin);
+  let readBin = (j) => {
+    return {
+      re: real[j + realShift],
+      im: imag[j + imagShift],
+    };
+  };
+  if (interleaved) {
+    readBin = (dummy, halfIdx, check) => {
+      const re = check ? real[halfIdx + realShift] : imag[halfIdx + imagShift];
+      const im = check ? imag[halfIdx + realShift] : real[halfIdx + 1 + imagShift];
+      return {
+        re,
+        im,
+      };
+    };
+  }
 
-    const startIdx = floor(currentBin);
-    const endIdx = ceil(endBin);
+  for (let i = 0; i < Nbars && currentBin < maxBin; i++) {
+    const barValue = barBuffer[i];
+    const endBin = Math.min(currentBin + binStep, maxBin);
+    const startIdx = Math.floor(currentBin);
+    const endIdx = Math.ceil(endBin);
 
     for (let j = startIdx; j < endIdx; j++) {
-      const mag = sqrt(real[j + realShift] ** 2 + imag[j + imagShift] ** 2) / fftSizeValue;
-      if (mag > barBuffer[i]) barBuffer[i] = mag;
+      const check = j % 2 === 0;
+      const {re: realV, im: imagV} = readBin(j, floor(j / 2), check);
+      barBuffer[i] = Math.sqrt(realV ** 2 + imagV ** 2) / fftSize;
     }
 
-    barBuffer[i] = barBuffer[i] >= threshold ? barBuffer[i] : 0;
-
+    if (barValue < threshold) barBuffer[i] = 0;
     currentBin = endBin;
   }
+
+  //second bar fix for virtual interleaved, exactly what Sonic Candle did
+  if (interleaved && fftInterleaveFix) barBuffer[1] = (barBuffer[0] + barBuffer[2]) / 2;
 
   return barBuffer;
 }
@@ -35,9 +47,9 @@ function getVisualizerBufferFromFFT(real, imag, Nbars, threshold, minFreq, maxFr
 //===== MISC =====
 
 function displayInfo() {
-  const nyquist = sampleRate * 0.5;
-  const minBin = floor((minFreq / nyquist) * fftSize);
-  const maxBin = min(floor((maxFreq / nyquist) * fftSize), fftSize - 1);
+  const binHz = sampleRate / fftSize;
+  const minFreq = minBin * binHz;
+  const maxFreq = maxBin * binHz;
 
   const binRange = maxBin - minBin;
   const freqRange = maxFreq - minFreq;
@@ -45,8 +57,6 @@ function displayInfo() {
   const freqPerBar = freqRange / bars;
   const freqPerBin = freqRange / binRange;
 
-  gId("minBinLbl").innerHTML = minBin;
-  gId("maxBinLbl").innerHTML = maxBin;
   gId("audioDataLengthLbl").innerHTML = leftChannelArray.length;
   gId("audioDurationLbl").innerHTML = audio.duration;
   gId("windowLengthLbl").innerHTML = (fftSize / sampleRate) * 1000 + "ms";
@@ -64,7 +74,11 @@ function displayInfo() {
   gId("binsPerBarLbl").innerHTML = binRange / bars;
   gId("barsPerBinLbl").innerHTML = bars / binRange;
 
+  gId("minFreqLbl").innerHTML = minFreq + "Hz";
+  gId("maxFreqLbl").innerHTML = maxFreq + "Hz";
   gId("freqRangeLbl").innerHTML = freqRange + "Hz";
+  gId("binRangeLbl").innerHTML = maxBin;
+
   gId("desiredFreqRangeLbl").innerHTML = bars * (freqPerBin * 2) + "Hz";
   gId("desiredFftSizeLbl").innerHTML = sampleRate / freqPerBar;
   gId("desiredBarsLbl").innerHTML = freqRange / freqPerBar;
