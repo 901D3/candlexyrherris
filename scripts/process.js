@@ -29,9 +29,7 @@ function process() {
 
   drawWrapper();
 
-  if (audio.ended) {
-    stftRe = []; //save memory
-    stftIm = [];
+  if (audio.paused || audio.ended) {
     return;
   }
 
