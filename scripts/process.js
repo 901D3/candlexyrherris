@@ -6,21 +6,72 @@ function getCurrentFrameFFT(audioTime, channelArray) {
   const N = fftSize;
 
   try {
-    windowFunc("n", "N");
+    windowFunc("n", "N", "v");
   } catch {
-    return false;
+    return;
   }
 
   for (let n = 0; n < N; n++) {
-    stftRe[n] *= windowFunc(n, N) * volMultiplier;
+    const v = stftRe[n];
+    stftRe[n] *= windowFunc(n, N, v) * volMultiplier;
   }
 
   nayuki.transform(stftRe, stftIm);
+
+  // Reverse engineered version of Sonic Candle's interleaved array indexing
+  // Shifted real or imaginary arrays gives wavy bars
+  // You can use a different window function for stftIm(use it for wavy bars),
+  // and retransform with another different window function then
+  // stftRe again for a more complex visual effect. But you have to trade perfomance for the coolness...
+
+  if (interleaveEffect) {
+    const stftReTemp = stftRe.slice();
+    const stftImTemp = stftIm.slice();
+    stftRe.fill(0);
+    stftIm.fill(0);
+
+    for (let i = 0; i < fftSize; i++) {
+      //const re = stftReTemp[i] ** 2;
+      const im = stftImTemp[i] ** 2;
+      stftIm[i * 2 + 1] = sqrt(stftReTemp[i + 1] ** 2 + im);
+      stftRe[i * 2] = sqrt(stftReTemp[i] ** 2 + im);
+    }
+  }
+  
+  //if (interleaveEffect) {
+  //  // Wavy bars effect
+  //  let stftImTemp = stftIm.slice();
+  //  stftIm.fill(0);
+  //
+  //  for (let i = 0; i < fftSize; i++) {
+  //    stftIm[i * 2 + 1] = sqrt(stftRe[i + 1] ** 2 + stftImTemp[i] ** 2);
+  //  }
+  //  stftImTemp = stftIm.slice();
+  //
+  //  // Fatty sidelobes for stftRe
+  //  stftRe = new Float32Array(channelArray.subarray(startSample, startSample + fftSize));
+  //  stftIm.fill(0);
+  //
+  //  for (let i = 0; i < fftSize; i++) {
+  //    stftRe[i] *= (i / fftSize) * volMultiplier * 2;
+  //  }
+  //
+  //  nayuki.transform(stftRe, stftIm);
+  //
+  //  // Transformed stftRe
+  //  let stftReTemp = stftRe.slice();
+  //  stftRe.fill(0);
+  //
+  //  for (let i = 0; i < fftSize; i++) {
+  //    stftRe[i * 2] = sqrt(stftReTemp[i] ** 2 + stftIm[i] ** 2);
+  //  }
+  //  stftIm = stftImTemp.slice();
+  //}
 }
 
 function drawWrapper() {
   getCurrentFrameFFT(audio.currentTime, channelIndex === 1 ? rightChannelArray : leftChannelArray);
-  const buffer = getVisualizerBufferFromFFT(stftRe, stftIm, bars, threshold, minBin, maxBin, fftInterleave);
+  const buffer = getVisualizerBufferFromFFT(stftRe, stftIm, bars, threshold, minBin, maxBin, interleaveEffect);
   drawVisualizerBufferToCanvas(ctx, buffer);
 }
 
@@ -29,11 +80,8 @@ function process() {
 
   drawWrapper();
 
-  if (audio.paused || audio.ended) {
-    return;
-  }
-
   if (t) frameCounter();
+  if (audio.paused || audio.ended) return;
   setTimeout(process, max(0, 1000 / frameRate - (performance.now() - t0)));
 }
 
@@ -55,10 +103,10 @@ async function render() {
   printLog("Starting rendering");
   recorderWebmWriterSettings = new WebMWriter({
     quality: webmWriterQuality,
-    fileWriter: gId("webmWriterFileWriterSelect").value,
+    fileWriter: null,
 
     frameRate: recorderFrameRate,
-    transparent: false, //enabling transparent is kinda useless
+    transparent: false, // enabling transparent is useless for most cases
   });
   const startPositionSeconds = Number(gId("rendererStartPosition").value);
   const startFrame = floor(startPositionSeconds * recorderFrameRate);
@@ -103,7 +151,7 @@ async function render() {
     t4 = performance.now() - t4;
 
     printLog(
-      "Draw: " +
+      "Process: " +
         t1 +
         "ms\n" +
         "Canvas to WebP: " +
@@ -181,6 +229,7 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
     ctx.fillStyle = "rgb(" + backgroundColorRed + ", " + backgroundColorGreen + ", " + backgroundColorBlue + ")";
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
   } else if (backgroundStyle === "image") {
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     ctx.drawImage(image, 0, 0);
   }
 
@@ -196,7 +245,24 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
       barWidth,
       barSpace,
       minAmplitudeHalfHeight,
-      maxAmplitudeHalfHeight
+      maxAmplitudeHalfHeight,
+      barAmplitudeRounding,
+      barWidthRounding
+    );
+  } else if (barStyle === "triangCapsule") {
+    barDrawer.drawTriCapsuleBar(
+      ctx,
+      buffer,
+      bars,
+      offsetX,
+      halfHeight,
+      barWidth,
+      barSpace,
+      minAmplitudeHalfHeight,
+      maxAmplitudeHalfHeight,
+      barAmplitudeRounding,
+      barWidthRounding,
+      barStyleTriangCapsuleHeight
     );
   } else if (barStyle === "capsule") {
     barDrawer.drawCapsuleBar(
@@ -208,7 +274,25 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
       barWidth,
       barSpace,
       minAmplitudeHalfHeight,
-      maxAmplitudeHalfHeight
+      maxAmplitudeHalfHeight,
+      barStyleCapsuleRadius,
+      barAmplitudeRounding,
+      barWidthRounding,
+      2
+    );
+  } else if (barStyle === "oval") {
+    barDrawer.drawOvalBar(
+      ctx,
+      buffer,
+      bars,
+      offsetX,
+      halfHeight,
+      barWidth / 2,
+      barSpace,
+      minAmplitudeHalfHeight,
+      maxAmplitudeHalfHeight,
+      barAmplitudeRounding,
+      barWidthRounding
     );
   }
 }
