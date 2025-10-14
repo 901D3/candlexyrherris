@@ -150,7 +150,6 @@ input {
   border-radius: 2px;
   font-family: Unifont;
   font-size: 16px;
-  max-width: 300px;
   vertical-align: middle;
   line-height: normal;
   display: inline-block;
@@ -226,6 +225,7 @@ input[type="file"] {
   padding: 3px;
   cursor: pointer;
   border-radius: 2px;
+  width: 400px;
 }
 
 input:hover,
@@ -433,6 +433,12 @@ span {
 
 .hidden {
   display: none !important;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.2;
+  cursor: not-allowed;
 }
 
 .settings_label-input {
