@@ -76,14 +76,16 @@
     barStyle = gId("barStyle").value;
     const barStyleControls = {
       rect: [],
-      capsule: ["capsuleRadiusDisp"],
+      triangCapsule: ["triangCapsuleSettingsDisp"],
+      capsule: ["capsuleSettingsDisp"],
+      oval: [],
     };
 
     const allIds = Object.values(barStyleControls).flat();
 
-    allIds.forEach((id) => gId(id).classList.add("hidden"));
+    allIds.forEach((id) => gId(id).classList.add("disabled"));
 
-    barStyleControls[barStyle]?.forEach((id) => gId(id).classList.remove("hidden"));
+    barStyleControls[barStyle]?.forEach((id) => gId(id).classList.remove("disabled"));
   });
 
   gId("barStyleCapsuleRadiusRange").addEventListener("input", function () {
@@ -104,6 +106,32 @@
       0.3,
       "input"
     );
+  });
+
+  gId("barStyleTriangCapsuleHeightRange").addEventListener("input", function () {
+    sliderInputSync(
+      gId("barStyleTriangCapsuleHeightRange"),
+      gId("barStyleTriangCapsuleHeightInput"),
+      "barStyleTriangCapsuleHeight",
+      undefined,
+      "slider"
+    );
+    if (barStyleTriangCapsuleHeight === 0) {
+      barStyleTriangCapsuleHeight = 65536;
+    }
+  });
+
+  gId("barStyleTriangCapsuleHeightInput").addEventListener("input", function () {
+    sliderInputSync(
+      gId("barStyleTriangCapsuleHeightRange"),
+      gId("barStyleTriangCapsuleHeightInput"),
+      "barStyleTriangCapsuleHeight",
+      0.3,
+      "input"
+    );
+    if (barStyleTriangCapsuleHeight === 0) {
+      barStyleTriangCapsuleHeight = 65536;
+    }
   });
 
   gId("backgroundStyle").addEventListener("change", function () {
@@ -198,14 +226,14 @@
 
   gId("windowFuncInput").addEventListener("input", function () {
     try {
-      windowFunc = new Function("n", "N", sinc.toString() + "; return " + gId("windowFuncInput").value + ";");
+      windowFunc = new Function("n", "N", "v", sinc.toString() + "; return " + gId("windowFuncInput").value + ";");
     } catch {}
   });
 
   gId("windowFuncSelect").addEventListener("change", function () {
     gId("windowFuncInput").value = $windowFunc.getPreset(gId("windowFuncSelect").value);
     try {
-      windowFunc = new Function("n", "N", sinc.toString() + "; return " + gId("windowFuncInput").value + ";");
+      windowFunc = new Function("n", "N", "v", sinc.toString() + "; return " + gId("windowFuncInput").value + ";");
     } catch {}
   });
 
@@ -231,31 +259,38 @@
   });
 
   //init all vars based on input value
-  sliderInputSync(gId("fftSizeRange"), gId("fftSizeInput"), "fftSize", 2048, "input");
-  sliderInputSync(gId("frameRateRange"), gId("frameRateInput"), "frameRate", 33.3333333333333, "input");
-  sliderInputSync(gId("volumeMultiplierRange"), gId("volumeMultiplierInput"), "volMultiplier", 1, "input");
-  sliderInputSync(gId("minAmplitudeRange"), gId("minAmplitudeInput"), "minAmplitude", 1, "input");
-  sliderInputSync(gId("maxAmplitudeRange"), gId("maxAmplitudeInput"), "maxAmplitude", 1, "input");
-  sliderInputSync(gId("thresholdRange"), gId("thresholdInput"), "threshold", 1, "input");
-  sliderInputSync(gId("minBinRange"), gId("minBinInput"), "minBin", 0, "input");
-  sliderInputSync(gId("maxBinRange"), gId("maxBinInput"), "maxBin", 1, "input");
-  sliderInputSync(gId("barsRange"), gId("barsInput"), "bars", 100, "input");
-  sliderInputSync(gId("barStyleCapsuleRadiusRange"), gId("barStyleCapsuleRadiusInput"), "barStyleCapsuleRadius", 0.3, "input");
+  sliderInputSync(gId("fftSizeRange"), gId("fftSizeInput"), "fftSize", null, "input");
+  sliderInputSync(gId("frameRateRange"), gId("frameRateInput"), "frameRate", null, "input");
+  sliderInputSync(gId("volumeMultiplierRange"), gId("volumeMultiplierInput"), "volMultiplier", null, "input");
+  sliderInputSync(gId("minAmplitudeRange"), gId("minAmplitudeInput"), "minAmplitude", null, "input");
+  sliderInputSync(gId("maxAmplitudeRange"), gId("maxAmplitudeInput"), "maxAmplitude", null, "input");
+  sliderInputSync(gId("thresholdRange"), gId("thresholdInput"), "threshold", null, "input");
+  sliderInputSync(gId("minBinRange"), gId("minBinInput"), "minBin", null, "input");
+  sliderInputSync(gId("maxBinRange"), gId("maxBinInput"), "maxBin", null, "input");
+  sliderInputSync(gId("barsRange"), gId("barsInput"), "bars", null, "input");
+  sliderInputSync(gId("barStyleCapsuleRadiusRange"), gId("barStyleCapsuleRadiusInput"), "barStyleCapsuleRadius", null, "input");
+  sliderInputSync(
+    gId("barStyleTriangCapsuleHeightRange"),
+    gId("barStyleTriangCapsuleHeightInput"),
+    "barStyleTriangCapsuleHeight",
+    null,
+    "input"
+  );
 
-  sliderInputSync(gId("barWidthRange"), gId("barWidthInput"), "barWidth", 255, "input");
-  sliderInputSync(gId("barSpaceRange"), gId("barSpaceInput"), "barSpace", 255, "input");
+  sliderInputSync(gId("barWidthRange"), gId("barWidthInput"), "barWidth", null, "input");
+  sliderInputSync(gId("barSpaceRange"), gId("barSpaceInput"), "barSpace", null, "input");
 
-  sliderInputSync(gId("barColorRedRange"), gId("barColorRedInput"), "barColorRed", 255, "input");
-  sliderInputSync(gId("barColorGreenRange"), gId("barColorGreenInput"), "barColorGreen", 255, "input");
-  sliderInputSync(gId("barColorBlueRange"), gId("barColorBlueInput"), "barColorBlue", 255, "input");
+  sliderInputSync(gId("barColorRedRange"), gId("barColorRedInput"), "barColorRed", null, "input");
+  sliderInputSync(gId("barColorGreenRange"), gId("barColorGreenInput"), "barColorGreen", null, "input");
+  sliderInputSync(gId("barColorBlueRange"), gId("barColorBlueInput"), "barColorBlue", null, "input");
 
-  sliderInputSync(gId("backgroundColorRedRange"), gId("backgroundColorRedInput"), "backgroundColorRed", 20, "input");
-  sliderInputSync(gId("backgroundColorGreenRange"), gId("backgroundColorGreenInput"), "backgroundColorGreen", 20, "input");
-  sliderInputSync(gId("backgroundColorBlueRange"), gId("backgroundColorBlueInput"), "backgroundColorBlue", 20, "input");
+  sliderInputSync(gId("backgroundColorRedRange"), gId("backgroundColorRedInput"), "backgroundColorRed", null, "input");
+  sliderInputSync(gId("backgroundColorGreenRange"), gId("backgroundColorGreenInput"), "backgroundColorGreen", null, "input");
+  sliderInputSync(gId("backgroundColorBlueRange"), gId("backgroundColorBlueInput"), "backgroundColorBlue", null, "input");
 
-  sliderInputSync(gId("recorderFrameRateRange"), gId("recorderFrameRateInput"), "recorderFrameRate", 30, "input");
-  sliderInputSync(gId("realShiftRange"), gId("realShiftInput"), "realShift", 1, "input");
-  sliderInputSync(gId("imagShiftRange"), gId("imagShiftInput"), "imagShift", 1, "input");
+  sliderInputSync(gId("recorderFrameRateRange"), gId("recorderFrameRateInput"), "recorderFrameRate", null, "input");
+  sliderInputSync(gId("realShiftRange"), gId("realShiftInput"), "realShift", null, "input");
+  sliderInputSync(gId("imagShiftRange"), gId("imagShiftInput"), "imagShift", null, "input");
   gId("windowFuncInput").value = $windowFunc.getPreset(gId("windowFuncSelect").value);
   try {
     windowFunc = new Function(
