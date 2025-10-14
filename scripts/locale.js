@@ -21,6 +21,7 @@ var locales = {
   mime_type: "MIME type",
   codec: "Codec",
   file_name: "File name(ext is auto)",
+  start_position: "Start position",
 
   width: "Width",
   height: "Height",
@@ -84,8 +85,11 @@ var locales = {
   image: "Image",
 
   capsule: "Capsule",
+  triangle_capsule: "Triangle Capsule",
+  oval: "Oval",
 
   capsule_radius: "Capsule radius",
+  triangle_capsule_height: "Triangle capsule height",
 
   window_function: "Window function",
 
@@ -110,7 +114,7 @@ var locales = {
   null: "Null",
 
   enable_file_writer: "Enable file writer",
-  webp_quality: "webP quality",
+  webp_quality: "WebP quality",
 
   canvas_size_change: "Change canvas size",
   pixelated_render: "Pixelated Rendering",
