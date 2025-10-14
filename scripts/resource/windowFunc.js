@@ -3,10 +3,10 @@ var $windowFunc = (function () {
     const presets = {
       rect: "1",
       triangular: "1 - abs((n - N / 2) / (N / 2))",
-      welch: "1 - ((n - N / 2) / N / 2) ** 2",
+      welch: "1 - ((n - N / 2) / (N / 2)) ** 2",
       cosine: "sin((PI / N) * (n + 0.5))",
-      bartlett: "(2 / (N - 1)) * ((N - 1) / 2 - abs(n - (N - 1) / 2))",
-      barthann: "0.62 - 0.48 * abs(n / (N - 1) - 0.5) + \n" + "0.38 * cos(2 * PI * abs(n / (N - 1) - 0.5))",
+      bartlett: "(2 / N) * (N / 2 - abs(n - N / 2))",
+      barthann: "0.62 - 0.48 * abs(n / N - 0.5) + \n" + "0.38 * cos(2 * PI * abs(n / N - 0.5))",
 
       hann: "0.5 * (1 - cos((2 * PI * n) / N))",
       hamming: "0.54 * (1 - cos((2 * PI * n) / N))",
@@ -42,7 +42,7 @@ var $windowFunc = (function () {
       lanczos: "sinc((2 * n) / N - 1)",
 
       //other custom window functions
-      fun1: "exp(0.2 - (0.25 * cos((PI * n) / (N - 1))))",
+      fun1: "exp(0.2 - (0.25 * cos((PI * n) / N)))",
       fun2: "1 - 0.012 * ((PI * n) / N) + 0.05 * ((4 * PI * n) / N)",
       fun3: "n > ( N / 2 ) ? ((n / N) / n) : n / (N / 4)"
     };
