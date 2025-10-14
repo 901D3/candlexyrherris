@@ -5,46 +5,34 @@ function getVisualizerBufferFromFFT(real, imag, Nbars, threshold, minBin, maxBin
   let currentBin = minBin;
   const binStep = binRange / Nbars;
 
-  let readBin = (j) => {
-    return {
-      re: real[j + realShift],
-      im: imag[j + imagShift],
-    };
-  };
-  if (interleaved) {
-    readBin = (dummy, halfIdx, check) => {
-      const re = check ? real[halfIdx + realShift] : imag[halfIdx + imagShift];
-      const im = check ? imag[halfIdx + realShift] : real[halfIdx + 1 + imagShift];
-      return {
-        re,
-        im,
-      };
-    };
-  }
-
   for (let i = 0; i < Nbars && currentBin < maxBin; i++) {
-    const barValue = barBuffer[i];
     const endBin = Math.min(currentBin + binStep, maxBin);
     const startIdx = Math.floor(currentBin);
     const endIdx = Math.ceil(endBin);
 
     for (let j = startIdx; j < endIdx; j++) {
-      const check = j % 2 === 0;
-      const {re: realV, im: imagV} = readBin(j, floor(j / 2), check);
-      barBuffer[i] = Math.sqrt(realV ** 2 + imagV ** 2) / fftSize;
+      let mag;
+
+      if (interleaved) {
+        mag = (real[j + realShift] + imag[j + imagShift]) / fftSize;
+      } else {
+        mag = Math.sqrt(real[j + realShift] ** 2 + imag[j + imagShift] ** 2) / fftSize;
+      }
+
+      if (mag > barBuffer[i]) barBuffer[i] = mag;
     }
 
-    if (barValue < threshold) barBuffer[i] = 0;
+    if (barBuffer[i] < threshold) barBuffer[i] = 0;
     currentBin = endBin;
   }
 
-  //second bar fix for virtual interleaved, exactly what Sonic Candle did
-  if (interleaved && fftInterleaveFix) barBuffer[1] = (barBuffer[0] + barBuffer[2]) / 2;
+  // second bar fix for interleaved effect, exactly what Sonic Candle did
+  if (interleaved && interleaveEffectFix) barBuffer[1] = (barBuffer[0] + barBuffer[2]) / 2;
 
   return barBuffer;
 }
 
-//===== MISC =====
+// some other stuff
 
 function displayInfo() {
   const binHz = sampleRate / fftSize;
@@ -54,7 +42,6 @@ function displayInfo() {
   const binRange = maxBin - minBin;
   const freqRange = maxFreq - minFreq;
 
-  const freqPerBar = freqRange / bars;
   const freqPerBin = freqRange / binRange;
 
   gId("audioDataLengthLbl").innerHTML = leftChannelArray.length;
@@ -74,14 +61,10 @@ function displayInfo() {
   gId("binsPerBarLbl").innerHTML = binRange / bars;
   gId("barsPerBinLbl").innerHTML = bars / binRange;
 
-  gId("minFreqLbl").innerHTML = minFreq + "Hz";
-  gId("maxFreqLbl").innerHTML = maxFreq + "Hz";
-  gId("freqRangeLbl").innerHTML = freqRange + "Hz";
+  gId("minFreqLbl").innerHTML = (interleaveEffect ? minFreq / 2 : minFreq) + "Hz";
+  gId("maxFreqLbl").innerHTML = (interleaveEffect ? maxFreq / 2 : maxFreq) + "Hz";
+  gId("freqRangeLbl").innerHTML = (interleaveEffect ? freqRange / 2 : freqRange) + "Hz";
   gId("binRangeLbl").innerHTML = maxBin;
-
-  gId("desiredFreqRangeLbl").innerHTML = bars * (freqPerBin * 2) + "Hz";
-  gId("desiredFftSizeLbl").innerHTML = sampleRate / freqPerBar;
-  gId("desiredBarsLbl").innerHTML = freqRange / freqPerBar;
 }
 
 function targetResolution(barWidth, barSpace, Nbars) {
