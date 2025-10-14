@@ -225,24 +225,12 @@ function stopRendering() {
     canvasStream = canvas.captureStream(recorderFrameRate);
   });
 
-  gId("recorderWebmWriterQualityRange").addEventListener("input", function () {
-    sliderInputSync(
-      gId("recorderWebmWriterQualityRange"),
-      gId("recorderWebmWriterQualityInput"),
-      "recorderWebmWriterQuality",
-      undefined,
-      "slider"
-    );
+  gId("webmWriterQualityRange").addEventListener("input", function () {
+    sliderInputSync(gId("webmWriterQualityRange"), gId("webmWriterQualityInput"), "webmWriterQuality", undefined, "slider");
   });
 
-  gId("recorderWebmWriterQualityInput").addEventListener("input", function () {
-    sliderInputSync(
-      gId("recorderWebmWriterQualityRange"),
-      gId("recorderWebmWriterQualityInput"),
-      "recorderWebmWriterQuality",
-      0.9,
-      "input"
-    );
+  gId("webmWriterQualityInput").addEventListener("input", function () {
+    sliderInputSync(gId("webmWriterQualityRange"), gId("webmWriterQualityInput"), "webmWriterQuality", 0.9, "input");
   });
 
   //stop recording and download the video when user reload
@@ -284,11 +272,5 @@ function stopRendering() {
     videoBitsPerSecond: recorderVideoBitrate,
     frameRate: recorderFrameRate,
   };
-  sliderInputSync(
-    gId("recorderWebmWriterQualityRange"),
-    gId("recorderWebmWriterQualityInput"),
-    "recorderWebmWriterQuality",
-    0.9,
-    "input"
-  );
+  sliderInputSync(gId("webmWriterQualityRange"), gId("webmWriterQualityInput"), "webmWriterQuality", 0.9, "input");
 })();
