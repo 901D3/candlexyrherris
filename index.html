@@ -27,6 +27,13 @@
           class="height-fit-content"
           title=".wav, .flac, .mp3, .ogg, .opus, .m4a, .mp4, .mkv, .webm"
           accept=".wav, .flac, .mp3, .ogg, .opus, .m4a, .mp4, .mkv, .webm" />
+        <input type="text" id="linkUrl" placeholder="Audio link(must point to an audio file)" />
+        <button
+          id="updateAudioSrc"
+          onclick="updateAudioSrc()"
+          class="height-fit-content"
+          style="width: 60px"
+          data-text="$update"></button>
         <span class="font-weight-bold" style="font-size: 20px" data-text="$image"></span>
         <input
           type="file"
@@ -34,11 +41,14 @@
           class="height-fit-content"
           title=".png, .jpg, .jpeg, .webp, .gif, .bmp"
           accept=".png, .jpg, .jpeg, .webp, .gif, .bmp" />
-        <span class="font-weight-bold" style="font-size: 20px" data-text="$paste_link"></span>
-        <input type="text" id="linkUrl" />
-        <button id="updateAudioSrc" onclick="updateAudioSrc()" class="height-fit-content" style="width: 60px">
-          <span data-text="$update"></span>
-        </button>
+        <input type="text" id="imageLinkUrl" placeholder="Image link(must point to an image file)" />
+        <button
+          id="updateImageSrc"
+          onclick="updateImageSrc()"
+          class="height-fit-content"
+          style="width: 60px"
+          data-text="$update"></button>
+        <span class="font-weight-bold" style="font-size: 20px" data-text="$image"></span>
       </div>
       <div class="display-flex top-bottom-flow width-fit-content" style="gap: 12px">
         <span class="font-weight-bold" style="font-size: 20px" data-text="$recorder"></span>
@@ -107,12 +117,6 @@
           <span data-text="$webp_quality"></span>
           <input type="range" id="webmWriterQualityRange" min="0" max="1" step="0.00000000001" />
           <input type="number" id="webmWriterQualityInput" placeholder="0.90" value="0.90" />
-        </div>
-        <div class="settings_label-select">
-          <span data-text="$enable_file_writer"></span>
-          <select id="webmWriterFileWriterSelect">
-            <option value="null" selected="true" data-text="$null"></option>
-          </select>
         </div>
       </div>
     </div>
@@ -209,16 +213,16 @@
           <div class="settings_checkbox-label">
             <input
               type="checkbox"
-              id="fftInterleave"
-              onchange="fftInterleave = document.getElementById('fftInterleave').checked" />
+              id="interleaveEffect"
+              onchange="interleaveEffect = document.getElementById('interleaveEffect').checked;displayInfo()" />
             <span data-text="$Interleave"></span>
           </div>
           <div class="settings_checkbox-label">
             <input
               type="checkbox"
-              id="fftInterleaveFix"
+              id="interleaveEffectFix"
               checked=""
-              onchange="fftInterleaveFix = document.getElementById('fftInterleaveFix').checked" />
+              onchange="interleaveEffectFix = document.getElementById('interleaveEffectFix').checked" />
             <span>Second bar fix(Interleaved only)</span>
           </div>
           <div class="whitehr"></div>
@@ -228,12 +232,19 @@
             <select id="barStyle">
               <option value="rect" selected="true" data-text="$rect"></option>
               <option value="capsule" data-text="$capsule"></option>
+              <option value="oval" data-text="$oval"></option>
+              <option value="triangCapsule" data-text="$triangle_capsule"></option>
             </select>
           </div>
-          <div id="capsuleRadiusDisp" class="settings_label-slider-input hidden">
+          <div id="capsuleSettingsDisp" class="settings_label-slider-input disabled">
             <span data-text="$capsule_radius"></span>
             <input type="range" id="barStyleCapsuleRadiusRange" min="0" max="0.5" step="0.00000000001" />
             <input type="number" id="barStyleCapsuleRadiusInput" placeholder="0.5" value="0.5" />
+          </div>
+          <div id="triangCapsuleSettingsDisp" class="settings_label-slider-input disabled">
+            <span data-text="$triangle_capsule_height"></span>
+            <input type="range" id="barStyleTriangCapsuleHeightRange" min="0" max="1" step="0.00000000001" />
+            <input type="number" id="barStyleTriangCapsuleHeightInput" placeholder="1" value="1" />
           </div>
           <div class="whitehr"></div>
           <div class="settings_label-slider-input">
@@ -265,6 +276,14 @@
             <span></span>
             <input type="range" id="barColorBlueRange" min="0" max="255" step="1" />
             <input type="number" id="barColorBlueInput" placeholder="255" value="255" />
+          </div>
+          <div class="settings_checkbox-label">
+            <input type="checkbox" id="barAmplitudeRounding" onchange="barAmplitudeRounding = document.getElementById('barAmplitudeRounding').checked" />
+            <span>Amplitude Rounding</span>
+          </div>
+          <div class="settings_checkbox-label">
+            <input type="checkbox" id="barWidthRounding" onchange="barWidthRounding = document.getElementById('barWidthRounding').checked" />
+            <span>Width Rounding</span>
           </div>
           <div class="whitehr"></div>
           <div class="settings_label-select">
@@ -311,17 +330,26 @@
               type="checkbox"
               id="canvasRendering"
               checked=""
-              onchange="
-                  document.getElementById('canvas').style.imageRendering = canvasRendering.checked ? 'pixelated' : 'auto';
-                " />
+              onchange="document.getElementById('canvas').style.imageRendering =
+                document.getElementById('canvasRendering').checked ? 'pixelated' : 'smooth';" />
             <span data-text="$pixelated_render"></span>
           </div>
           <div class="settings_checkbox-label">
-            <input type="checkbox" id="desyncOpt" />
+            <input
+              type="checkbox"
+              id="desyncOpt"
+              onchange='
+              ctx = canvas.getContext("2d", {
+                willReadFrequently: true,
+                alpha: false,
+                colorSpace: "srgb",
+                colorType: "float16",
+                desynchronized: document.getElementById("desyncOpt").checked,
+              });' />
             <span data-text="$canvas_desync"></span>
           </div>
           <div class="settings_button-label">
-            <button onclick="fullscreenCvs()" data-text="$canvas_fullscreen"></button>
+            <button onclick="fullscreenCanvas()" data-text="$canvas_fullscreen"></button>
             <span>[F]</span>
           </div>
         </div>
@@ -352,19 +380,6 @@
           <div class="settings_label-label_info">
             <span data-text="$window_length"></span>
             <span id="windowLengthLbl" class="info">ms</span>
-          </div>
-          <div class="whitehr"></div>
-          <div class="settings_label-label_info">
-            <span data-text="$desired_freq_range"></span>
-            <span id="desiredFreqRangeLbl" class="info">Hz</span>
-          </div>
-          <div class="settings_label-label_info">
-            <span data-text="$desired_fft_size"></span>
-            <span id="desiredFftSizeLbl" class="info">[Int{ceil}]</span>
-          </div>
-          <div class="settings_label-label_info">
-            <span data-text="$desired_bars"></span>
-            <span id="desiredBarsLbl" class="info">[Int{ceil}]</span>
           </div>
           <div class="whitehr"></div>
           <div class="settings_label-label_info">
@@ -492,8 +507,7 @@
       gId("startRecording").removeAttribute("disabled");
       gId("startRendering").removeAttribute("disabled");
 
-      const blobUrl = URL.createObjectURL(file);
-      audio.src = blobUrl;
+      audio.src = URL.createObjectURL(file);
       displayInfo();
       printLog("Initializing took " + (performance.now() - t0) + "ms");
     });
@@ -502,13 +516,14 @@
       const file = uploadImg.files[0];
 
       image = new Image();
+      image.crossOrigin = "";
       image.src = URL.createObjectURL(file);
     });
 
     async function updateAudioSrc() {
       let t0 = performance.now();
       try {
-        const res = await fetch(gId("linkUrl").value);
+        await fetch(gId("linkUrl").value);
       } catch (e) {
         printLog(e);
         return;
@@ -553,6 +568,38 @@
       audio.src = linkUrl;
       displayInfo();
       printLog("Initializing took " + (performance.now() - t0) + "ms");
+    }
+
+    async function updateImageSrc() {
+      let t0 = performance.now();
+      try {
+        await fetch(gId("imageLinkUrl").value);
+      } catch (e) {
+        printLog(e);
+        return;
+      }
+
+      image = new Image();
+      image.crossOrigin = "";
+      image.src = gId("imageLinkUrl").value;
+    }
+
+    function fullscreenCanvas() {
+      if (canvas.requestFullscreen) {
+        canvas.requestFullscreen();
+      } else if (canvas.webkitRequestFullscreen) {
+        canvas.webkitRequestFullscreen();
+      } else if (canvas.msRequestFullscreen) {
+        canvas.msRequestFullscreen();
+      }
+    }
+
+    function isFirefox() {
+      const testCanvas = document.createElement("canvas");
+      return "mozOpaque" in testCanvas;
+    }
+    if (isFirefox()) {
+      canvas.setAttribute("moz-opaque", "");
     }
   </script>
 </html>
