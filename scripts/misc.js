@@ -294,8 +294,9 @@
   gId("windowFuncInput").value = $windowFunc.getPreset(gId("windowFuncSelect").value);
   try {
     windowFunc = new Function(
-      "n", //index
-      "N", //stft real array length
+      "n", // Index
+      "N", // STFT Real array length
+      "v", // Current scanning amplitude
       sinc.toString() + "; return " + gId("windowFuncInput").value + ";"
     );
   } catch {}
