@@ -103,7 +103,12 @@ function sinc(x) {
 }
 
 var canvas = gId("canvas");
-var ctx = canvas.getContext("2d");
+var ctx = canvas.getContext("2d", {
+  alpha: false,
+  colorSpace: "srgb",
+  colorType: "float16",
+  desynchronized: false,
+});
 ctx.imageSmoothingEnabled = false;
 var canvasStream = canvas.captureStream();
 var canvasWidth = canvas.width;
@@ -155,8 +160,8 @@ var minBin;
 var maxBin;
 var realShift;
 var imagShift;
-var fftInterleave;
-var fftInterleaveFix = true;
+var interleaveEffect;
+var interleaveEffectFix = true;
 
 var dupSize = 1;
 
@@ -173,7 +178,10 @@ var barSpace;
 
 var barStyle = "rect";
 var barStyleCapsuleRadius = 0.3;
+var barStyleTriangCapsuleHeight = 0.3;
 var backgroundStyle = "solidColor";
+var barAmplitudeRounding = false;
+var barWidthRounding = false;
 
 var recorderFrameRate = 30;
 var recorderVideoBitrate = 2000000;
@@ -184,7 +192,7 @@ var recorderWebmWriterSettings;
 var isRecording = false;
 var isRendering = false;
 
-var windowFunc = new Function("n", "N", sinc.toString() + "; return " + gId("windowFuncInput").value + ";");
+var windowFunc = new Function("n", "N", "v", sinc.toString() + "; return " + gId("windowFuncInput").value + ";");
 
 let logEntries = [];
 
@@ -276,7 +284,7 @@ function sliderInputSync(slider, input, variable, defaultValue, source) {
   window[variable] = value;
 }
 
-//binSearch moved to binUtils.js
+// binSearch moved to binUtils.js
 
 function createBlobFromElement(el) {
   if (!el) return false;
@@ -354,12 +362,3 @@ function strToU8(str) {
   }
   return u8;
 }
-
-(function () {
-  if (window.RequestFileSystem || window.webkitRequestFileSystem) {
-    printLog("Chrome FileSystem API is available");
-  } else {
-    printLog("No FileSystem API, fallback to memory buffering");
-    gId("webmWriterFileWriterSelect").setAttribute("disabled", "");
-  }
-})();
