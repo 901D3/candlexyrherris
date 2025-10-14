@@ -2,7 +2,7 @@ var locales = {
   none: "None",
   elN_A: "Your browser does not support this element",
   title: "Candlexyrherris",
-  subtitle: "A web-based reimplementation of Sonic Candle with enhanced stuff",
+  subtitle: "A web-based faithful reimplementation of Sonic Candle with enhanced features",
 
   upload: "Upload file",
   paste_link: "Paste link",
@@ -203,3 +203,4 @@ var $locale = (function () {
     "Check out the source code!<a href='https://github.com/901D3/candlexyrherris' target='_blank'>github.com/901D3/candlexyrherris</a>" +
     "View MP4 codecs to ensure compability for MediaRecorder<a href='https://cconcolato.github.io/media-mime-support/' target='_blank'>cconcolato.github.io/media-mime-support/</a>";
 })();
+
