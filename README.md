@@ -1,6 +1,6 @@
 # Candlexyrherris
 
-## A web-based reimplementation of Sonic Candle with enhanced stuff
+## A web-based faithful reimplementation of Sonic Candle with enhanced features
 
 This is just an experiment version of candlexyehrris, expect it to see bugs and unstable stuff...
 
