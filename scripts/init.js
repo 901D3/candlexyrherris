@@ -180,6 +180,7 @@ var barStyle = "rect";
 var barStyleCapsuleRadius = 0.3;
 var barStyleTriangCapsuleHeight = 0.3;
 var backgroundStyle = "solidColor";
+var barOutline = false;
 var barAmplitudeRounding = false;
 var barWidthRounding = false;
 
