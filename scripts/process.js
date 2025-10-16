@@ -37,7 +37,7 @@ function getCurrentFrameFFT(audioTime, channelArray) {
       stftRe[i * 2] = sqrt(stftReTemp[i] ** 2 + im);
     }
   }
-  
+
   //if (interleaveEffect) {
   //  // Wavy bars effect
   //  let stftImTemp = stftIm.slice();
@@ -85,6 +85,8 @@ function process() {
   setTimeout(process, max(0, 1000 / frameRate - (performance.now() - t0)));
 }
 
+const showRenderLog = false;
+
 async function render() {
   if (isRecording == true) {
     printLog("Stop recording to start rendering");
@@ -112,20 +114,19 @@ async function render() {
   const startFrame = floor(startPositionSeconds * recorderFrameRate);
   const totalFrames = ceil(audio.duration * recorderFrameRate) - startFrame;
   printLog("Total frames:" + totalFrames);
-  let frameIndex = startFrame;
-  let blob;
-  audio.currentTime = startPositionSeconds;
   audio.pause();
+  audio.currentTime = startPositionSeconds;
   audio.muted = true;
   audio.loop = false;
 
   function seek(time) {
     return new Promise((resolve) => {
-      audio.currentTime = time;
-      audio.addEventListener("seeked", function handler() {
+      const handler = () => {
         audio.removeEventListener("seeked", handler);
         resolve();
-      });
+      };
+      audio.addEventListener("seeked", handler);
+      audio.currentTime = time;
     });
   }
 
@@ -135,41 +136,39 @@ async function render() {
     });
   }
 
+  let maxConcurrentEncodes = Number(gId("rendererMaxConcurrentEncodes").value);
+  if (!Number.isInteger(maxConcurrentEncodes)) {
+    printLog("Max concurrent encodes default to 2");
+    maxConcurrentEncodes = 2;
+  }
+
+  const encodeQueue = new Set();
+
   const t0 = performance.now();
-  while (frameIndex < totalFrames && !audio.ended) {
+
+  for (let frameIndex = startFrame; frameIndex < totalFrames && !audio.ended; frameIndex++) {
     const frameTime = frameIndex / recorderFrameRate;
+
     let t1 = performance.now();
+
     await seek(frameTime);
-    t1 = performance.now() - t1;
 
-    let t3 = performance.now();
-    blob = await canvasToWebPBlob(canvas, webmWriterQuality);
-    t3 = performance.now() - t3;
+    printLog("Process: " + (performance.now() - t1) + "ms");
 
-    let t4 = performance.now();
-    recorderWebmWriterSettings.addFrame(new Uint8Array(await blob.arrayBuffer()), canvasWidth, canvasHeight);
-    t4 = performance.now() - t4;
+    const encodePromise = (async () => {
+      let t3 = performance.now();
+      const buffer = await (await canvasToWebPBlob(canvas, webmWriterQuality)).arrayBuffer();
+      if (showRenderLog) printLog("Canvas to WebP: " + (performance.now() - t3) + "ms");
 
-    printLog(
-      "Process: " +
-        t1 +
-        "ms\n" +
-        "Canvas to WebP: " +
-        t3 +
-        "ms\n" +
-        "WebM Writer addFrame: " +
-        t4 +
-        "ms\n" +
-        "Total: " +
-        (t1 + t3 + t4) +
-        "ms\n" +
-        "Rendered: " +
-        frameIndex +
-        "/" +
-        (frameIndex / totalFrames) * 100 +
-        "%",
-      1
-    );
+      t3 = performance.now();
+      recorderWebmWriterSettings.addFrame(new Uint8Array(buffer), canvas.width, canvas.height);
+      if (showRenderLog) printLog("WebM Writer addFrame: " + (performance.now() - t3) + "ms");
+    })();
+
+    encodeQueue.add(encodePromise);
+    encodePromise.finally(() => encodeQueue.delete(encodePromise));
+
+    if (encodeQueue.size >= maxConcurrentEncodes) await Promise.race(encodeQueue);
 
     if (isRendering == false) {
       printLog("Rendering stopped manually");
@@ -180,7 +179,19 @@ async function render() {
       onComplete();
       return true;
     }
-    frameIndex++;
+
+    if (showRenderLog)
+      printLog(
+        "Total: " +
+          (performance.now() - t1) +
+          "ms\n" +
+          "Rendered: " +
+          frameIndex +
+          "/" +
+          (frameIndex / totalFrames) * 100 +
+          "%",
+        1
+      );
   }
   const totalTime = performance.now() - t0;
   printLog(
@@ -190,11 +201,11 @@ async function render() {
   onComplete();
 
   async function onComplete() {
+    await Promise.all(encodeQueue);
     isRendering = false;
     audio.muted = false;
     audio.loop = true;
     audio.controls = true;
-    audio.classList.remove("offscreen_hide");
 
     await recorderWebmWriterSettings.complete().then((blob) => {
       const url = URL.createObjectURL(blob);
@@ -220,8 +231,10 @@ async function render() {
 
 function drawVisualizerBufferToCanvas(ctx, buffer) {
   const fullBarWidth = barWidth + barSpace;
+  let offsetX = (canvasWidth - buffer.length * fullBarWidth + barSpace) * 0.5;
+  if (barStyle === "lines") offsetX = (canvasWidth - buffer.length * barWidth) * 0.5;
+
   const halfHeight = canvasHeight * 0.5;
-  const offsetX = (canvasWidth - buffer.length * fullBarWidth + barSpace) * 0.5;
   const minAmplitudeHalfHeight = minAmplitude * halfHeight;
   const maxAmplitudeHalfHeight = maxAmplitude * halfHeight;
 
@@ -233,7 +246,11 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
     ctx.drawImage(image, 0, 0);
   }
 
-  ctx.fillStyle = "rgb(" + barColorRed + ", " + barColorGreen + ", " + barColorBlue + ")";
+  if (barOutline) {
+    ctx.strokeStyle = "rgb(" + barColorRed + ", " + barColorGreen + ", " + barColorBlue + ")";
+  } else {
+    ctx.fillStyle = "rgb(" + barColorRed + ", " + barColorGreen + ", " + barColorBlue + ")";
+  }
 
   if (barStyle === "rect") {
     barDrawer.drawRectBar(
@@ -246,23 +263,9 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
       barSpace,
       minAmplitudeHalfHeight,
       maxAmplitudeHalfHeight,
+      barOutline,
       barAmplitudeRounding,
       barWidthRounding
-    );
-  } else if (barStyle === "triangCapsule") {
-    barDrawer.drawTriCapsuleBar(
-      ctx,
-      buffer,
-      bars,
-      offsetX,
-      halfHeight,
-      barWidth,
-      barSpace,
-      minAmplitudeHalfHeight,
-      maxAmplitudeHalfHeight,
-      barAmplitudeRounding,
-      barWidthRounding,
-      barStyleTriangCapsuleHeight
     );
   } else if (barStyle === "capsule") {
     barDrawer.drawCapsuleBar(
@@ -275,10 +278,26 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
       barSpace,
       minAmplitudeHalfHeight,
       maxAmplitudeHalfHeight,
-      barStyleCapsuleRadius,
+      barOutline,
       barAmplitudeRounding,
       barWidthRounding,
-      2
+      barStyleCapsuleRadius
+    );
+  } else if (barStyle === "triangCapsule") {
+    barDrawer.drawTriCapsuleBar(
+      ctx,
+      buffer,
+      bars,
+      offsetX,
+      halfHeight,
+      barWidth,
+      barSpace,
+      minAmplitudeHalfHeight,
+      maxAmplitudeHalfHeight,
+      barOutline,
+      barAmplitudeRounding,
+      barWidthRounding,
+      barStyleTriangCapsuleHeight
     );
   } else if (barStyle === "oval") {
     barDrawer.drawOvalBar(
@@ -291,6 +310,21 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
       barSpace,
       minAmplitudeHalfHeight,
       maxAmplitudeHalfHeight,
+      barOutline,
+      barAmplitudeRounding,
+      barWidthRounding
+    );
+  } else if (barStyle === "lines") {
+    barDrawer.drawLines(
+      ctx,
+      buffer,
+      bars,
+      offsetX,
+      halfHeight,
+      barWidth,
+      minAmplitudeHalfHeight,
+      maxAmplitudeHalfHeight,
+      barOutline,
       barAmplitudeRounding,
       barWidthRounding
     );
