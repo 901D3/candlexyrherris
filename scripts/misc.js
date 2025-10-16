@@ -79,6 +79,7 @@
       triangCapsule: ["triangCapsuleSettingsDisp"],
       capsule: ["capsuleSettingsDisp"],
       oval: [],
+      lines: [],
     };
 
     const allIds = Object.values(barStyleControls).flat();
