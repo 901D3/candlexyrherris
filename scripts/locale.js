@@ -2,7 +2,7 @@ var locales = {
   none: "None",
   elN_A: "Your browser does not support this element",
   title: "Candlexyrherris",
-  subtitle: "A web-based faithful reimplementation of Sonic Candle with enhanced features",
+  subtitle: "A web-based reimplementation of Sonic Candle with enhanced stuff",
 
   upload: "Upload file",
   paste_link: "Paste link",
@@ -35,6 +35,7 @@ var locales = {
   bitrate: "Bitrate",
 
   rect: "Rectangle",
+  ramp: "Ramp",
   triangular: "Triangular",
   welch: "Welch",
   cosine: "Cosine",
@@ -115,13 +116,35 @@ var locales = {
 
   enable_file_writer: "Enable file writer",
   webp_quality: "WebP quality",
+  max_concurrent_encodes: "Max concurrent encodes",
 
   canvas_size_change: "Change canvas size",
   pixelated_render: "Pixelated Rendering",
   canvas_desync: "Canvas Desynchronize",
   canvas_fullscreen: "Fullscreen Mode",
   Telemetries: "Show Telemetries(drop fps)",
-  //: "",
+  startPositionTooltip: "Start position before rendering in seconds",
+  fftSizeTooltip: "FFT size can be non-power of 2",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
+  //startPositionTooltip: "",
   //: "",
   //: "",
   //: "",
@@ -203,4 +226,3 @@ var $locale = (function () {
     "Check out the source code!<a href='https://github.com/901D3/candlexyrherris' target='_blank'>github.com/901D3/candlexyrherris</a>" +
     "View MP4 codecs to ensure compability for MediaRecorder<a href='https://cconcolato.github.io/media-mime-support/' target='_blank'>cconcolato.github.io/media-mime-support/</a>";
 })();
-
