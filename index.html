@@ -89,7 +89,7 @@
         </div>
       </div>
       <div class="settings_container">
-        <div class="settings_label-input_long">
+        <div class="settings_label-input_long tooltip">
           <span data-text="$mime_type"></span>
           <input id="recorderMimeTypeInput" placeholder="video/webm" value="video/webm" />
         </div>
@@ -118,6 +118,10 @@
           <input type="range" id="webmWriterQualityRange" min="0" max="1" step="0.00000000001" />
           <input type="number" id="webmWriterQualityInput" placeholder="0.90" value="0.90" />
         </div>
+        <div class="settings_label-input">
+          <span data-text="$max_concurrent_encodes"></span>
+          <input type="number" id="rendererMaxConcurrentEncodes" placeholder="2" value="2" />
+        </div>
       </div>
     </div>
     <div class="bigContainer left-right-flow" style="gap: 20px">
@@ -129,7 +133,8 @@
             <input type="range" id="volumeMultiplierRange" min="0" max="10" step="0.00000000001" />
             <input type="number" id="volumeMultiplierInput" placeholder="1" value="1" />
           </div>
-          <div class="settings_label-slider-input">
+          <div class="settings_label-slider-input tooltip">
+            <span class="tooltipTextRight" data-text="$fftSizeTooltip"></span>
             <span data-text="$fft_size"></span>
             <input type="range" id="fftSizeRange" min="1" max="16384" step="1" />
             <input type="number" id="fftSizeInput" placeholder="1600" value="1600" />
@@ -154,17 +159,17 @@
             <input type="range" id="minBinRange" min="0" max="5000" step="1" />
             <input type="number" id="minBinInput" placeholder="0" value="0" />
           </div>
-          <div class="settings_label-slider-input">
+          <div class="settings_label-slider-input tooltip">
             <span data-text="$max_bin"></span>
             <input type="range" id="maxBinRange" min="0" max="5000" step="1" />
             <input type="number" id="maxBinInput" placeholder="100" value="100" />
           </div>
           <div class="settings_label-label_info">
-            <span data-text="$freq_range"></span>
+            <span data-text="$min_frequency"></span>
             <span id="minFreqLbl" class="info">Hz</span>
           </div>
           <div class="settings_label-label_info">
-            <span data-text="$freq_range"></span>
+            <span data-text="$max_frequency"></span>
             <span id="maxFreqLbl" class="info">Hz</span>
           </div>
           <div class="settings_label-label_info">
@@ -172,7 +177,7 @@
             <span id="freqRangeLbl" class="info">Hz</span>
           </div>
           <div class="settings_label-label_info">
-            <span data-text="$max_bin"></span>
+            <span data-text="$bin_range"></span>
             <span id="binRangeLbl" class="info">[Int]</span>
           </div>
           <div class="whitehr"></div>
@@ -180,6 +185,7 @@
             <span data-text="$window_function"></span>
             <select id="windowFuncSelect">
               <option value="rect" selected="true" data-text="$rect"></option>
+              <option value="ramp" data-text="$ramp"></option>
               <option value="triangular" data-text="$triangular"></option>
               <option value="welch" data-text="$welch"></option>
               <option value="cosine" data-text="$cosine"></option>
@@ -232,9 +238,14 @@
             <select id="barStyle">
               <option value="rect" selected="true" data-text="$rect"></option>
               <option value="capsule" data-text="$capsule"></option>
-              <option value="oval" data-text="$oval"></option>
               <option value="triangCapsule" data-text="$triangle_capsule"></option>
+              <option value="oval" data-text="$oval"></option>
+              <option value="lines" data-text="$lines"></option>
             </select>
+          </div>
+          <div class="settings_checkbox-label">
+            <input type="checkbox" id="barOutline" onchange="barOutline = document.getElementById('barOutline').checked" />
+            <span>Outline</span>
           </div>
           <div id="capsuleSettingsDisp" class="settings_label-slider-input disabled">
             <span data-text="$capsule_radius"></span>
@@ -262,27 +273,33 @@
             <input type="range" id="barSpaceRange" min="0" max="100" step="0.00000000001" />
             <input type="number" id="barSpaceInput" placeholder="1" value="1" />
           </div>
-          <div class="settings_label-slider-input" style="background-color: #ff0000; border-radius: 4px">
+          <div class="settings_label-slider-input" style="background-color: #ff0000">
             <span></span>
             <input type="range" id="barColorRedRange" min="0" max="255" step="1" />
             <input type="number" id="barColorRedInput" placeholder="255" value="255" />
           </div>
-          <div class="settings_label-slider-input" style="background-color: #00ff00; border-radius: 4px">
+          <div class="settings_label-slider-input" style="background-color: #00ff00">
             <span></span>
             <input type="range" id="barColorGreenRange" min="0" max="255" step="1" />
             <input type="number" id="barColorGreenInput" placeholder="255" value="255" />
           </div>
-          <div class="settings_label-slider-input" style="background-color: #0000ff; border-radius: 4px">
+          <div class="settings_label-slider-input" style="background-color: #0000ff">
             <span></span>
             <input type="range" id="barColorBlueRange" min="0" max="255" step="1" />
             <input type="number" id="barColorBlueInput" placeholder="255" value="255" />
           </div>
           <div class="settings_checkbox-label">
-            <input type="checkbox" id="barAmplitudeRounding" onchange="barAmplitudeRounding = document.getElementById('barAmplitudeRounding').checked" />
+            <input
+              type="checkbox"
+              id="barAmplitudeRounding"
+              onchange="barAmplitudeRounding = document.getElementById('barAmplitudeRounding').checked" />
             <span>Amplitude Rounding</span>
           </div>
           <div class="settings_checkbox-label">
-            <input type="checkbox" id="barWidthRounding" onchange="barWidthRounding = document.getElementById('barWidthRounding').checked" />
+            <input
+              type="checkbox"
+              id="barWidthRounding"
+              onchange="barWidthRounding = document.getElementById('barWidthRounding').checked" />
             <span>Width Rounding</span>
           </div>
           <div class="whitehr"></div>
@@ -293,17 +310,17 @@
               <option value="image" data-text="$image"></option>
             </select>
           </div>
-          <div class="settings_label-slider-input" style="background-color: #ff0000; border-radius: 4px">
+          <div class="settings_label-slider-input" style="background-color: #ff0000">
             <span></span>
             <input type="range" id="backgroundColorRedRange" min="0" max="255" step="1" />
             <input type="number" id="backgroundColorRedInput" placeholder="50" value="50" />
           </div>
-          <div class="settings_label-slider-input" style="background-color: #00ff00; border-radius: 4px">
+          <div class="settings_label-slider-input" style="background-color: #00ff00">
             <span></span>
             <input type="range" id="backgroundColorGreenRange" min="0" max="255" step="1" />
             <input type="number" id="backgroundColorGreenInput" placeholder="50" value="50" />
           </div>
-          <div class="settings_label-slider-input" style="background-color: #0000ff; border-radius: 4px">
+          <div class="settings_label-slider-input" style="background-color: #0000ff">
             <span></span>
             <input type="range" id="backgroundColorBlueRange" min="0" max="255" step="1" />
             <input type="number" id="backgroundColorBlueInput" placeholder="50" value="50" />
