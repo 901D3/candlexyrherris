@@ -81,6 +81,24 @@
   border-top-left-radius: 50%;
 }
 
+::-webkit-range-thumb {
+  width: 4px;
+  height: 100%;
+  border-radius: 0px;
+  background: #111;
+  background-color: #ea7010;
+  border: none;
+}
+
+::-moz-range-thumb {
+  width: 4px;
+  height: 100%;
+  border-radius: 0px;
+  background: #111;
+  background-color: #ea7010;
+  border: none;
+}
+
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -147,7 +165,6 @@ input {
   color: #e0e0e0;
   border: 2px solid #ea7010;
   padding: 2px;
-  border-radius: 2px;
   font-family: Unifont;
   font-size: 16px;
   vertical-align: middle;
@@ -167,7 +184,6 @@ select {
   color: #e0e0e0;
   border: 2px solid #ea7010;
   padding: 2px;
-  border-radius: 2px;
   font-family: UbuntuR;
   font-size: 15px;
   margin-right: 5px;
@@ -186,7 +202,6 @@ textarea {
   color: #e0e0e0;
   border: 2px solid #ea7010;
   padding: 4px;
-  border-radius: 2px;
   font-family: Unifont;
   font-size: 16px;
 }
@@ -194,11 +209,9 @@ textarea {
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
-  padding: 2px;
-  cursor: e-resize;
   display: inline-block;
   width: 200px;
-  height: 17px;
+  height: 18px;
 }
 
 input[type="range"]:hover {
@@ -207,7 +220,7 @@ input[type="range"]:hover {
 
 input[type="range"]:disabled {
   background-color: #333333;
-  color: #e0e0e0;
+  color: #b3b3b3;
   border: 3px solid #555555;
   cursor: not-allowed;
 }
@@ -224,7 +237,6 @@ input[type="checkbox"] {
 input[type="file"] {
   padding: 3px;
   cursor: pointer;
-  border-radius: 2px;
   width: 400px;
 }
 
@@ -240,7 +252,6 @@ button {
   color: #e0e0e0;
   border: 2px solid #ea7010;
   padding: 3px;
-  border-radius: 2px;
   font-family: UbuntuBold;
   font-size: 14px;
   cursor: pointer;
@@ -331,7 +342,6 @@ select {
   background-color: #e14f00;
   border: 8px solid #1b1b1b;
   padding: 10px;
-  border-radius: 2px;
   max-width: max-content;
 }
 
@@ -399,6 +409,42 @@ span {
   margin-right: auto;
   border: 2px solid #ea7010;
   line-height: 0;
+}
+
+.tooltipTextRight {
+  visibility: hidden;
+  background-color: #424242ee;
+  text-align: left;
+  position: absolute;
+  padding: 3px;
+  z-index: 1;
+}
+
+.tooltipTextBottom {
+  visibility: hidden;
+  background-color: #424242ee;
+  text-align: left;
+  position: absolute;
+  padding: 3px;
+  z-index: 1;
+}
+
+.tooltip:hover .tooltipTextRight {
+  visibility: visible;
+  margin-top: auto;
+  margin-bottom: auto;
+  width: fit-content;
+  height: fit-content;
+  left: 100%;
+}
+
+.tooltip:hover .tooltipTextBottom {
+  visibility: visible;
+  margin-top: auto;
+  margin-bottom: auto;
+  width: fit-content;
+  height: fit-content;
+  bottom: 100%;
 }
 
 .firehr {
