@@ -1,4 +1,4 @@
-# Candlexyrherris
+# _**Candlexyrherris**_
 
 ## A web-based faithful reimplementation of Sonic Candle with enhanced features
 
