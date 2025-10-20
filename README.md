@@ -8,7 +8,7 @@ An audio visualizer based on STFT(Short-time Fourier transform), it gives the ic
 
 Inspired by Sonic Candle and the upcomming HyperSynesthesia by Dakkra
 
----
+# _Legal notices_
 
 thenickdude/webm-writer-js\
 https://en.wikipedia.org/wiki/WTFPL
