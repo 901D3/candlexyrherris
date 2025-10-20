@@ -10,14 +10,14 @@ Inspired by Sonic Candle and the upcomming HyperSynesthesia by Dakkra
 
 ---
 
-thenickdude/webm-writer-js
+thenickdude/webm-writer-js\
 https://en.wikipedia.org/wiki/WTFPL
 
 ---
 
 Free FFT and convolution (compiled from TypeScript)
 
-Copyright (c) 2022 Project Nayuki. (MIT License)
+Copyright (c) 2022 Project Nayuki. (MIT License)\
 https://www.nayuki.io/page/free-small-fft-in-multiple-languages
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
