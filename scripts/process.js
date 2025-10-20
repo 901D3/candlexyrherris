@@ -143,7 +143,7 @@ async function render() {
 
     if (t) {
       const time = performance.now() - t1;
-      printLog("Process time: " + time + "ms\n" + "FPS: " + 1000 / time);
+      printLog("Draw time: " + time + "ms");
     }
 
     const encodePromise = (async () => {
