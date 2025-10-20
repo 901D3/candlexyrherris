@@ -48,7 +48,6 @@
           class="height-fit-content"
           style="width: 60px"
           data-text="$update"></button>
-        <span class="font-weight-bold" style="font-size: 20px" data-text="$image"></span>
       </div>
       <div class="display-flex top-bottom-flow width-fit-content" style="gap: 12px">
         <span class="font-weight-bold" style="font-size: 20px" data-text="$recorder"></span>
@@ -63,6 +62,9 @@
           <button id="startRendering" type="button" class="sqrButton" disabled="">
             <div>|-></div>
           </button>
+          <button id="stopRendering" class="sqrButton" type="button" disabled="">
+            <div>stop render-ing</div>
+          </button>
         </div>
         <div class="display-flex left-right-flow width-fit-content" style="gap: 12px">
           <button id="pauseRecording" class="sqrButton" disabled="" type="button">
@@ -76,8 +78,16 @@
           <button id="resumeRecording" class="sqrButton" type="button" disabled="">
             <div>resume</div>
           </button>
-          <button id="stopRendering" class="sqrButton" type="button" disabled="">
-            <div>stop render-ing</div>
+          <button id="pauseRendering" class="sqrButton" disabled="" type="button">
+            <div
+              class="horizontal-align-center width-fit-content height-fit-content display-flex left-right-flow"
+              style="gap: 6px">
+              <div class="vertical-align-center-margin" style="width: 5px; height: 16px; background-color: #f70"></div>
+              <div class="vertical-align-center-margin" style="width: 5px; height: 16px; background-color: #f70"></div>
+            </div>
+          </button>
+          <button id="resumeRendering" class="sqrButton" type="button" disabled="">
+            <div>resume</div>
           </button>
           <!--<span class="vertical-align-center-margin">[F4]</span>-->
         </div>
