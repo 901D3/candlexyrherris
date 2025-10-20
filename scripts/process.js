@@ -117,21 +117,6 @@ async function render() {
   audio.muted = true;
   audio.loop = false;
 
-  function seek(time) {
-    return new Promise((resolve) => {
-      if (audio.currentTime === time) {
-        resolve();
-        return;
-      }
-      const handler = () => {
-        audio.removeEventListener("seeked", handler);
-        resolve();
-      };
-      audio.addEventListener("seeked", handler);
-      audio.currentTime = time;
-    });
-  }
-
   function canvasToWebPBlob(canvas, quality) {
     return new Promise((resolve) => {
       canvas.toBlob((blob) => resolve(blob), "image/webp", quality);
@@ -156,7 +141,10 @@ async function render() {
     audio.currentTime = frameTime;
     drawWrapper();
 
-    if (t) printLog("Process time: " + (performance.now() - t1) + "ms");
+    if (t) {
+      const time = performance.now() - t1;
+      printLog("Process time: " + time + "ms\n" + "FPS: " + 1000 / time);
+    }
 
     const encodePromise = (async () => {
       let t3 = performance.now();
