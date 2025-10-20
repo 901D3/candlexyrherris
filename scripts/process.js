@@ -183,18 +183,7 @@ async function render() {
       return true;
     }
 
-    if (t)
-      printLog(
-        "Total: " +
-          (performance.now() - t1) +
-          "ms\n" +
-          "Rendered: " +
-          frameIndex +
-          "/" +
-          (frameIndex / totalFrames) * 100 +
-          "%",
-        1
-      );
+    if (t) printLog("Rendered: " + frameIndex + "|" + (frameIndex / totalFrames) * 100 + "%", 1);
   }
   const totalTime = performance.now() - t0;
   printLog(
