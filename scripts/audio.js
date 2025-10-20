@@ -16,12 +16,6 @@ function getVisualizerBufferFromFFT(real, imag, Nbars, threshold, minBin, maxBin
       } else {
         mag = Math.sqrt(real[startIdx + realShift] ** 2 + imag[startIdx + imagShift] ** 2);
       }
-    } else if (binValuePicking === "last") {
-      if (interleaved) {
-        mag = real[endIdx + realShift] + imag[endIdx + imagShift];
-      } else {
-        mag = Math.sqrt(real[endIdx + realShift] ** 2 + imag[endIdx + imagShift] ** 2);
-      }
     } else if (binValuePicking === "max") {
       let value;
       mag = -Infinity;
