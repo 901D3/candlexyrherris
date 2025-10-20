@@ -1,5 +1,5 @@
 function getVisualizerBufferFromFFT(real, imag, Nbars, threshold, minBin, maxBin, interleaved = false) {
-  const barBuffer = new Float32Array(Nbars).fill(0);
+  const barBuffer = new Float32Array(Nbars);
   const binRange = maxBin - minBin;
 
   let currentBin = minBin;
@@ -9,18 +9,58 @@ function getVisualizerBufferFromFFT(real, imag, Nbars, threshold, minBin, maxBin
     const endBin = Math.min(currentBin + binStep, maxBin);
     const startIdx = Math.floor(currentBin);
     const endIdx = Math.ceil(endBin);
-
-    for (let j = startIdx; j < endIdx; j++) {
-      let mag;
-
+    let mag;
+    if (binValuePicking === "first") {
       if (interleaved) {
-        mag = (real[j + realShift] + imag[j + imagShift]) / fftSize;
+        mag = real[startIdx + realShift] + imag[startIdx + imagShift];
       } else {
-        mag = Math.sqrt(real[j + realShift] ** 2 + imag[j + imagShift] ** 2) / fftSize;
+        mag = Math.sqrt(real[startIdx + realShift] ** 2 + imag[startIdx + imagShift] ** 2);
       }
+    } else if (binValuePicking === "last") {
+      if (interleaved) {
+        mag = real[endIdx + realShift] + imag[endIdx + imagShift];
+      } else {
+        mag = Math.sqrt(real[endIdx + realShift] ** 2 + imag[endIdx + imagShift] ** 2);
+      }
+    } else if (binValuePicking === "max") {
+      let value;
+      mag = -Infinity;
 
-      if (mag > barBuffer[i]) barBuffer[i] = mag;
+      for (let j = startIdx; j < endIdx; j++) {
+        if (interleaved) {
+          value = real[j + realShift] + imag[j + imagShift];
+        } else {
+          value = Math.sqrt(real[j + realShift] ** 2 + imag[j + imagShift] ** 2);
+        }
+        if (value > mag) mag = value;
+      }
+    } else if (binValuePicking === "avg") {
+      mag = 0;
+
+      for (let j = startIdx; j < endIdx; j++) {
+        if (interleaved) {
+          mag += real[j + realShift] + imag[j + imagShift];
+        } else {
+          mag += Math.sqrt(real[j + realShift] ** 2 + imag[j + imagShift] ** 2);
+        }
+      }
+      mag /= endIdx - startIdx;
+    } else if (binValuePicking === "rms") {
+      mag = 0;
+
+      for (let j = startIdx; j < endIdx; j++) {
+        let value;
+        if (interleaved) {
+          value = real[j + realShift] + imag[j + imagShift];
+        } else {
+          value = Math.sqrt(real[j + realShift] ** 2 + imag[j + imagShift] ** 2);
+        }
+        mag += value ** 2;
+      }
+      mag = Math.sqrt(mag / (endIdx - startIdx));
     }
+
+    barBuffer[i] = amplitudeOffset + (mag / fftSize) * postVolMultiply;
 
     if (barBuffer[i] < threshold) barBuffer[i] = 0;
     currentBin = endBin;
