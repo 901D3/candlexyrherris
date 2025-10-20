@@ -85,8 +85,6 @@ function process() {
   setTimeout(process, max(0, 1000 / frameRate - (performance.now() - t0)));
 }
 
-const showRenderLog = false;
-
 async function render() {
   if (isRecording == true) {
     printLog("Stop recording to start rendering");
@@ -158,16 +156,16 @@ async function render() {
     audio.currentTime = frameTime;
     drawWrapper();
 
-    printLog("Process: " + (performance.now() - t1) + "ms");
+    if (t) printLog("Process time: " + (performance.now() - t1) + "ms");
 
     const encodePromise = (async () => {
       let t3 = performance.now();
       const buffer = await (await canvasToWebPBlob(canvas, webmWriterQuality)).arrayBuffer();
-      if (showRenderLog) printLog("Canvas to WebP: " + (performance.now() - t3) + "ms");
+      if (t) printLog("Canvas to WebP: " + (performance.now() - t3) + "ms");
 
       t3 = performance.now();
       recorderWebmWriterSettings.addFrame(new Uint8Array(buffer), canvas.width, canvas.height);
-      if (showRenderLog) printLog("WebM Writer addFrame: " + (performance.now() - t3) + "ms");
+      if (t) printLog("WebM Writer addFrame: " + (performance.now() - t3) + "ms");
     })();
 
     encodeQueue.add(encodePromise);
@@ -185,7 +183,7 @@ async function render() {
       return true;
     }
 
-    if (showRenderLog)
+    if (t)
       printLog(
         "Total: " +
           (performance.now() - t1) +
