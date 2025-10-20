@@ -20,12 +20,28 @@
     }
   });
 
-  gId("volumeMultiplierRange").addEventListener("input", function () {
-    sliderInputSync(gId("volumeMultiplierRange"), gId("volumeMultiplierInput"), "volMultiplier", undefined, "slider");
+  gId("preVolumeMultiplierRange").addEventListener("input", function () {
+    sliderInputSync(gId("preVolumeMultiplierRange"), gId("preVolumeMultiplierInput"), "preVolMultiply", undefined, "slider");
   });
 
-  gId("volumeMultiplierInput").addEventListener("input", function () {
-    sliderInputSync(gId("volumeMultiplierRange"), gId("volumeMultiplierInput"), "volMultiplier", 1, "input");
+  gId("preVolumeMultiplierInput").addEventListener("input", function () {
+    sliderInputSync(gId("preVolumeMultiplierRange"), gId("preVolumeMultiplierInput"), "preVolMultiply", 1, "input");
+  });
+
+  gId("postVolumeMultiplierRange").addEventListener("input", function () {
+    sliderInputSync(gId("postVolumeMultiplierRange"), gId("postVolumeMultiplierInput"), "postVolMultiply", undefined, "slider");
+  });
+
+  gId("postVolumeMultiplierInput").addEventListener("input", function () {
+    sliderInputSync(gId("postVolumeMultiplierRange"), gId("postVolumeMultiplierInput"), "postVolMultiply", 1, "input");
+  });
+
+  gId("amplitudeOffsetRange").addEventListener("input", function () {
+    sliderInputSync(gId("amplitudeOffsetRange"), gId("amplitudeOffsetInput"), "amplitudeOffset", undefined, "slider");
+  });
+
+  gId("amplitudeOffsetInput").addEventListener("input", function () {
+    sliderInputSync(gId("amplitudeOffsetRange"), gId("amplitudeOffsetInput"), "amplitudeOffset", 1, "input");
   });
 
   gId("minAmplitudeRange").addEventListener("input", function () {
@@ -70,6 +86,10 @@
   gId("maxBinInput").addEventListener("input", function () {
     sliderInputSync(gId("maxBinRange"), gId("maxBinInput"), "maxBin", 1, "input");
     displayInfo();
+  });
+
+  gId("binValuePicking").addEventListener("change", function () {
+    binValuePicking = gId("binValuePicking").value;
   });
 
   gId("barStyle").addEventListener("change", function () {
@@ -262,10 +282,12 @@
   //init all vars based on input value
   sliderInputSync(gId("fftSizeRange"), gId("fftSizeInput"), "fftSize", null, "input");
   sliderInputSync(gId("frameRateRange"), gId("frameRateInput"), "frameRate", null, "input");
-  sliderInputSync(gId("volumeMultiplierRange"), gId("volumeMultiplierInput"), "volMultiplier", null, "input");
+  sliderInputSync(gId("preVolumeMultiplierRange"), gId("preVolumeMultiplierInput"), "preVolMultiply", null, "input");
+  sliderInputSync(gId("postVolumeMultiplierRange"), gId("postVolumeMultiplierInput"), "postVolMultiply", null, "input");
   sliderInputSync(gId("minAmplitudeRange"), gId("minAmplitudeInput"), "minAmplitude", null, "input");
   sliderInputSync(gId("maxAmplitudeRange"), gId("maxAmplitudeInput"), "maxAmplitude", null, "input");
   sliderInputSync(gId("thresholdRange"), gId("thresholdInput"), "threshold", null, "input");
+  sliderInputSync(gId("amplitudeOffsetRange"), gId("amplitudeOffsetInput"), "amplitudeOffset", null, "input");
   sliderInputSync(gId("minBinRange"), gId("minBinInput"), "minBin", null, "input");
   sliderInputSync(gId("maxBinRange"), gId("maxBinInput"), "maxBin", null, "input");
   sliderInputSync(gId("barsRange"), gId("barsInput"), "bars", null, "input");
