@@ -34,6 +34,13 @@ var locales = {
   variables: "Variables",
   bitrate: "Bitrate",
 
+  bin_value_picking: "Bin value picking",
+  first: "First",
+  last: "Last(Shift)",
+  max: "Max",
+  average: "Average",
+  RMS: "RMS",
+
   rect: "Rectangle",
   ramp: "Ramp",
   triangular: "Triangular",
@@ -58,7 +65,8 @@ var locales = {
   fft_size: "FFT Size",
   frame_rate: "Frame rate",
   frame_latency: "Frame latency",
-  vol_multiplier: "Volume multiplier",
+  pre_vol_multiplier: "Pre volume multiplier",
+  post_vol_multiplier: "Post volume multiplier",
 
   sample_rate: "Sample rate",
   bit_depth: "Bit depth",
@@ -70,6 +78,7 @@ var locales = {
   bin_range: "Bin range",
   min_bin: "Min bin",
   max_bin: "Max bin",
+  amplitude_offset: "Amplitude offset",
 
   min_amplitude: "Min amplitude",
   max_amplitude: "Max amplitude",
@@ -125,50 +134,6 @@ var locales = {
   Telemetries: "Show Telemetries(drop fps)",
   startPositionTooltip: "Start position before rendering in seconds",
   fftSizeTooltip: "FFT size can be non-power of 2",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //startPositionTooltip: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
-  //: "",
   //: "",
 };
 
@@ -221,8 +186,9 @@ var $locale = (function () {
     "'n' for index\n" + "'N' for frame length\n" + "'Math' namespace is defined globally and any operators is allowed";
 
   gId("console").innerHTML =
-    "This is just an experiment version of candlexyehrris, expect to see bugs and unstable stuff...\n" +
-    "MediaRecorder and WebM Writer gives a less compatible video file and may not be able to play on every device, consider using FFmpeg to convert after record!\n\n" +
+    "This is just an experiment version of Candlexyehrris, expect to see bugs and unstable stuff...\n" +
+    "MediaRecorder and WebM Writer produce videos with limited compatibility and may not be playable on some devices.\n" +
+    "Consider using FFmpeg or any video converter tools to convert the video after recording or rendering!\n\n" +
     "Check out the source code!<a href='https://github.com/901D3/candlexyrherris' target='_blank'>github.com/901D3/candlexyrherris</a>" +
-    "View MP4 codecs to ensure compability for MediaRecorder<a href='https://cconcolato.github.io/media-mime-support/' target='_blank'>cconcolato.github.io/media-mime-support/</a>";
+    "MP4 codecs for MediaRecorder<a href='https://cconcolato.github.io/media-mime-support/' target='_blank'>cconcolato.github.io/media-mime-support/</a>";
 })();
