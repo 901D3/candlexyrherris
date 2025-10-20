@@ -13,7 +13,7 @@ function getCurrentFrameFFT(audioTime, channelArray) {
 
   for (let n = 0; n < N; n++) {
     const v = stftRe[n];
-    stftRe[n] *= windowFunc(n, N, v) * volMultiplier;
+    stftRe[n] *= windowFunc(n, N, v) * preVolMultiply;
   }
 
   nayuki.transform(stftRe, stftIm);
@@ -121,6 +121,10 @@ async function render() {
 
   function seek(time) {
     return new Promise((resolve) => {
+      if (audio.currentTime === time) {
+        resolve();
+        return;
+      }
       const handler = () => {
         audio.removeEventListener("seeked", handler);
         resolve();
@@ -151,7 +155,8 @@ async function render() {
 
     let t1 = performance.now();
 
-    await seek(frameTime);
+    audio.currentTime = frameTime;
+    drawWrapper();
 
     printLog("Process: " + (performance.now() - t1) + "ms");
 
