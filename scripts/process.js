@@ -110,8 +110,8 @@ async function render() {
   });
   const startPositionSeconds = Number(gId("rendererStartPosition").value);
   const startFrame = floor(startPositionSeconds * recorderFrameRate);
-  const totalFrames = ceil(audio.duration * recorderFrameRate) - startFrame;
-  printLog("Total frames:" + totalFrames);
+  const totalFrames = ceil(audio.duration * recorderFrameRate);
+  printLog("Total frames:" + totalFrames, 1);
   audio.pause();
   audio.currentTime = startPositionSeconds;
   audio.muted = true;
