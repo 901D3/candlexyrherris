@@ -48,6 +48,20 @@
           class="height-fit-content"
           style="width: 60px"
           data-text="$update"></button>
+        <span class="font-weight-bold" style="font-size: 20px" data-text="$video"></span>
+        <input
+          type="file"
+          id="uploadVideoFile"
+          class="height-fit-content"
+          title=".mp4, .mov, .mpeg, .webm, .3gp, .3gp2, .ogm, .ogv"
+          accept=".mp4, .mov, .mpeg, .webm, .3gp, .3gp2, .ogm, .ogv" />
+        <input type="text" id="videoLinkUrl" placeholder="Video link(must point to an ideo file)" />
+        <button
+          id="updateVideoSrc"
+          onclick="updateVideoSrc()"
+          class="height-fit-content"
+          style="width: 60px"
+          data-text="$update"></button>
       </div>
       <div class="display-flex top-bottom-flow width-fit-content" style="gap: 12px">
         <span class="font-weight-bold" style="font-size: 20px" data-text="$recorder"></span>
@@ -189,6 +203,7 @@
             <select id="binValuePicking">
               <option value="first" selected="true" data-text="$first"></option>
               <option value="max" data-text="$max"></option>
+              <option value="min" data-text="$min"></option>
               <option value="avg" data-text="$average"></option>
               <option value="rms" data-text="$RMS"></option>
             </select>
@@ -256,7 +271,6 @@
             <input
               type="checkbox"
               id="interleaveEffectFix"
-              checked=""
               onchange="interleaveEffectFix = document.getElementById('interleaveEffectFix').checked" />
             <span>Second bar fix(Interleaved only)</span>
           </div>
@@ -337,6 +351,7 @@
             <select id="backgroundStyle">
               <option value="solidColor" selected="true" data-text="$solid_color"></option>
               <option value="image" data-text="$image"></option>
+              <option value="video" data-text="$video"></option>
             </select>
           </div>
           <div class="settings_label-slider-input" style="background-color: #ff0000">
@@ -512,6 +527,7 @@
   <script>
     const upload = gId("uploadFile");
     const uploadImg = gId("uploadImageFile");
+    const uploadVideo = gId("uploadVideoFile");
     upload.addEventListener("change", async () => {
       let t0 = performance.now();
       const file = upload.files[0];
@@ -566,6 +582,14 @@
       image.src = URL.createObjectURL(file);
     });
 
+    uploadVideo.addEventListener("change", function () {
+      const file = uploadVideo.files[0];
+
+      video.classList.remove("disabled");
+      video.crossOrigin = "";
+      video.src = URL.createObjectURL(file);
+    });
+
     async function updateAudioSrc() {
       let t0 = performance.now();
       try {
@@ -617,7 +641,6 @@
     }
 
     async function updateImageSrc() {
-      let t0 = performance.now();
       try {
         await fetch(gId("imageLinkUrl").value);
       } catch (e) {
@@ -628,6 +651,19 @@
       image = new Image();
       image.crossOrigin = "";
       image.src = gId("imageLinkUrl").value;
+    }
+
+    async function updateVideoSrc() {
+      try {
+        await fetch(gId("videoLinkUrl").value);
+      } catch (e) {
+        printLog(e);
+        return;
+      }
+
+      video.classList.remove("disabled");
+      video.crossOrigin = "";
+      video.src = gId("videoLinkUrl").value;
     }
 
     function fullscreenCanvas() {
