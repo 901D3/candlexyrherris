@@ -13,7 +13,7 @@ Inspired by Sonic Candle and the upcomming HyperSynesthesia by Dakkra
 thenickdude/webm-writer-js\
 https://en.wikipedia.org/wiki/WTFPL
 
----
+──────────
 
 Free FFT and convolution (compiled from TypeScript)
 
@@ -36,7 +36,7 @@ subject to the following conditions:
   out of or in connection with the Software or the use or other dealings in the
   Software.
 
----
+──────────
 
 
 
