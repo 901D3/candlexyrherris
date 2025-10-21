@@ -6,7 +6,7 @@ var locales = {
 
   upload: "Upload file",
   paste_link: "Paste link",
-  recorder: "Recorder",
+  recorder_renderer: "Recorder/Renderer",
 
   start: "Start",
   stop: "Stop",
@@ -97,6 +97,7 @@ var locales = {
   capsule: "Capsule",
   triangle_capsule: "Triangle Capsule",
   oval: "Oval",
+  lines: "Lines",
 
   capsule_radius: "Capsule radius",
   triangle_capsule_height: "Triangle capsule height",
