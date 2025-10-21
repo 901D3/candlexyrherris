@@ -5,52 +5,35 @@ function getVisualizerBufferFromFFT(real, imag, Nbars, threshold, minBin, maxBin
   let currentBin = minBin;
   const binStep = binRange / Nbars;
 
+  const getMag = interleaved
+    ? (i) => real[i + realShift] + imag[i + imagShift]
+    : (i) => Math.sqrt(real[i + realShift] ** 2 + imag[i + imagShift] ** 2);
+
   for (let i = 0; i < Nbars && currentBin < maxBin; i++) {
     const endBin = Math.min(currentBin + binStep, maxBin);
     const startIdx = Math.floor(currentBin);
     const endIdx = Math.ceil(endBin);
-    let mag;
-    if (binValuePicking === "first") {
-      if (interleaved) {
-        mag = real[startIdx + realShift] + imag[startIdx + imagShift];
-      } else {
-        mag = Math.sqrt(real[startIdx + realShift] ** 2 + imag[startIdx + imagShift] ** 2);
-      }
-    } else if (binValuePicking === "max") {
-      let value;
-      mag = -Infinity;
+    let mag = getMag(startIdx);
 
-      for (let j = startIdx; j < endIdx; j++) {
-        if (interleaved) {
-          value = real[j + realShift] + imag[j + imagShift];
-        } else {
-          value = Math.sqrt(real[j + realShift] ** 2 + imag[j + imagShift] ** 2);
-        }
-        if (value > mag) mag = value;
+    if (binValuePicking === "max") {
+      for (let j = startIdx + 1; j < endIdx; j++) {
+        const v = getMag(j);
+        if (v > mag) mag = v;
+      }
+    } else if (binValuePicking === "min") {
+      for (let j = startIdx + 1; j < endIdx; j++) {
+        const v = getMag(j);
+        if (v < mag) mag = v;
       }
     } else if (binValuePicking === "avg") {
       mag = 0;
+      for (let j = startIdx; j < endIdx; j++) mag += getMag(j);
 
-      for (let j = startIdx; j < endIdx; j++) {
-        if (interleaved) {
-          mag += real[j + realShift] + imag[j + imagShift];
-        } else {
-          mag += Math.sqrt(real[j + realShift] ** 2 + imag[j + imagShift] ** 2);
-        }
-      }
       mag /= endIdx - startIdx;
     } else if (binValuePicking === "rms") {
       mag = 0;
+      for (let j = startIdx; j < endIdx; j++) mag += getMag(j) ** 2;
 
-      for (let j = startIdx; j < endIdx; j++) {
-        let value;
-        if (interleaved) {
-          value = real[j + realShift] + imag[j + imagShift];
-        } else {
-          value = Math.sqrt(real[j + realShift] ** 2 + imag[j + imagShift] ** 2);
-        }
-        mag += value ** 2;
-      }
       mag = Math.sqrt(mag / (endIdx - startIdx));
     }
 
