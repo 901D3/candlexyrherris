@@ -119,8 +119,8 @@ ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 var isProcessing = false;
 var desyncOpt = false;
 var t = false;
-var sqSz;
 var audio = gId("audio");
+var video = document.createElement("video");
 var image;
 //var audioCtx;
 //if (!audioCtx) {
@@ -196,6 +196,8 @@ var webmWriterQuality = 0.9;
 var recorderWebmWriterSettings;
 var isRecording = false;
 var isRendering = false;
+var pausedRendering = false;
+var resolvePromise = null;
 
 var windowFunc = new Function("n", "N", "v", sinc.toString() + "; return " + gId("windowFuncInput").value + ";");
 
@@ -366,4 +368,10 @@ function strToU8(str) {
     u8[i] = str.charCodeAt(i) & 0xff;
   }
   return u8;
+}
+
+function waitForResolve() {
+  return new Promise((resolve) => {
+    resolvePromise = resolve;
+  });
 }
