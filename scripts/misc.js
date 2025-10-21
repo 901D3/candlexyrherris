@@ -157,7 +157,7 @@
       "slider"
     );
     if (barStyleTriangCapsuleHeight === 0) {
-      barStyleTriangCapsuleHeight = 65536;
+      barStyleTriangCapsuleHeight = Infinity;
     }
   });
 
@@ -170,7 +170,7 @@
       "input"
     );
     if (barStyleTriangCapsuleHeight === 0) {
-      barStyleTriangCapsuleHeight = 65536;
+      barStyleTriangCapsuleHeight = Infinity;
     }
   });
 
