@@ -8,6 +8,8 @@ var pauseRec = gId("pauseRecording");
 var resumeRec = gId("resumeRecording");
 var startRend = gId("startRendering");
 var stopRend = gId("stopRendering");
+var pauseRend = gId("pauseRendering");
+var resumeRend = gId("resumeRendering");
 
 function startRecording() {
   mediaRecorder = new MediaRecorder(canvasStream, {
@@ -81,7 +83,6 @@ function startRecording() {
   mediaRecorder.start();
   printLog("MediaRecorder started");
   isRecording = true;
-  //sessionStorage.setItem("isRecording", "1");
 
   startRec.setAttribute("disabled", "");
   stopRec.removeAttribute("disabled");
@@ -91,17 +92,12 @@ function startRecording() {
 
   gId("recorderMimeTypeInput").setAttribute("disabled", "");
   gId("recorderCodecInput").setAttribute("disabled", "");
-  gId("recorderFrameRateRange").setAttribute("disabled", "");
-  gId("recorderFrameRateInput").setAttribute("disabled", "");
-  gId("recorderVideoBitrateRange").setAttribute("disabled", "");
-  gId("recorderVideoBitrateInput").setAttribute("disabled", "");
 }
 
 function stopRecording() {
   mediaRecorder.stop();
   printLog("MediaRecorder stopped");
   isRecording = false;
-  //sessionStorage.removeItem("isRecording");
 
   startRec.removeAttribute("disabled");
   stopRec.setAttribute("disabled", "");
@@ -111,17 +107,11 @@ function stopRecording() {
 
   gId("recorderMimeTypeInput").removeAttribute("disabled", "");
   gId("recorderCodecInput").removeAttribute("disabled", "");
-  gId("recorderFrameRateRange").removeAttribute("disabled", "");
-  gId("recorderFrameRateInput").removeAttribute("disabled", "");
-  gId("recorderVideoBitrateRange").removeAttribute("disabled", "");
-  gId("recorderVideoBitrateInput").removeAttribute("disabled", "");
 }
 
 function pauseRecording() {
   mediaRecorder.pause();
 
-  startRec.setAttribute("disabled", "");
-  stopRec.removeAttribute("disabled");
   pauseRec.setAttribute("disabled", "");
   resumeRec.removeAttribute("disabled");
 }
@@ -129,8 +119,6 @@ function pauseRecording() {
 function resumeRecording() {
   mediaRecorder.resume();
 
-  startRec.setAttribute("disabled", "");
-  stopRec.removeAttribute("disabled");
   pauseRec.removeAttribute("disabled");
   resumeRec.setAttribute("disabled", "");
 }
@@ -140,22 +128,35 @@ function startRendering() {
 
   startRend.setAttribute("disabled", "");
   stopRend.removeAttribute("disabled", "");
+  pauseRend.removeAttribute("disabled", "");
 
   startRec.setAttribute("disabled", "");
-  stopRec.setAttribute("disabled", "");
-  pauseRec.setAttribute("disabled", "");
-  resumeRec.setAttribute("disabled", "");
 }
 
 function stopRendering() {
   isRendering = false;
+
   startRend.removeAttribute("disabled", "");
   stopRend.setAttribute("disabled", "");
+  pauseRend.setAttribute("disabled", "");
+  resumeRend.setAttribute("disabled", "");
 
   startRec.removeAttribute("disabled");
-  stopRec.setAttribute("disabled", "");
-  pauseRec.setAttribute("disabled", "");
-  resumeRec.setAttribute("disabled", "");
+}
+
+function pauseRendering() {
+  pausedRendering = true;
+
+  pauseRend.setAttribute("disabled", "");
+  resumeRend.removeAttribute("disabled");
+}
+
+function resumeRendering() {
+  pausedRendering = false;
+  resolvePromise();
+
+  pauseRend.removeAttribute("disabled");
+  resumeRend.setAttribute("disabled", "");
 }
 
 (function () {
@@ -165,6 +166,8 @@ function stopRendering() {
   resumeRec.addEventListener("click", resumeRecording);
   startRend.addEventListener("click", startRendering);
   stopRend.addEventListener("click", stopRendering);
+  pauseRend.addEventListener("click", pauseRendering);
+  resumeRend.addEventListener("click", resumeRendering);
 
   gId("recorderMimeTypeInput").addEventListener("input", function () {
     recorderMimeType = gId("recorderMimeTypeInput").value.trim().toLowerCase();
