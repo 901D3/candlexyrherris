@@ -113,9 +113,40 @@ async function render() {
   const totalFrames = ceil(audio.duration * recorderFrameRate);
   printLog("Total frames:" + totalFrames, 1);
   audio.pause();
-  audio.currentTime = startPositionSeconds;
+  if (video.readyState > 1) {
+    video.pause();
+    video.muted = true;
+  }
   audio.muted = true;
   audio.loop = false;
+  audio.currentTime = startPositionSeconds;
+  video.currentTime = startPositionSeconds;
+  canvas.style.visibility = "hidden";
+
+  async function drawVideoFrameToCanvas(frameTime) {
+    if (!video || video.readyState < 2) return;
+
+    if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) {
+      return new Promise((resolve) => {
+        const handler = () => {
+          ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
+          resolve();
+        };
+        video.requestVideoFrameCallback(handler);
+        video.currentTime = frameTime;
+      });
+    } else {
+      return new Promise((resolve) => {
+        const onSeeked = () => {
+          video.removeEventListener("seeked", onSeeked);
+          ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
+          resolve();
+        };
+        video.addEventListener("seeked", onSeeked);
+        video.currentTime = frameTime;
+      });
+    }
+  }
 
   function canvasToWebPBlob(canvas, quality) {
     return new Promise((resolve) => {
@@ -139,6 +170,8 @@ async function render() {
     let t1 = performance.now();
 
     audio.currentTime = frameTime;
+    if (backgroundStyle === "video") await drawVideoFrameToCanvas(frameTime);
+
     drawWrapper();
 
     if (t) {
@@ -172,6 +205,10 @@ async function render() {
     }
 
     if (t) printLog("Rendered: " + frameIndex + "|" + (frameIndex / totalFrames) * 100 + "%", 1);
+
+    if (pausedRendering) {
+      await waitForResolve();
+    }
   }
   const totalTime = performance.now() - t0;
   printLog(
@@ -204,6 +241,7 @@ async function render() {
       stopRec.setAttribute("disabled", "");
       pauseRec.setAttribute("disabled", "");
       resumeRec.setAttribute("disabled", "");
+      canvas.style.visibility = "visible";
       return true;
     });
   }
@@ -218,13 +256,12 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
   const minAmplitudeHalfHeight = minAmplitude * halfHeight;
   const maxAmplitudeHalfHeight = maxAmplitude * halfHeight;
 
+  if (!isRendering) ctx.clearRect(0, 0, canvasWidth, canvasHeight);
   if (backgroundStyle === "solidColor") {
     ctx.fillStyle = "rgb(" + backgroundColorRed + ", " + backgroundColorGreen + ", " + backgroundColorBlue + ")";
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-  } else if (backgroundStyle === "image") {
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    ctx.drawImage(image, 0, 0);
-  }
+  } else if (backgroundStyle === "image") ctx.drawImage(image, 0, 0);
+  else if (backgroundStyle === "video" && !isRendering) ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
 
   if (barOutline) {
     ctx.strokeStyle = "rgb(" + barColorRed + ", " + barColorGreen + ", " + barColorBlue + ")";
@@ -327,6 +364,8 @@ gId("showTelemetries").addEventListener("change", function (e) {
 });
 
 audio.addEventListener("play", function () {
+  video.currentTime = audio.currentTime;
+  video.play;
   frm = 0;
   startTime = performance.now();
   lastUpdatedTime = startTime;
@@ -336,6 +375,7 @@ audio.addEventListener("play", function () {
 });
 
 audio.addEventListener("seeking", function () {
+  video.currentTime = audio.currentTime;
   drawWrapper();
   displayInfo();
 });
