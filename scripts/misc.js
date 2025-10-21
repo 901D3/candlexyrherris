@@ -1,4 +1,21 @@
 (function () {
+  document.addEventListener("keydown", function (event) {
+    const active = document.activeElement;
+    const ignoreTags = ["INPUT", "TEXTAREA"];
+    const isEditable = active.isContentEditable;
+
+    if (ignoreTags.includes(active.tagName) || isEditable) {
+      return; // Ignore key presses while typing
+    }
+    if (event.code === "Space") {
+      event.preventDefault();
+      if (audio.paused) audio.play();
+      else audio.pause();
+      if (video.paused) video.play();
+      else video.pause();
+    }
+  });
+
   gId("fftSizeRange").addEventListener("input", function () {
     sliderInputSync(gId("fftSizeRange"), gId("fftSizeInput"), "fftSize", undefined, "slider");
     displayInfo();
@@ -16,7 +33,7 @@
   gId("frameRateInput").addEventListener("input", function () {
     sliderInputSync(gId("frameRateRange"), gId("frameRateInput"), "frameRate", 30, "input");
     if (frameRateInput == 0) {
-      frameRate = 9999999999;
+      frameRate = Infinity;
     }
   });
 
@@ -54,10 +71,12 @@
 
   gId("maxAmplitudeRange").addEventListener("input", function () {
     sliderInputSync(gId("maxAmplitudeRange"), gId("maxAmplitudeInput"), "maxAmplitude", undefined, "slider");
+    if (maxAmplitude === 0) maxAmplitude = Infinity;
   });
 
   gId("maxAmplitudeInput").addEventListener("input", function () {
     sliderInputSync(gId("maxAmplitudeRange"), gId("maxAmplitudeInput"), "maxAmplitude", 1, "input");
+    if (maxAmplitude === 0) maxAmplitude = Infinity;
   });
 
   gId("thresholdRange").addEventListener("input", function () {
