@@ -37,6 +37,7 @@ var locales = {
   bin_value_picking: "Bin value picking",
   first: "First",
   max: "Max",
+  min: "Min",
   average: "Average",
   RMS: "RMS",
 
