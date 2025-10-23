@@ -121,7 +121,14 @@ var desyncOpt = false;
 var t = false;
 var audio = gId("audio");
 var video = document.createElement("video");
-var image;
+video.muted = true;
+video.preload = "auto";
+video.playsInline = true;
+video.autoPlay = true;
+video.controls = false;
+video.crossOrigin = "";
+var image = new Image();
+image.crossOrigin = "";
 //var audioCtx;
 //if (!audioCtx) {
 //  try {
@@ -151,6 +158,7 @@ var channelIndex = 0;
 
 var fftSize;
 var frameRate;
+var frameTime; // Optimization
 var frameLatency;
 var preVolMultiply;
 var postVolMultiply;
@@ -159,11 +167,12 @@ var maxAmplitude;
 var amplitudeOffset;
 var threshold;
 var minBin;
-var maxBin;
+var maxBin = Infinity;
 var realShift;
 var imagShift;
 var interleaveEffect;
-var interleaveEffectFix = true;
+var interleaveEffectFix = false;
+var ignoreDC = 1;
 
 var dupSize = 1;
 
@@ -189,6 +198,7 @@ var barAmplitudeRounding = false;
 var barWidthRounding = false;
 
 var recorderFrameRate = 30;
+var recorderFrameTime = 1000 / recorderFrameRate; // Optimization
 var recorderVideoBitrate = 2000000;
 var recorderMimeType = "video/webm";
 var recorderVideoCodec = "vp9";
@@ -198,6 +208,7 @@ var isRecording = false;
 var isRendering = false;
 var pausedRendering = false;
 var resolvePromise = null;
+var streamlinedRenderOption = false;
 
 var windowFunc = new Function("n", "N", "v", sinc.toString() + "; return " + gId("windowFuncInput").value + ";");
 
@@ -373,5 +384,15 @@ function strToU8(str) {
 function waitForResolve() {
   return new Promise((resolve) => {
     resolvePromise = resolve;
+  });
+}
+
+function waitForEvent(target, eventName) {
+  return new Promise((resolve) => {
+    const handler = () => {
+      target.removeEventListener(eventName, handler);
+      resolve();
+    };
+    target.addEventListener(eventName, handler);
   });
 }
