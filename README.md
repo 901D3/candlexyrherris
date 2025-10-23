@@ -10,14 +10,39 @@ Inspired by Sonic Candle and the upcomming HyperSynesthesia by Dakkra
 
 # _Legal notices_
 
-thenickdude/webm-writer-js\
-https://en.wikipedia.org/wiki/WTFPL
+901D3/WebM-muxer.js
+
+```
+MIT License
+
+Copyright (c) 901D3
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
 
 ──────────
 
+```
 Free FFT and convolution (compiled from TypeScript)
 
-Copyright (c) 2022 Project Nayuki. (MIT License)\
+Copyright (c) 2022 Project Nayuki. (MIT License)
 https://www.nayuki.io/page/free-small-fft-in-multiple-languages
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,6 +60,7 @@ subject to the following conditions:
   liability, whether in an action of contract, tort or otherwise, arising from,
   out of or in connection with the Software or the use or other dealings in the
   Software.
+```
 
 ──────────
 
