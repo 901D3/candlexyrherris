@@ -65,6 +65,13 @@
       </div>
       <div class="display-flex top-bottom-flow width-fit-content" style="gap: 12px">
         <span class="font-weight-bold" style="font-size: 20px" data-text="$recorder_renderer"></span>
+        <div class="settings_checkbox-label">
+          <input
+            type="checkbox"
+            id="streamlinedRenderOption"
+            onchange="streamlinedRenderOption = document.getElementById('streamlinedRenderOption').checked" />
+          <span>Streamlined</span>
+        </div>
         <div class="display-flex left-right-flow width-fit-content" style="gap: 12px">
           <button id="startRecording" class="sqrButton" type="button" disabled="">
             <div class="horizontal-align-center vertical-align-center-margin record"></div>
@@ -138,9 +145,9 @@
       </div>
       <div class="settings_container">
         <div class="settings_label-slider-input">
-          <span data-text="$webp_quality"></span>
-          <input type="range" id="webmWriterQualityRange" min="0" max="1" step="0.00000000001" />
-          <input type="number" id="webmWriterQualityInput" placeholder="0.90" value="0.90" />
+          <span data-text="$blob_quality"></span>
+          <input type="range" id="blobQualityRange" min="0" max="1" step="0.00000000001" />
+          <input type="number" id="blobQualityInput" placeholder="0.75" value="0.75" />
         </div>
         <div class="settings_label-input">
           <span data-text="$max_concurrent_encodes"></span>
@@ -176,7 +183,7 @@
           <div class="settings_label-slider-input">
             <span data-text="$max_amplitude"></span>
             <input type="range" id="maxAmplitudeRange" min="0" max="1" step="0.00000000001" />
-            <input type="number" id="maxAmplitudeInput" placeholder="1.1" value="1.1" />
+            <input type="number" id="maxAmplitudeInput" placeholder="0" value="0" />
           </div>
           <div class="settings_label-slider-input">
             <span data-text="$threshold"></span>
@@ -274,6 +281,14 @@
               onchange="interleaveEffectFix = document.getElementById('interleaveEffectFix').checked" />
             <span>Second bar fix(Interleaved only)</span>
           </div>
+          <div class="settings_checkbox-label">
+            <input
+              type="checkbox"
+              id="ignoreDC"
+              checked=""
+              onchange="ignoreDC = document.getElementById('ignoreDC').checked ? 1 : 0" />
+            <span>Ignore DC(recommended)</span>
+          </div>
           <div class="whitehr"></div>
           <span class="settings_label_title" data-text="$visualizer_settings_title"></span>
           <div class="settings_label-select">
@@ -370,7 +385,7 @@
             <input type="number" id="backgroundColorBlueInput" placeholder="50" value="50" />
           </div>
           <div class="settings_label-slider-input">
-            <span data-text="$frame_rate"></span>
+            <span data-text="$frame_rate_cap"></span>
             <input type="range" id="frameRateRange" min="0" max="120" step="0.00000000001" />
             <input type="number" id="frameRateInput" placeholder="30" value="30" />
           </div>
@@ -506,7 +521,7 @@
   <!--Libraries-->
   <script src="scripts/lib/901D3/binUtils.js"></script>
   <script src="scripts/lib/901D3/wav.js"></script>
-  <script src="scripts/lib/thenickdude/webm-writer-0.3.0.js"></script>
+  <script src="scripts/lib/901D3/WebM-muxer.js"></script>
 
   <!--FFTs-->
   <!--<script src="scripts/lib/wendykierp/base.js"></script>-->
@@ -575,19 +590,12 @@
     });
 
     uploadImg.addEventListener("change", function () {
-      const file = uploadImg.files[0];
-
-      image = new Image();
-      image.crossOrigin = "";
-      image.src = URL.createObjectURL(file);
+      image.src = URL.createObjectURL(uploadImg.files[0]);
     });
 
     uploadVideo.addEventListener("change", function () {
-      const file = uploadVideo.files[0];
-
-      video.classList.remove("disabled");
-      video.crossOrigin = "";
-      video.src = URL.createObjectURL(file);
+      URL.revokeObjectURL(video.src);
+      video.src = URL.createObjectURL(uploadVideo.files[0]);
     });
 
     async function updateAudioSrc() {
@@ -648,8 +656,6 @@
         return;
       }
 
-      image = new Image();
-      image.crossOrigin = "";
       image.src = gId("imageLinkUrl").value;
     }
 
@@ -661,8 +667,6 @@
         return;
       }
 
-      video.classList.remove("disabled");
-      video.crossOrigin = "";
       video.src = gId("videoLinkUrl").value;
     }
 
