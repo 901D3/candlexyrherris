@@ -64,6 +64,7 @@ var locales = {
   visualizer_settings_title: "Visualizer",
   fft_size: "FFT Size",
   frame_rate: "Frame rate",
+  frame_rate_cap: "Frame rate cap",
   frame_latency: "Frame latency",
   pre_vol_multiplier: "Pre volume multiplier",
   post_vol_multiplier: "Post volume multiplier",
@@ -125,7 +126,7 @@ var locales = {
   null: "Null",
 
   enable_file_writer: "Enable file writer",
-  webp_quality: "WebP quality",
+  blob_quality: "Blob quality",
   max_concurrent_encodes: "Max concurrent encodes",
 
   canvas_size_change: "Change canvas size",
@@ -188,7 +189,7 @@ var $locale = (function () {
 
   gId("console").innerHTML =
     "This is just an experiment version of Candlexyehrris, expect to see bugs and unstable stuff...\n" +
-    "MediaRecorder and WebM Writer produce videos with limited compatibility and may not be playable on some devices.\n" +
+    "MediaRecorder and WebM Muxer produce videos with limited compatibility and may not be playable on some devices.\n" +
     "Consider using FFmpeg or any video converter tools to convert the video after recording or rendering!\n\n" +
     "Check out the source code!<a href='https://github.com/901D3/candlexyrherris' target='_blank'>github.com/901D3/candlexyrherris</a>" +
     "MP4 codecs for MediaRecorder<a href='https://cconcolato.github.io/media-mime-support/' target='_blank'>cconcolato.github.io/media-mime-support/</a>";
