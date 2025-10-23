@@ -28,6 +28,7 @@
 
   gId("frameRateRange").addEventListener("input", function () {
     sliderInputSync(gId("frameRateRange"), gId("frameRateInput"), "frameRate", undefined, "slider");
+    frameTime = 1000 / frameRate;
   });
 
   gId("frameRateInput").addEventListener("input", function () {
@@ -35,6 +36,7 @@
     if (frameRateInput == 0) {
       frameRate = Infinity;
     }
+    frameTime = 1000 / frameRate;
   });
 
   gId("preVolumeMultiplierRange").addEventListener("input", function () {
@@ -298,6 +300,10 @@
     sliderInputSync(gId("imagShiftRange"), gId("imagShiftInput"), "imagShift", 1, "input");
   });
 
+  gId("ignoreDC").addEventListener("input", function () {
+    ignoreDC = document.getElementById("ignoreDC").checked ? 1 : 0;
+  });
+
   //init all vars based on input value
   sliderInputSync(gId("fftSizeRange"), gId("fftSizeInput"), "fftSize", null, "input");
   sliderInputSync(gId("frameRateRange"), gId("frameRateInput"), "frameRate", null, "input");
@@ -309,6 +315,7 @@
   sliderInputSync(gId("amplitudeOffsetRange"), gId("amplitudeOffsetInput"), "amplitudeOffset", null, "input");
   sliderInputSync(gId("minBinRange"), gId("minBinInput"), "minBin", null, "input");
   sliderInputSync(gId("maxBinRange"), gId("maxBinInput"), "maxBin", null, "input");
+  if (maxAmplitude === 0) maxAmplitude = Infinity;
   sliderInputSync(gId("barsRange"), gId("barsInput"), "bars", null, "input");
   sliderInputSync(gId("barStyleCapsuleRadiusRange"), gId("barStyleCapsuleRadiusInput"), "barStyleCapsuleRadius", null, "input");
   sliderInputSync(
