@@ -281,5 +281,5 @@ function resumeRendering() {
     videoBitsPerSecond: recorderVideoBitrate,
     frameRate: recorderFrameRate,
   };
-  sliderInputSync(gId("webmWriterQualityRange"), gId("webmWriterQualityInput"), "webmWriterQuality", 0.9, "input");
+  sliderInputSync(gId("blobQualityRange"), gId("blobQualityInput"), "blobQuality", 0.9, "input");
 })();
