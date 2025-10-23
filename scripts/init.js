@@ -202,7 +202,7 @@ var recorderFrameTime = 1000 / recorderFrameRate; // Optimization
 var recorderVideoBitrate = 2000000;
 var recorderMimeType = "video/webm";
 var recorderVideoCodec = "vp9";
-var webmWriterQuality = 0.9;
+var blobQuality = 0.75;
 var recorderWebmWriterSettings;
 var isRecording = false;
 var isRendering = false;
