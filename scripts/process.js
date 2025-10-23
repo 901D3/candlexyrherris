@@ -81,8 +81,8 @@ function process() {
   drawWrapper();
 
   if (t) frameCounter();
-  if (audio.paused || audio.ended) return;
-  setTimeout(process, max(0, 1000 / frameRate - (performance.now() - t0)));
+  if (audio.paused || audio.ended || isRendering) return;
+  setTimeout(process, max(0, frameTime - (performance.now() - t0)));
 }
 
 async function render() {
@@ -101,13 +101,15 @@ async function render() {
   resumeRec.setAttribute("disabled", "");
 
   printLog("Starting rendering");
-  recorderWebmWriterSettings = new WebMWriter({
-    quality: webmWriterQuality,
-    fileWriter: null,
 
+  const muxer = new WebMMuxer({
+    width: canvasWidth,
+    height: canvasHeight,
     frameRate: recorderFrameRate,
-    transparent: false, // enabling transparent is useless for most cases
+    bufferSize: 45,
   });
+  const chunks = [];
+
   const startPositionSeconds = Number(gId("rendererStartPosition").value);
   const startFrame = floor(startPositionSeconds * recorderFrameRate);
   const totalFrames = ceil(audio.duration * recorderFrameRate);
@@ -121,38 +123,6 @@ async function render() {
   audio.loop = false;
   audio.currentTime = startPositionSeconds;
   video.currentTime = startPositionSeconds;
-  canvas.style.visibility = "hidden";
-
-  async function drawVideoFrameToCanvas(frameTime) {
-    if (!video || video.readyState < 2) return;
-
-    if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) {
-      return new Promise((resolve) => {
-        const handler = () => {
-          ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
-          resolve();
-        };
-        video.requestVideoFrameCallback(handler);
-        video.currentTime = frameTime;
-      });
-    } else {
-      return new Promise((resolve) => {
-        const onSeeked = () => {
-          video.removeEventListener("seeked", onSeeked);
-          ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
-          resolve();
-        };
-        video.addEventListener("seeked", onSeeked);
-        video.currentTime = frameTime;
-      });
-    }
-  }
-
-  function canvasToWebPBlob(canvas, quality) {
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => resolve(blob), "image/webp", quality);
-    });
-  }
 
   let maxConcurrentEncodes = Number(gId("rendererMaxConcurrentEncodes").value);
   if (!Number.isInteger(maxConcurrentEncodes)) {
@@ -161,32 +131,33 @@ async function render() {
   }
 
   const encodeQueue = new Set();
-
-  const t0 = performance.now();
+  performance.mark("renderStart");
 
   for (let frameIndex = startFrame; frameIndex < totalFrames && !audio.ended; frameIndex++) {
     const frameTime = frameIndex / recorderFrameRate;
 
-    let t1 = performance.now();
-
-    audio.currentTime = frameTime;
-    if (backgroundStyle === "video") await drawVideoFrameToCanvas(frameTime);
-
-    drawWrapper();
-
-    if (t) {
-      const time = performance.now() - t1;
-      printLog("Draw time: " + time + "ms");
+    if (backgroundStyle === "video") {
+      performance.mark("videoDrawStart");
+      await new Promise((r) => {
+        video.currentTime = frameTime;
+        video.addEventListener("seeked", r, {once: true});
+      });
+      ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
+      performance.mark("videoDrawEnd");
     }
 
-    const encodePromise = (async () => {
-      let t3 = performance.now();
-      const buffer = await (await canvasToWebPBlob(canvas, webmWriterQuality)).arrayBuffer();
-      if (t) printLog("Canvas to WebP: " + (performance.now() - t3) + "ms");
+    performance.mark("audioDrawStart");
+    audio.currentTime = frameTime;
+    drawWrapper();
+    performance.mark("audioDrawEnd");
 
-      t3 = performance.now();
-      recorderWebmWriterSettings.addFrame(new Uint8Array(buffer), canvas.width, canvas.height);
-      if (t) printLog("WebM Writer addFrame: " + (performance.now() - t3) + "ms");
+    const encodePromise = (async () => {
+      performance.mark("toBlobStart");
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", webmWriterQuality));
+      performance.mark("toBlobEnd");
+
+      const buffer = new Uint8Array(await blob.arrayBuffer());
+      muxer.addFrameFromBlob(buffer, chunks);
     })();
 
     encodeQueue.add(encodePromise);
@@ -204,50 +175,221 @@ async function render() {
       return true;
     }
 
-    if (t) printLog("Rendered: " + frameIndex + "|" + (frameIndex / totalFrames) * 100 + "%", 1);
+    if (t) {
+      let videoDraw;
+      if (backgroundStyle === "video") {
+        performance.measure("videoDraw", "videoDrawStart", "videoDrawEnd");
+        videoDraw = performance.getEntriesByName("videoDraw").at(-1)?.duration ?? 0;
+      }
 
-    if (pausedRendering) {
-      await waitForResolve();
+      performance.measure("audioDraw", "audioDrawStart", "audioDrawEnd");
+      const audioDraw = performance.getEntriesByName("audioDraw").at(-1)?.duration ?? 0;
+
+      performance.measure("toBlob", "toBlobStart", "toBlobEnd");
+      const toBlob = performance.getEntriesByName("toBlob").at(-1)?.duration ?? 0;
+
+      printLog("Video draw: " + videoDraw + "ms\n" + "Visualizer draw: " + audioDraw + "ms\n" + "toBlob: " + toBlob + "ms\n");
+
+      performance.clearMarks();
+      performance.clearMeasures();
     }
+
+    if (pausedRendering) await waitForResolve();
+    // Yields so the UI stays responsive
+    await new Promise((r) => setTimeout(r, 0));
   }
-  const totalTime = performance.now() - t0;
+  performance.mark("renderEnd");
+  performance.measure("render", "renderStart", "renderEnd");
+  const renderTime = performance.getEntriesByName("render").at(-1)?.duration ?? 0;
   printLog(
-    "Elapsed: " + totalTime + "\n" + "Rendering takes " + (totalTime / (audio.duration * 1000)) * 100 + "% of audio duration"
+    "Elapsed: " + renderTime + "\n" + "Rendering takes " + (renderTime / (audio.duration * 1000)) * 100 + "% of audio duration"
   );
 
   onComplete();
 
   async function onComplete() {
-    await Promise.all(encodeQueue);
     isRendering = false;
     audio.muted = false;
     audio.loop = true;
     audio.controls = true;
 
-    await recorderWebmWriterSettings.complete().then((blob) => {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "video.webm";
-      a.click();
-      URL.revokeObjectURL(url);
-      printLog("Rendered video: " + "<a href='" + url + "' target='_blank'>" + url + "</a>", null);
+    const blob = muxer.finalize(chunks);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "video.webm";
+    a.click();
+    URL.revokeObjectURL(url);
+    printLog("Rendered video: " + "<a href='" + url + "' target='_blank'>" + url + "</a>", null);
 
-      isRendering = false;
-      startRend.removeAttribute("disabled", "");
-      stopRend.setAttribute("disabled", "");
+    isRendering = false;
+    startRend.removeAttribute("disabled", "");
+    stopRend.setAttribute("disabled", "");
 
-      startRec.removeAttribute("disabled");
-      stopRec.setAttribute("disabled", "");
-      pauseRec.setAttribute("disabled", "");
-      resumeRec.setAttribute("disabled", "");
-      canvas.style.visibility = "visible";
-      return true;
-    });
+    startRec.removeAttribute("disabled");
+    stopRec.setAttribute("disabled", "");
+    pauseRec.setAttribute("disabled", "");
+    resumeRec.setAttribute("disabled", "");
+    return true;
   }
 }
 
-function drawVisualizerBufferToCanvas(ctx, buffer) {
+async function streamlinedRender() {
+  if (isRecording == true) {
+    printLog("Stop recording to start render");
+    return false;
+  }
+  if (isRendering == true) {
+    printLog("Rendering process has already started");
+    return false;
+  }
+  isRendering = true;
+
+  printLog("Starting rendering");
+  const muxer = new WebMMuxer({
+    width: canvasWidth,
+    height: canvasHeight,
+    frameRate: recorderFrameRate,
+    bufferSize: 45,
+  });
+  const chunks = [];
+
+  const startPositionSeconds = Number(gId("rendererStartPosition").value);
+  const startFrame = floor(startPositionSeconds * recorderFrameRate);
+  const totalFrames = ceil(audio.duration * recorderFrameRate);
+  printLog("Total frames:" + totalFrames, 1);
+  audio.pause();
+  if (video.readyState > 1) video.pause();
+
+  audio.muted = true;
+  audio.loop = false;
+  audio.currentTime = startPositionSeconds;
+  video.currentTime = startPositionSeconds;
+  canvas.style.hidden = true;
+
+  performance.mark("WebCodecsSetupStart");
+  const WCodecEncoder = new VideoEncoder({
+    output: (chunk) => {
+      const buffer = new Uint8Array(chunk.byteLength);
+      chunk.copyTo(buffer);
+      muxer.addFramePreEncoded(buffer, chunks);
+    },
+    error: (err) => console.error(err),
+  });
+
+  WCodecEncoder.configure({
+    codec: "vp8", // Has to be VP8
+    width: canvasWidth,
+    height: canvasHeight,
+    framerate: recorderFrameRate,
+    bitrate: recorderVideoBitrate,
+  });
+  performance.mark("WebCodecsSetupEnd");
+  performance.measure("WebCodecsSetup", "WebCodecsSetupStart", "WebCodecsSetupEnd");
+  printLog("WebCodecs setup: " + (performance.getEntriesByName("WebCodecsSetup").at(-1)?.duration ?? 0) + "ms");
+
+  performance.mark("renderStart");
+
+  for (let frameIndex = startFrame; frameIndex < totalFrames && !audio.ended; frameIndex++) {
+    const frameTime = frameIndex / recorderFrameRate;
+
+    if (backgroundStyle === "video") {
+      performance.mark("videoDrawStart");
+      await new Promise((r) => {
+        video.currentTime = frameTime;
+        video.addEventListener("seeked", r, {once: true});
+      });
+      ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
+      performance.mark("videoDrawEnd");
+    }
+
+    performance.mark("audioDrawStart");
+    audio.currentTime = frameTime;
+    drawWrapper();
+    performance.mark("audioDrawEnd");
+
+    performance.mark("toFrameStart");
+    const videoFrame = new VideoFrame(canvas, {
+      timestamp: null,
+    });
+    performance.mark("toFrameEnd");
+
+    WCodecEncoder.encode(videoFrame, {keyframe: true});
+    videoFrame.close();
+
+    if (isRendering == false) {
+      printLog("Rendering stopped manually");
+      isRendering = false;
+      audio.muted = false;
+      audio.loop = true;
+
+      onComplete();
+      return true;
+    }
+
+    if (t) {
+      let videoDraw;
+      if (backgroundStyle === "video") {
+        performance.measure("videoDraw", "videoDrawStart", "videoDrawEnd");
+        videoDraw = performance.getEntriesByName("videoDraw").at(-1)?.duration ?? 0;
+      }
+
+      performance.measure("audioDraw", "audioDrawStart", "audioDrawEnd");
+      const audioDraw = performance.getEntriesByName("audioDraw").at(-1)?.duration ?? 0;
+
+      performance.measure("toFrame", "toFrameStart", "toFrameEnd");
+      const toFrame = performance.getEntriesByName("toFrame").at(-1)?.duration ?? 0;
+
+      printLog("Video draw: " + videoDraw + "ms\n" + "Visualizer draw: " + audioDraw + "ms\n" + "toFrame: " + toFrame + "ms\n");
+
+      performance.clearMarks();
+      performance.clearMeasures();
+    }
+
+    // Yields so the UI stays responsive
+    await new Promise((r) => setTimeout(r, 0));
+  }
+  performance.mark("renderEnd");
+  performance.measure("render", "renderStart", "renderEnd");
+
+  const renderTime = performance.getEntriesByName("render").at(-1)?.duration ?? 0;
+  printLog(
+    "Elapsed: " + renderTime + "\n" + "Rendering takes " + (renderTime / (audio.duration * 1000)) * 100 + "% of audio duration"
+  );
+
+  onComplete();
+
+  async function onComplete() {
+    await WCodecEncoder.flush();
+    WCodecEncoder.close();
+
+    isRendering = false;
+    audio.muted = false;
+    audio.loop = true;
+    audio.controls = true;
+
+    const blob = muxer.finalize(chunks);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "video.webm";
+    a.click();
+    URL.revokeObjectURL(url);
+    printLog("Rendered video: " + "<a href='" + url + "' target='_blank'>" + url + "</a>", null);
+
+    isRendering = false;
+    startRend.removeAttribute("disabled", "");
+    stopRend.setAttribute("disabled", "");
+
+    startRec.removeAttribute("disabled");
+    stopRec.setAttribute("disabled", "");
+    pauseRec.setAttribute("disabled", "");
+    resumeRec.setAttribute("disabled", "");
+    return true;
+  }
+}
+
+function drawVisualizerBufferToCanvas(Ctx, buffer) {
   const fullBarWidth = barWidth + barSpace;
   let offsetX = (canvasWidth - buffer.length * fullBarWidth + barSpace) * 0.5;
   if (barStyle === "lines") offsetX = (canvasWidth - buffer.length * barWidth) * 0.5;
@@ -256,22 +398,22 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
   const minAmplitudeHalfHeight = minAmplitude * halfHeight;
   const maxAmplitudeHalfHeight = maxAmplitude * halfHeight;
 
-  if (!isRendering) ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  if (!isRendering) Ctx.clearRect(0, 0, canvasWidth, canvasHeight);
   if (backgroundStyle === "solidColor") {
-    ctx.fillStyle = "rgb(" + backgroundColorRed + ", " + backgroundColorGreen + ", " + backgroundColorBlue + ")";
-    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-  } else if (backgroundStyle === "image") ctx.drawImage(image, 0, 0);
-  else if (backgroundStyle === "video" && !isRendering) ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
+    Ctx.fillStyle = "rgb(" + backgroundColorRed + ", " + backgroundColorGreen + ", " + backgroundColorBlue + ")";
+    Ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+  } else if (backgroundStyle === "image") Ctx.drawImage(image, 0, 0);
+  else if (backgroundStyle === "video" && !isRendering) Ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
 
   if (barOutline) {
-    ctx.strokeStyle = "rgb(" + barColorRed + ", " + barColorGreen + ", " + barColorBlue + ")";
+    Ctx.strokeStyle = "rgb(" + barColorRed + ", " + barColorGreen + ", " + barColorBlue + ")";
   } else {
-    ctx.fillStyle = "rgb(" + barColorRed + ", " + barColorGreen + ", " + barColorBlue + ")";
+    Ctx.fillStyle = "rgb(" + barColorRed + ", " + barColorGreen + ", " + barColorBlue + ")";
   }
 
   if (barStyle === "rect") {
     barDrawer.drawRectBar(
-      ctx,
+      Ctx,
       buffer,
       bars,
       offsetX,
@@ -286,7 +428,7 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
     );
   } else if (barStyle === "capsule") {
     barDrawer.drawCapsuleBar(
-      ctx,
+      Ctx,
       buffer,
       bars,
       offsetX,
@@ -302,7 +444,7 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
     );
   } else if (barStyle === "triangCapsule") {
     barDrawer.drawTriCapsuleBar(
-      ctx,
+      Ctx,
       buffer,
       bars,
       offsetX,
@@ -318,7 +460,7 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
     );
   } else if (barStyle === "oval") {
     barDrawer.drawOvalBar(
-      ctx,
+      Ctx,
       buffer,
       bars,
       offsetX,
@@ -333,7 +475,7 @@ function drawVisualizerBufferToCanvas(ctx, buffer) {
     );
   } else if (barStyle === "lines") {
     barDrawer.drawLines(
-      ctx,
+      Ctx,
       buffer,
       bars,
       offsetX,
@@ -365,7 +507,7 @@ gId("showTelemetries").addEventListener("change", function (e) {
 
 audio.addEventListener("play", function () {
   video.currentTime = audio.currentTime;
-  video.play;
+  video.play();
   frm = 0;
   startTime = performance.now();
   lastUpdatedTime = startTime;
