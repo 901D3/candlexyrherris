@@ -10,7 +10,7 @@ Inspired by Sonic Candle and the upcomming HyperSynesthesia by Dakkra
 
 # _Legal notices_
 
-901D3/WebM-muxer.js
+### **901D3/WebM-muxer.js**
 
 ```
 MIT License
