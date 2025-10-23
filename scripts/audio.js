@@ -6,8 +6,8 @@ function getVisualizerBufferFromFFT(real, imag, Nbars, threshold, minBin, maxBin
   const binStep = binRange / Nbars;
 
   const getMag = interleaved
-    ? (i) => real[i + realShift] + imag[i + imagShift]
-    : (i) => Math.sqrt(real[i + realShift] ** 2 + imag[i + imagShift] ** 2);
+    ? (i) => real[i + realShift + ignoreDC] + imag[i + imagShift + ignoreDC]
+    : (i) => Math.sqrt(real[i + realShift + ignoreDC] ** 2 + imag[i + imagShift + ignoreDC] ** 2);
 
   for (let i = 0; i < Nbars && currentBin < maxBin; i++) {
     const endBin = Math.min(currentBin + binStep, maxBin);
