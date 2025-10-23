@@ -124,11 +124,12 @@ function resumeRecording() {
 }
 
 function startRendering() {
-  render();
+  if (streamlinedRenderOption) streamlinedRender();
+  else render();
 
   startRend.setAttribute("disabled", "");
   stopRend.removeAttribute("disabled", "");
-  pauseRend.removeAttribute("disabled", "");
+  if (!streamlinedRenderOption) pauseRend.removeAttribute("disabled", "");
 
   startRec.setAttribute("disabled", "");
 }
@@ -190,6 +191,10 @@ function resumeRendering() {
   gId("recorderFrameRateRange").addEventListener("input", function () {
     sliderInputSync(gId("recorderFrameRateRange"), gId("recorderFrameRateInput"), "recorderFrameRate", undefined, "slider");
     canvasStream = canvas.captureStream(recorderFrameRate);
+    recorderFrameTime = 1000 / recorderFrameRate;
+  });
+
+  gId("recorderFrameRateRange").addEventListener("change", function () {
     recorderOption = {
       mimeType: recorderMimeType + ";" + " codecs=" + recorderVideoCodec,
       videoBitsPerSecond: recorderVideoBitrate,
@@ -205,6 +210,7 @@ function resumeRendering() {
       videoBitsPerSecond: recorderVideoBitrate,
       frameRate: recorderFrameRate,
     };
+    recorderFrameTime = 1000 / recorderFrameRate;
   });
 
   gId("recorderVideoBitrateRange").addEventListener("input", function () {
@@ -228,12 +234,12 @@ function resumeRendering() {
     canvasStream = canvas.captureStream(recorderFrameRate);
   });
 
-  gId("webmWriterQualityRange").addEventListener("input", function () {
-    sliderInputSync(gId("webmWriterQualityRange"), gId("webmWriterQualityInput"), "webmWriterQuality", undefined, "slider");
+  gId("blobQualityRange").addEventListener("input", function () {
+    sliderInputSync(gId("blobQualityRange"), gId("blobQualityInput"), "blobQuality", undefined, "slider");
   });
 
-  gId("webmWriterQualityInput").addEventListener("input", function () {
-    sliderInputSync(gId("webmWriterQualityRange"), gId("webmWriterQualityInput"), "webmWriterQuality", 0.9, "input");
+  gId("blobQualityInput").addEventListener("input", function () {
+    sliderInputSync(gId("blobQualityRange"), gId("blobQualityInput"), "blobQuality", 0.75, "input");
   });
 
   //stop recording and download the video when user reload
