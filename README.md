@@ -6,7 +6,7 @@ This is just an experiment version of candlexyehrris, expect it to see bugs and 
 
 An audio visualizer based on STFT(Short-time Fourier transform), it gives the iconic "candle" effect near the peak
 
-Inspired by Sonic Candle and the upcomming HyperSynesthesia by Dakkra
+Inspired by Sonic Candle
 
 # _Legal notices_
 
