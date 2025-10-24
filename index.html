@@ -55,7 +55,7 @@
           class="height-fit-content"
           title=".mp4, .mov, .mpeg, .webm, .3gp, .3gp2, .ogm, .ogv"
           accept=".mp4, .mov, .mpeg, .webm, .3gp, .3gp2, .ogm, .ogv" />
-        <input type="text" id="videoLinkUrl" placeholder="Video link(must point to an ideo file)" />
+        <input type="text" id="videoLinkUrl" placeholder="Video link(must point to a video file)" />
         <button
           id="updateVideoSrc"
           onclick="updateVideoSrc()"
@@ -136,7 +136,7 @@
         <div class="settings_label-slider-input">
           <span data-text="$bitrate"></span>
           <input type="range" id="recorderVideoBitrateRange" min="0" max="100000000" step="1" />
-          <input type="number" id="recorderVideoBitrateInput" placeholder="2000000" value="2000000" />
+          <input type="number" id="recorderVideoBitrateInput" placeholder="5000000" value="5000000" />
         </div>
         <div class="settings_label-input_long">
           <span data-text="$file_name"></span>
@@ -144,10 +144,22 @@
         </div>
       </div>
       <div class="settings_container">
+        <span>Render specific</span>
         <div class="settings_label-slider-input">
           <span data-text="$blob_quality"></span>
           <input type="range" id="blobQualityRange" min="0" max="1" step="0.00000000001" />
           <input type="number" id="blobQualityInput" placeholder="0.75" value="0.75" />
+        </div>
+        <div class="settings_label-select">
+          <span data-text="$codec"></span>
+          <select id="renderCodec">
+            <option value="vp8">vp8</option>
+            <option value="vp09">vp09</option>
+          </select>
+        </div>
+        <div class="settings_label-slider-input">
+          <span>Buffer size</span>
+          <input type="number" id="bufferSizeInput" value="60" />
         </div>
         <div class="settings_label-input">
           <span data-text="$max_concurrent_encodes"></span>
