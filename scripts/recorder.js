@@ -69,7 +69,7 @@ function startRecording() {
     downloadLink.download = (gId("recorderFileName").value || "video") + "." + recorderVideoFileExt;
     downloadLink.href = recordedVideoUrl;
     downloadLink.click();
-    printLog("Download link: " + downloadLink);
+    printLog("Download link: <a href='" + downloadLink + "' target='_blank'>" + downloadLink + "</a>");
   };
 
   const mimeTypeString = recorderMimeType + ";" + " codecs=" + recorderVideoCodec;
@@ -92,6 +92,10 @@ function startRecording() {
 
   gId("recorderMimeTypeInput").setAttribute("disabled", "");
   gId("recorderCodecInput").setAttribute("disabled", "");
+  gId("recorderFrameRateRange").setAttribute("disabled", "");
+  gId("recorderFrameRateInput").setAttribute("disabled", "");
+  gId("recorderVideoBitrateRange").setAttribute("disabled", "");
+  gId("recorderVideoBitrateInput").setAttribute("disabled", "");
 }
 
 function stopRecording() {
@@ -107,6 +111,10 @@ function stopRecording() {
 
   gId("recorderMimeTypeInput").removeAttribute("disabled", "");
   gId("recorderCodecInput").removeAttribute("disabled", "");
+  gId("recorderFrameRateRange").removeAttribute("disabled", "");
+  gId("recorderFrameRateInput").removeAttribute("disabled", "");
+  gId("recorderVideoBitrateRange").removeAttribute("disabled", "");
+  gId("recorderVideoBitrateInput").removeAttribute("disabled", "");
 }
 
 function pauseRecording() {
@@ -136,6 +144,7 @@ function startRendering() {
 
 function stopRendering() {
   isRendering = false;
+  pausedRendering = false;
 
   startRend.removeAttribute("disabled", "");
   stopRend.setAttribute("disabled", "");
@@ -242,7 +251,7 @@ function resumeRendering() {
     sliderInputSync(gId("blobQualityRange"), gId("blobQualityInput"), "blobQuality", 0.75, "input");
   });
 
-  //stop recording and download the video when user reload
+  //stop recording and download the video when user reload?
   window.addEventListener("load", () => {
     const nav = performance.getEntriesByType("navigation")[0];
     const reloaded = nav && nav.type === "reload";
