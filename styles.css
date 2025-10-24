@@ -151,15 +151,6 @@ label {
   cursor: pointer;
 }
 
-audio {
-  width: 500px;
-}
-
-#audio {
-  margin-left: 0px;
-  margin-right: 0px;
-}
-
 input {
   background-color: #000;
   color: #e0e0e0;
@@ -204,6 +195,7 @@ textarea {
   padding: 4px;
   font-family: Unifont;
   font-size: 16px;
+  height: 150px;
 }
 
 input[type="range"] {
@@ -269,7 +261,7 @@ button[disabled]:hover {
   border-color: #555555;
 }
 
-audio {
+video {
   align-self: center;
 }
 
@@ -299,7 +291,6 @@ canvas {
 }
 
 hr {
-  text-align: left;
   width: 100%;
 }
 
@@ -350,7 +341,7 @@ a {
 }
 
 span {
-  font-size: 15px;
+  font-size: 16px;
   margin: 0px;
   padding: 0px;
 }
@@ -385,7 +376,7 @@ span {
   margin-right: auto;
 }
 
-.mainAudio {
+.mainVideo {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -394,6 +385,7 @@ span {
   margin-bottom: auto;
   margin-left: auto;
   margin-right: auto;
+  border: 2px solid #ea7010;
   line-height: 0;
 }
 
@@ -485,6 +477,11 @@ span {
   pointer-events: none;
   opacity: 0.2;
   cursor: not-allowed;
+}
+
+.offscreen_hide {
+  width: 0px;
+  height: 0px;
 }
 
 .settings_label-input {
@@ -721,11 +718,6 @@ span {
 
 .barsPerBinIndic {
   color: #ffbb2e;
-}
-
-#windowFuncInput {
-  height: 200px;
-  text-overflow: ellipsis;
 }
 
 .settings_label-input_long {
