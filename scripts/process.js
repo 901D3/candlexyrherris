@@ -103,14 +103,15 @@ async function render() {
   printLog("Starting rendering");
 
   const muxer = new WebMMuxer({
+    codec: "vp8",
     width: canvasWidth,
     height: canvasHeight,
     frameRate: recorderFrameRate,
-    bufferSize: 45,
+    bufferSize: Number(gId("bufferSizeInput").value),
   });
   const chunks = [];
 
-  const startPositionSeconds = Number(gId("rendererStartPosition").value);
+  const startPositionSeconds = Number(gId("rendererStartPosition").value ?? 0);
   const startFrame = floor(startPositionSeconds * recorderFrameRate);
   const totalFrames = ceil(audio.duration * recorderFrameRate);
   printLog("Total frames:" + totalFrames, 1);
@@ -131,6 +132,7 @@ async function render() {
   }
 
   const encodeQueue = new Set();
+
   performance.mark("renderStart");
 
   for (let frameIndex = startFrame; frameIndex < totalFrames && !audio.ended; frameIndex++) {
@@ -153,7 +155,7 @@ async function render() {
 
     const encodePromise = (async () => {
       performance.mark("toBlobStart");
-      const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", webmWriterQuality));
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", blobQuality));
       performance.mark("toBlobEnd");
 
       const buffer = new Uint8Array(await blob.arrayBuffer());
@@ -190,8 +192,15 @@ async function render() {
 
       printLog("Video draw: " + videoDraw + "ms\n" + "Visualizer draw: " + audioDraw + "ms\n" + "toBlob: " + toBlob + "ms\n");
 
-      performance.clearMarks();
-      performance.clearMeasures();
+      performance.clearMarks("videoDrawStart");
+      performance.clearMarks("videoDrawEnd");
+      performance.clearMarks("audioDrawStart");
+      performance.clearMarks("audioDrawEnd");
+      performance.clearMarks("toBlobStart");
+      performance.clearMarks("toBlobEnd");
+      performance.clearMeasures("videoDraw");
+      performance.clearMeasures("audioDraw");
+      performance.clearMeasures("toBlob");
     }
 
     if (pausedRendering) await waitForResolve();
@@ -208,6 +217,7 @@ async function render() {
   onComplete();
 
   async function onComplete() {
+    await Promise.all(encodeQueue);
     isRendering = false;
     audio.muted = false;
     audio.loop = true;
@@ -246,15 +256,24 @@ async function streamlinedRender() {
   isRendering = true;
 
   printLog("Starting rendering");
+
   const muxer = new WebMMuxer({
+    codec: gId("renderCodec").value === "vp09" ? "vp9" : gId("renderCodec").value,
     width: canvasWidth,
     height: canvasHeight,
     frameRate: recorderFrameRate,
-    bufferSize: 45,
+    bufferSize: Number(gId("bufferSizeInput").value),
+    profile: 0,
+    level: 10,
+    bitDepth: 8,
+    chromaSubsampling: 2,
+    colorRange: 1,
+    colorPrimaries: 1,
+    transferCharacteristics: 1,
   });
   const chunks = [];
 
-  const startPositionSeconds = Number(gId("rendererStartPosition").value);
+  const startPositionSeconds = Number(gId("rendererStartPosition").value ?? 0);
   const startFrame = floor(startPositionSeconds * recorderFrameRate);
   const totalFrames = ceil(audio.duration * recorderFrameRate);
   printLog("Total frames:" + totalFrames, 1);
@@ -278,7 +297,7 @@ async function streamlinedRender() {
   });
 
   WCodecEncoder.configure({
-    codec: "vp8", // Has to be VP8
+    codec: gId("renderCodec").value === "vp09" ? "vp09.00.10.8.01" : gId("renderCodec").value,
     width: canvasWidth,
     height: canvasHeight,
     framerate: recorderFrameRate,
@@ -342,8 +361,15 @@ async function streamlinedRender() {
 
       printLog("Video draw: " + videoDraw + "ms\n" + "Visualizer draw: " + audioDraw + "ms\n" + "toFrame: " + toFrame + "ms\n");
 
-      performance.clearMarks();
-      performance.clearMeasures();
+      performance.clearMarks("videoDrawStart");
+      performance.clearMarks("videoDrawEnd");
+      performance.clearMarks("audioDrawStart");
+      performance.clearMarks("audioDrawEnd");
+      performance.clearMarks("toFrameStart");
+      performance.clearMarks("toFrameEnd");
+      performance.clearMeasures("videoDraw");
+      performance.clearMeasures("audioDraw");
+      performance.clearMeasures("toFrame");
     }
 
     // Yields so the UI stays responsive
@@ -501,8 +527,8 @@ function frameCounter() {
   }
 }
 
-gId("showTelemetries").addEventListener("change", function (e) {
-  t = e.target.checked;
+gId("showTelemetry").addEventListener("change", function () {
+  t = gId("showTelemetry").checked;
 });
 
 audio.addEventListener("play", function () {
