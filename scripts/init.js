@@ -51,7 +51,39 @@ function defVAdv(v1, v2, vmin = 0, vmax = 100, ltvmin = false, gtvmax = false) {
   return v1;
 }
 
-//Valve's ConVars style
+function sinc(x) {
+  if (x == 0) return 1;
+  const PIx = PI * x;
+  return sin(PIx) / PIx;
+}
+
+var canvas = gId("canvas");
+var ctx = canvas.getContext("2d", {
+  alpha: false,
+  colorSpace: "srgb",
+  colorType: "float16",
+  desynchronized: false,
+});
+ctx.imageSmoothingEnabled = false;
+var canvasStream = canvas.captureStream();
+var canvasWidth = canvas.width;
+var canvasHeight = canvas.height;
+ctx.fillStyle = "gray";
+ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+var isProcessing = false;
+var desyncOpt = false;
+var t = false;
+var audio = gId("audio");
+var video = document.createElement("video");
+video.muted = true;
+video.preload = "auto";
+video.playsInline = true;
+video.autoPlay = true;
+video.controls = false;
+video.crossOrigin = "";
+var image = new Image();
+image.crossOrigin = "";
 
 var {
   abs,
@@ -95,55 +127,6 @@ var {
 } = Math;
 
 var _2PI = PI * 2;
-
-function sinc(x) {
-  if (x == 0) return 1;
-  const PIx = PI * x;
-  return sin(PIx) / PIx;
-}
-
-var canvas = gId("canvas");
-var ctx = canvas.getContext("2d", {
-  alpha: false,
-  colorSpace: "srgb",
-  colorType: "float16",
-  desynchronized: false,
-});
-ctx.imageSmoothingEnabled = false;
-var canvasStream = canvas.captureStream();
-var canvasWidth = canvas.width;
-var canvasHeight = canvas.height;
-ctx.fillStyle = "gray";
-ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-var isProcessing = false;
-var desyncOpt = false;
-var t = false;
-var audio = gId("audio");
-var video = document.createElement("video");
-video.muted = true;
-video.preload = "auto";
-video.playsInline = true;
-video.autoPlay = true;
-video.controls = false;
-video.crossOrigin = "";
-var image = new Image();
-image.crossOrigin = "";
-//var audioCtx;
-//if (!audioCtx) {
-//  try {
-//    audioCtx = new AudioContext();
-//  } catch (e) {
-//    printLog("Error: " + e + "| falled back to window.webkitAudioContext");
-//    const AudioContextClass = window.webkitAudioContext;
-//    if (AudioContextClass) audioCtx = new AudioContextClass();
-//    else printLog("Web Audio API not supported in this browser");
-//  }
-//}
-
-//var source = audioCtx.createMediaElementSource(audio);
-//var analyser;
-//var dataArray;
 var bytesArray;
 var leftChannelArray;
 var rightChannelArray;
@@ -199,11 +182,10 @@ var barWidthRounding = false;
 
 var recorderFrameRate = 30;
 var recorderFrameTime = 1000 / recorderFrameRate; // Optimization
-var recorderVideoBitrate = 2000000;
+var recorderVideoBitrate = 5000000;
 var recorderMimeType = "video/webm";
 var recorderVideoCodec = "vp9";
 var blobQuality = 0.75;
-var recorderWebmWriterSettings;
 var isRecording = false;
 var isRendering = false;
 var pausedRendering = false;
