@@ -151,6 +151,15 @@ label {
   cursor: pointer;
 }
 
+audio {
+  width: 500px;
+}
+
+#audio {
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
 input {
   background-color: #000;
   color: #e0e0e0;
@@ -195,7 +204,6 @@ textarea {
   padding: 4px;
   font-family: Unifont;
   font-size: 16px;
-  height: 150px;
 }
 
 input[type="range"] {
@@ -261,7 +269,7 @@ button[disabled]:hover {
   border-color: #555555;
 }
 
-video {
+audio {
   align-self: center;
 }
 
@@ -341,7 +349,7 @@ a {
 }
 
 span {
-  font-size: 16px;
+  font-size: 15px;
   margin: 0px;
   padding: 0px;
 }
@@ -376,7 +384,7 @@ span {
   margin-right: auto;
 }
 
-.mainVideo {
+.mainAudio {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -718,6 +726,11 @@ span {
 
 .barsPerBinIndic {
   color: #ffbb2e;
+}
+
+#windowFuncInput {
+  height: 200px;
+  text-overflow: ellipsis;
 }
 
 .settings_label-input_long {
