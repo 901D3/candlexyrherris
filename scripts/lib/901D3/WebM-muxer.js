@@ -1,6 +1,6 @@
 /**
  * A simple and lightweight WebM muxer
- * Uses VP8 WebP images to mux into video
+ * Uses VP8 WebP images or VP9 frames to mux into video
  *
  * https://github.com/901D3/WebM-muxer.js
  *
@@ -11,10 +11,19 @@
 "use strict";
 
 class WebMMuxer {
+  #codec;
   #width;
   #height;
   #frameRate;
   #bufferSize;
+
+  #profile;
+  #level;
+  #bitDepth;
+  #chromaSubsampling;
+  #colorRange;
+  #colorPrimaries;
+  #transferCharacteristics;
 
   #muxingApp;
   #writingApp;
@@ -29,6 +38,9 @@ class WebMMuxer {
    *
    * @param {*} initSettings
    *
+   * For VP8, you can use both addFrameFromBlob or addFramePreEncoded(WebCodecs only)
+   * For VP9, addFramePreEncoded is the only choice
+   *
    * bufferSize is number of frames that when clusterFrameCount exceeds bufferSize's value,
    * the muxer will write a new cluster(keyframe). default to 300 if bufferSize is null
    *
@@ -37,10 +49,22 @@ class WebMMuxer {
    */
 
   constructor(initSettings) {
+    if (!["vp8", "vp9"].includes(initSettings.codec)) throw new Error("Codec not supported: " + initSettings.codec);
+
+    this.#codec = initSettings.codec;
+
     this.#width = initSettings.width;
     this.#height = initSettings.height;
     this.#frameRate = initSettings.frameRate;
     this.#bufferSize = initSettings.bufferSize ?? 300;
+
+    this.#profile = initSettings.profile ?? 0;
+    this.#level = initSettings.level ?? 0xff;
+    this.#bitDepth = initSettings.bitDepth ?? 8;
+    this.#chromaSubsampling = initSettings.chromaSubsampling ?? 3;
+    this.#colorRange = initSettings.colorRange ?? 1;
+    this.#colorPrimaries = initSettings.colorPrimaries ?? 1;
+    this.#transferCharacteristics = initSettings.transferCharacteristics ?? 1;
 
     this.#muxingApp = initSettings.muxingApp ?? "WebM Muxer";
     this.#writingApp = initSettings.writingApp ?? "WebM Muxer";
@@ -135,7 +159,6 @@ class WebMMuxer {
     temp.push(this.#arrayConcat(Uint8Array.of(0x57, 0x41), this.#toVINT(writingApp.length), writingApp));
 
     // SegmentDuration
-    // Gets patched when calling finalize()
     const durationSec = this.#toFloat64Buffer(this.#frameCount / this.#frameRate);
     temp.push(this.#arrayConcat(Uint8Array.of(0x44, 0x89), this.#toVINT(durationSec.length), durationSec));
 
@@ -183,14 +206,27 @@ class WebMMuxer {
     temp.push(this.#arrayConcat(Uint8Array.of(0x22, 0xb5, 0x9c), this.#toVINT(language.length), this.#stringToUTF8("und")));
 
     // CodecID
-    // "V_VP8"
-    const CodecID = this.#stringToUTF8("V_VP8");
+    const CodecID = this.#stringToUTF8("V_" + this.#codec.toUpperCase());
     temp.push(this.#arrayConcat(Uint8Array.of(0x86), this.#toVINT(CodecID.length), CodecID));
 
     // CodecName
     // "VP8"
-    const CodecName = this.#stringToUTF8("VP8");
+    const CodecName = this.#stringToUTF8(this.#codec.toUpperCase());
     temp.push(this.#arrayConcat(Uint8Array.of(0x25, 0x86, 0x88), this.#toVINT(CodecName.length), CodecName));
+
+    if (this.#codec === "vp9") {
+      // VP9 CodecPrivate
+      const codecPrivate = Uint8Array.of(
+        this.#profile,
+        this.#level,
+        this.#bitDepth,
+        this.#chromaSubsampling,
+        this.#colorRange,
+        this.#colorPrimaries,
+        this.#transferCharacteristics
+      );
+      temp.push(this.#arrayConcat(Uint8Array.of(0x63, 0xa2), this.#toVINT(codecPrivate.length), codecPrivate));
+    }
 
     // TrackType
     // video
@@ -283,6 +319,31 @@ class WebMMuxer {
 
   /**
    *
+   * @param {*} webpData
+   * @returns {array}
+   */
+
+  #extractVP8Frame(webpData) {
+    if (String.fromCharCode(...webpData.subarray(0, 4)) !== "RIFF") {
+      throw new Error("Not a RIFF WebP file");
+    }
+
+    let offset = 12;
+    while (offset < webpData.length - 8) {
+      const chunkId = String.fromCharCode(...webpData.subarray(offset, offset + 4));
+      const chunkSize = new DataView(webpData.buffer, webpData.byteOffset + offset + 4, 4).getUint32(0, true);
+      const chunkStart = offset + 8;
+
+      if (chunkId === "VP8 ") return webpData.subarray(chunkStart, chunkStart + chunkSize);
+
+      offset += 8 + chunkSize + (chunkSize & 1);
+    }
+
+    throw new Error("VP8 chunk not found in WebP data");
+  }
+
+  /**
+   *
    * @param {*} frame - Input WebP data, with header. **usually comes from toBlob()**
    * @param {*} array - Destination array to write
    */
@@ -290,15 +351,7 @@ class WebMMuxer {
   addFrameFromBlob(frame, array) {
     const timestampMs = Math.round(this.#frameCount * (1000 / this.#frameRate));
 
-    let cursor = -1;
-    for (let i = 0; i < 36; i++) {
-      if (frame[i] === 0x56 && frame[i + 1] === 0x50 && frame[i + 2] === 0x38) {
-        cursor = i;
-        break;
-      }
-    }
-
-    if (cursor == -1) throw new Error("'VP8' not found in WebP frame");
+    const vp8Data = this.#extractVP8Frame(frame);
 
     if (this.#frameCount === 0 || this.#clusterFrameCount >= this.#bufferSize) {
       this.#clusterFrameCount = 0;
@@ -308,7 +361,7 @@ class WebMMuxer {
     }
 
     const keyframe = this.#clusterFrameCount === 0;
-    this.makeSimpleBlock(frame, timestampMs - this.#clusterTimeCode, keyframe, array);
+    this.makeSimpleBlock(vp8Data, timestampMs - this.#clusterTimeCode, keyframe, array);
 
     this.#frameCount++;
     this.#clusterFrameCount++;
