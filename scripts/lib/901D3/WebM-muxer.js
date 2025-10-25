@@ -1,6 +1,7 @@
 /**
  * A simple and lightweight WebM muxer
  * Uses VP8 WebP images or VP9 frames to mux into video
+ * v0.3.1
  *
  * https://github.com/901D3/WebM-muxer.js
  *
@@ -61,24 +62,42 @@ class WebMMuxer {
     this.#profile = initSettings.profile ?? 0;
     this.#level = initSettings.level ?? 0xff;
     this.#bitDepth = initSettings.bitDepth ?? 8;
-    this.#chromaSubsampling = initSettings.chromaSubsampling ?? 3;
+    this.#chromaSubsampling = initSettings.chromaSubsampling ?? 1;
     this.#colorRange = initSettings.colorRange ?? 1;
     this.#colorPrimaries = initSettings.colorPrimaries ?? 1;
     this.#transferCharacteristics = initSettings.transferCharacteristics ?? 1;
 
-    this.#muxingApp = initSettings.muxingApp ?? "WebM Muxer";
-    this.#writingApp = initSettings.writingApp ?? "WebM Muxer";
+    this.#muxingApp = initSettings.muxingApp ?? "WebM-muxer.js";
+    this.#writingApp = initSettings.writingApp ?? "WebM-muxer.js";
   }
+
+  /**
+   *
+   * @param {*} input
+   * @returns
+   */
 
   #stringToUTF8(input) {
     return new TextEncoder().encode(input);
   }
+
+  /**
+   *
+   * @param {*} value
+   * @returns
+   */
 
   #toFloat64Buffer(value) {
     const buffer = new ArrayBuffer(8);
     new DataView(buffer).setFloat64(0, value, false);
     return new Uint8Array(buffer);
   }
+
+  /**
+   *
+   * @param {*} value
+   * @returns
+   */
 
   #toVINT(value) {
     if (value < 0) throw new Error("VINT cannot be negative");
@@ -102,6 +121,12 @@ class WebMMuxer {
     return out;
   }
 
+  /**
+   *
+   * @param  {...any} arrays
+   * @returns
+   */
+
   #arrayConcat(...arrays) {
     const total = arrays.reduce((sum, a) => sum + a.length, 0);
     const out = new Uint8Array(total);
@@ -111,6 +136,38 @@ class WebMMuxer {
       offset += arr.length;
     }
     return out;
+  }
+
+  // Updated
+  /**
+   * Extract frame data from VP8 frames, ignoring VP8L and VP8X as both are not supported by WebM
+   *
+   * @param {*} webpData
+   * @returns {array}
+   */
+
+  #extractVP8Frame(webpData) {
+    if (String.fromCharCode(...webpData.subarray(0, 4)) !== "RIFF") {
+      throw new Error("Not a RIFF WebP file");
+    }
+
+    let offset = 12;
+    while (offset < webpData.length - 8) {
+      const chunkId = String.fromCharCode(...webpData.subarray(offset, offset + 4));
+      const chunkSize = new DataView(webpData.buffer, webpData.byteOffset + offset + 4, 4).getUint32(0, true);
+      const chunkStart = offset + 8;
+
+      if (chunkId === "VP8 ") return webpData.subarray(chunkStart, chunkStart + chunkSize);
+      else if (chunkId === "VP8L") {
+        throw new Error("Lossless VP8 is not supported: " + chunkId);
+      } else if (chunkId === "VP8X") {
+        throw new Error("Extended VP8 is not supported: " + chunkId);
+      }
+
+      offset += 8 + chunkSize + (chunkSize & 1);
+    }
+
+    throw new Error("VP8 chunk not found in WebP data");
   }
 
   /**
@@ -259,6 +316,66 @@ class WebMMuxer {
     array.push(tracks);
   }
 
+  // Updated
+  /**
+   *
+   * @param {*} timecodeMs
+   * @param {*} array
+   */
+
+  makeClusterStart(timecodeMs, array) {
+    // 4 bytes
+    const timecodeElement = this.#arrayConcat(
+      Uint8Array.of(0xe7),
+      this.#toVINT(4),
+      Uint8Array.of((timecodeMs >> 24) & 0xff, (timecodeMs >> 16) & 0xff, (timecodeMs >> 8) & 0xff, timecodeMs & 0xff)
+    );
+
+    // All appended SimpleBlock is saved to this.#blockChunks so we will take this.#blockChunks and concatenate it with cluster header
+    const clusterBody = this.#arrayConcat(timecodeElement, ...this.#blockChunks);
+
+    const clusterHeader = this.#arrayConcat(
+      Uint8Array.of(0x1f, 0x43, 0xb6, 0x75),
+      this.#toVINT(clusterBody.length),
+      clusterBody
+    );
+
+    array.push(clusterHeader);
+
+    // Flush the old one
+    this.#blockChunks = [];
+    this.#clusterFrameCount = 0;
+  }
+
+  // Updated
+  /**
+   *
+   * @param {*} frame
+   * @param {*} relativeTime
+   * @param {*} keyframe
+   */
+
+  makeSimpleBlock(frame, relativeTime, keyframe) {
+    const temp = [];
+
+    temp.push(Uint8Array.of(0xa3));
+
+    const trackNumber = Uint8Array.of(0x81);
+    const timecode = Uint8Array.of((relativeTime >> 8) & 0xff, relativeTime & 0xff);
+    const flags = Uint8Array.of((keyframe ? 0x80 : 0x00) | 0x00);
+
+    const simpleBlockBody = this.#arrayConcat(trackNumber, timecode, flags, frame);
+    const size = this.#toVINT(simpleBlockBody.length);
+
+    temp.push(size);
+    temp.push(simpleBlockBody);
+
+    this.#blockChunks.push(this.#arrayConcat(...temp));
+
+    this.#frameCount++;
+    this.#clusterFrameCount++;
+  }
+
   /**
    * A wrapper for writing header to the destination array
    *
@@ -273,75 +390,14 @@ class WebMMuxer {
     this.makeTrackEntry(array);
   }
 
-  /**
-   *
-   * @param {*} timecodeMs
-   * @param {*} array
-   */
+  newCluster(array) {
+    const timestampMs = (this.#frameCount * 1000) / this.#frameRate;
 
-  makeClusterStart(timecodeMs, array) {
-    const timecodeElement = Uint8Array.of(0xe7, 0x82, (timecodeMs >> 8) & 0xff, timecodeMs & 0xff);
-    // push all accumulated SimpleBlocks
-    const clusterBody = this.#arrayConcat(timecodeElement, ...this.#blockChunks);
-
-    const clusterSize = this.#toVINT(clusterBody.length);
-    const clusterHeader = this.#arrayConcat(Uint8Array.of(0x1f, 0x43, 0xb6, 0x75), clusterSize, clusterBody);
-    array.push(clusterHeader);
+    this.makeClusterStart(this.#clusterTimeCode, array);
+    this.#clusterTimeCode = Math.round(timestampMs);
   }
 
-  /**
-   *
-   * @param {*} frame
-   * @param {*} relativeTime
-   * @param {*} keyframe
-   * @param {*} array
-   */
-
-  makeSimpleBlock(frame, relativeTime, keyframe, array) {
-    const temp = [];
-
-    temp.push(Uint8Array.of(0xa3));
-
-    const trackNumber = Uint8Array.of(0x81); // track 1
-    const timecode = Uint8Array.of((relativeTime >> 8) & 0xff, relativeTime & 0xff);
-    const flags = Uint8Array.of(keyframe ? 0x80 : 0x00);
-
-    const simpleBlockBody = this.#arrayConcat(trackNumber, timecode, flags, frame);
-    const size = this.#toVINT(simpleBlockBody.length);
-
-    temp.push(size);
-    temp.push(simpleBlockBody);
-
-    const block = this.#arrayConcat(...temp);
-    array.push(block);
-    this.#blockChunks.push(block);
-  }
-
-  /**
-   *
-   * @param {*} webpData
-   * @returns {array}
-   */
-
-  #extractVP8Frame(webpData) {
-    if (String.fromCharCode(...webpData.subarray(0, 4)) !== "RIFF") {
-      throw new Error("Not a RIFF WebP file");
-    }
-
-    let offset = 12;
-    while (offset < webpData.length - 8) {
-      const chunkId = String.fromCharCode(...webpData.subarray(offset, offset + 4));
-      const chunkSize = new DataView(webpData.buffer, webpData.byteOffset + offset + 4, 4).getUint32(0, true);
-      const chunkStart = offset + 8;
-
-      if (chunkId === "VP8 ") return webpData.subarray(chunkStart, chunkStart + chunkSize);
-
-      offset += 8 + chunkSize + (chunkSize & 1);
-    }
-
-    throw new Error("VP8 chunk not found in WebP data");
-  }
-
+  // Updated
   /**
    *
    * @param {*} frame - Input WebP data, with header. **usually comes from toBlob()**
@@ -349,24 +405,50 @@ class WebMMuxer {
    */
 
   addFrameFromBlob(frame, array) {
-    const timestampMs = Math.round(this.#frameCount * (1000 / this.#frameRate));
+    const timestampMs = (this.#frameCount * 1000) / this.#frameRate;
 
-    const vp8Data = this.#extractVP8Frame(frame);
-
-    if (this.#frameCount === 0 || this.#clusterFrameCount >= this.#bufferSize) {
-      this.#clusterFrameCount = 0;
-      this.#blockChunks = [];
-      this.#clusterTimeCode = timestampMs;
+    if (this.#clusterFrameCount >= this.#bufferSize) {
       this.makeClusterStart(this.#clusterTimeCode, array);
+      this.#clusterTimeCode = Math.round(timestampMs);
     }
 
+    // Calculate relativeTime after update this.#clusterTimeCode
+    const relativeTime = Math.round(timestampMs - this.#clusterTimeCode);
     const keyframe = this.#clusterFrameCount === 0;
-    this.makeSimpleBlock(vp8Data, timestampMs - this.#clusterTimeCode, keyframe, array);
 
-    this.#frameCount++;
-    this.#clusterFrameCount++;
+    const vp8Data = this.#extractVP8Frame(frame);
+    this.makeSimpleBlock(vp8Data, relativeTime, keyframe);
   }
 
+  // New
+  /**
+   *
+   * @param {*} frame - Input WebP data, with header. **usually comes from toBlob()**
+   */
+
+  addFrameFromBlobKeyFrame(frame) {
+    const timestampMs = (this.#frameCount * 1000) / this.#frameRate;
+    const relativeTime = Math.round(timestampMs - this.#clusterTimeCode);
+
+    const vp8Data = this.#extractVP8Frame(frame);
+    this.makeSimpleBlock(vp8Data, relativeTime, true);
+  }
+
+  // New
+  /**
+   *
+   * @param {*} frame - Input WebP data, with header. **usually comes from toBlob()**
+   */
+
+  addFrameFromBlobInterFrame(frame) {
+    const timestampMs = (this.#frameCount * 1000) / this.#frameRate;
+    const relativeTime = Math.round(timestampMs - this.#clusterTimeCode);
+
+    const vp8Data = this.#extractVP8Frame(frame);
+    this.makeSimpleBlock(vp8Data, relativeTime, false);
+  }
+
+  // Updated
   /**
    *
    * @param {*} frame - Input WebP data, no header. **usually comes from WebCodecs**
@@ -374,25 +456,47 @@ class WebMMuxer {
    */
 
   addFramePreEncoded(frame, array) {
-    const timestampMs = Math.round(this.#frameCount * (1000 / this.#frameRate));
+    const timestampMs = (this.#frameCount * 1000) / this.#frameRate;
 
-    // Make a new cluster if buffer exceeded or first frame
-    if (this.#frameCount === 0 || this.#clusterFrameCount >= this.#bufferSize) {
-      this.#clusterFrameCount = 0;
-      this.#blockChunks = [];
-      this.#clusterTimeCode = timestampMs;
+    if (this.#clusterFrameCount >= this.#bufferSize) {
       this.makeClusterStart(this.#clusterTimeCode, array);
+      this.#clusterTimeCode = Math.round(timestampMs);
     }
 
-    // First frame of the cluster must be a keyframe
+    // Calculate relativeTime after update this.#clusterTimeCode
+    const relativeTime = Math.round(timestampMs - this.#clusterTimeCode);
     const keyframe = this.#clusterFrameCount === 0;
 
-    this.makeSimpleBlock(frame, timestampMs - this.#clusterTimeCode, keyframe, array);
-
-    this.#frameCount++;
-    this.#clusterFrameCount++;
+    this.makeSimpleBlock(frame, relativeTime, keyframe);
   }
 
+  // New
+  /**
+   *
+   * @param {*} frame - Input WebP data, no header. **usually comes from WebCodecs**
+   */
+
+  addFramePreEncodedKeyFrame(frame) {
+    const timestampMs = (this.#frameCount * 1000) / this.#frameRate;
+    const relativeTime = Math.round(timestampMs - this.#clusterTimeCode);
+
+    this.makeSimpleBlock(frame, relativeTime, true);
+  }
+
+  // New
+  /**
+   *
+   * @param {*} frame - Input WebP data, no header. **usually comes from WebCodecs**
+   */
+
+  addFramePreEncodedInterFrame(frame) {
+    const timestampMs = (this.#frameCount * 1000) / this.#frameRate;
+    const relativeTime = Math.round(timestampMs - this.#clusterTimeCode);
+
+    this.makeSimpleBlock(frame, relativeTime, false);
+  }
+
+  // Updated
   /**
    *
    * @param {*} array - Input array for finalizing
@@ -403,10 +507,7 @@ class WebMMuxer {
    */
 
   finalize(array) {
-    if (this.#blockChunks.length) {
-      this.makeClusterStart(this.#clusterTimeCode, array);
-      this.#blockChunks = [];
-    }
+    if (this.#blockChunks.length) this.makeClusterStart(this.#clusterTimeCode, array);
 
     const dataOnly = this.#arrayConcat(...array);
 
@@ -415,7 +516,6 @@ class WebMMuxer {
     this.writeHeader(header);
     const fullHeader = this.#arrayConcat(...header);
 
-    const final = this.#arrayConcat(fullHeader, dataOnly);
-    return new Blob([final]);
+    return new Blob([this.#arrayConcat(fullHeader, dataOnly)]);
   }
 }
