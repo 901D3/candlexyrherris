@@ -126,7 +126,6 @@ var {
   SQRT2,
 } = Math;
 
-var _2PI = PI * 2;
 var bytesArray;
 var leftChannelArray;
 var rightChannelArray;
@@ -153,7 +152,8 @@ var minBin;
 var maxBin = Infinity;
 var realShift;
 var imagShift;
-var interleaveEffect;
+var interleaveEffect = false;
+var conjugateInterleaveEffect = false;
 var interleaveEffectFix = false;
 var ignoreDC = 1;
 
@@ -179,10 +179,12 @@ var backgroundStyle = "solidColor";
 var barOutline = false;
 var barAmplitudeRounding = false;
 var barWidthRounding = false;
+var barPosX = 0.5;
+var barPosY = 0.5;
 
 var recorderFrameRate = 30;
 var recorderFrameTime = 1000 / recorderFrameRate; // Optimization
-var recorderVideoBitrate = 5000000;
+var recorderVideoBitrate = 20000000;
 var recorderMimeType = "video/webm";
 var recorderVideoCodec = "vp9";
 var blobQuality = 0.75;
