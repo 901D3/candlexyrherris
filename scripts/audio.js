@@ -37,7 +37,7 @@ function getVisualizerBufferFromFFT(real, imag, Nbars, threshold, minBin, maxBin
       mag = Math.sqrt(mag / (endIdx - startIdx));
     }
 
-    barBuffer[i] = amplitudeOffset + (mag / fftSize) * postVolMultiply;
+    barBuffer[i] = amplitudeOffset + mag * postVolMultiply; // Scaled up
 
     if (barBuffer[i] < threshold) barBuffer[i] = 0;
     currentBin = endBin;
