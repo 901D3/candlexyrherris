@@ -230,6 +230,22 @@
     sliderInputSync(gId("barColorBlueRange"), gId("barColorBlueInput"), "barColorBlue", 255, "input");
   });
 
+  gId("barPosXRange").addEventListener("input", function () {
+    sliderInputSync(gId("barPosXRange"), gId("barPosXInput"), "barPosX", undefined, "slider");
+  });
+
+  gId("barPosXInput").addEventListener("input", function () {
+    sliderInputSync(gId("barPosXRange"), gId("barPosXInput"), "barPosX", 255, "input");
+  });
+
+  gId("barPosYRange").addEventListener("input", function () {
+    sliderInputSync(gId("barPosYRange"), gId("barPosYInput"), "barPosY", undefined, "slider");
+  });
+
+  gId("barPosYInput").addEventListener("input", function () {
+    sliderInputSync(gId("barPosYRange"), gId("barPosYInput"), "barPosY", 255, "input");
+  });
+
   gId("backgroundColorRedRange").addEventListener("input", function () {
     sliderInputSync(gId("backgroundColorRedRange"), gId("backgroundColorRedInput"), "backgroundColorRed", undefined, "slider");
   });
