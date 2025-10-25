@@ -157,8 +157,6 @@ var conjugateInterleaveEffect = false;
 var interleaveEffectFix = false;
 var ignoreDC = 1;
 
-var dupSize = 1;
-
 var bars;
 var barColorRed;
 var barColorGreen;
@@ -173,8 +171,8 @@ var barSpace;
 var binValuePicking = "first";
 
 var barStyle = "rect";
-var barStyleCapsuleRadius = 0.3;
-var barStyleTriangCapsuleHeight = 0.3;
+var barStyleCapsuleRadius = 0.5;
+var barStyleTriangCapsuleHeight = 0.5;
 var backgroundStyle = "solidColor";
 var barOutline = false;
 var barAmplitudeRounding = false;
