@@ -26,7 +26,8 @@
  * Computes the discrete Fourier _transform (DFT) of the given complex vector, storing the result back into the vector.
  * The vector can have any length. This is a wrapper function.
  */
-var nayuki = (function () {
+var nayuki = (() => {
+  var _2PI = 2 * PI;
   function _transform(real, imag) {
     const realLength = real.length;
     const imagLength = imag.length;
