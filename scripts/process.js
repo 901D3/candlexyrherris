@@ -18,6 +18,23 @@ function getCurrentFrameFFT(audioTime, channelArray) {
 
   nayuki.transform(stftRe, stftIm);
 
+  if (conjugateInterleaveEffect) {
+    const stftReTemp = stftRe.slice();
+    const stftImTemp = stftIm.slice();
+    stftRe.fill(0);
+    stftIm.fill(0);
+
+    for (let i = 0; i < fftSize; i++) {
+      stftRe[i * 2] = stftReTemp[i];
+      stftIm[i * 2 + 1] = stftImTemp[fftSize - 1 - i];
+    }
+
+    for (let i = 0; i < fftSize; i++) {
+      stftIm[i * 2] = stftImTemp[i];
+      stftRe[i * 2 + 1] = stftReTemp[fftSize - 1 - i];
+    }
+  }
+
   // Reverse engineered version of Sonic Candle's interleaved array indexing
   // Shifted real or imaginary arrays gives wavy bars
   // You can use a different window function for stftIm(use it for wavy bars),
@@ -440,19 +457,11 @@ async function streamlinedRender() {
 }
 
 function drawVisualizerBufferToCanvas(Ctx, buffer) {
-  const fullBarWidth = barWidth + barSpace;
-  let offsetX = (canvasWidth - buffer.length * fullBarWidth + barSpace) * 0.5;
-  if (barStyle === "lines") offsetX = (canvasWidth - buffer.length * barWidth) * 0.5;
-
-  const halfHeight = canvasHeight * 0.5;
-  const minAmplitudeHalfHeight = minAmplitude * halfHeight;
-  const maxAmplitudeHalfHeight = maxAmplitude * halfHeight;
-
   if (!isRendering) Ctx.clearRect(0, 0, canvasWidth, canvasHeight);
   if (backgroundStyle === "solidColor") {
     Ctx.fillStyle = "rgb(" + backgroundColorRed + ", " + backgroundColorGreen + ", " + backgroundColorBlue + ")";
     Ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-  } else if (backgroundStyle === "image") Ctx.drawImage(image, 0, 0);
+  } else if (backgroundStyle === "image") Ctx.drawImage(image, 0, 0, canvasWidth, canvasHeight);
   else if (backgroundStyle === "video" && !isRendering) Ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
 
   if (barOutline) {
@@ -466,12 +475,12 @@ function drawVisualizerBufferToCanvas(Ctx, buffer) {
       Ctx,
       buffer,
       bars,
-      offsetX,
-      halfHeight,
+      barPosX,
+      barPosY,
       barWidth,
       barSpace,
-      minAmplitudeHalfHeight,
-      maxAmplitudeHalfHeight,
+      minAmplitude,
+      maxAmplitude,
       barOutline,
       barAmplitudeRounding,
       barWidthRounding
@@ -481,12 +490,12 @@ function drawVisualizerBufferToCanvas(Ctx, buffer) {
       Ctx,
       buffer,
       bars,
-      offsetX,
-      halfHeight,
+      barPosX,
+      barPosY,
       barWidth,
       barSpace,
-      minAmplitudeHalfHeight,
-      maxAmplitudeHalfHeight,
+      minAmplitude,
+      maxAmplitude,
       barOutline,
       barAmplitudeRounding,
       barWidthRounding,
@@ -497,12 +506,12 @@ function drawVisualizerBufferToCanvas(Ctx, buffer) {
       Ctx,
       buffer,
       bars,
-      offsetX,
-      halfHeight,
+      barPosX,
+      barPosY,
       barWidth,
       barSpace,
-      minAmplitudeHalfHeight,
-      maxAmplitudeHalfHeight,
+      minAmplitude,
+      maxAmplitude,
       barOutline,
       barAmplitudeRounding,
       barWidthRounding,
@@ -513,12 +522,12 @@ function drawVisualizerBufferToCanvas(Ctx, buffer) {
       Ctx,
       buffer,
       bars,
-      offsetX,
-      halfHeight,
+      barPosX,
+      barPosY,
       barWidth / 2,
       barSpace,
-      minAmplitudeHalfHeight,
-      maxAmplitudeHalfHeight,
+      minAmplitude,
+      maxAmplitude,
       barOutline,
       barAmplitudeRounding,
       barWidthRounding
@@ -528,11 +537,11 @@ function drawVisualizerBufferToCanvas(Ctx, buffer) {
       Ctx,
       buffer,
       bars,
-      offsetX,
-      halfHeight,
+      barPosX,
+      barPosY,
       barWidth,
-      minAmplitudeHalfHeight,
-      maxAmplitudeHalfHeight,
+      minAmplitude,
+      maxAmplitude,
       barOutline,
       barAmplitudeRounding,
       barWidthRounding
