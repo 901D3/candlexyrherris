@@ -159,7 +159,7 @@
         </div>
         <div class="settings_label-slider-input">
           <span>Buffer size</span>
-          <input type="number" id="bufferSizeInput" value="60" />
+          <input type="number" id="bufferSizeInput" value="30" />
         </div>
         <div class="settings_label-input">
           <span data-text="$max_concurrent_encodes"></span>
@@ -516,7 +516,7 @@
     </div>
     <div class="settings_container">
       <div class="settings_checkbox-label">
-        <input type="checkbox" id="showTelemetries" />
+        <input type="checkbox" id="showTelemetries" onchange="t = document.getElementById('showTelemetries').checked" />
         <span data-text="$Telemetries"></span>
       </div>
     </div>
