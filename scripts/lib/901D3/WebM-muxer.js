@@ -1,7 +1,7 @@
 /**
  * A simple and lightweight WebM muxer
  * Uses VP8 WebP images or VP9 frames to mux into video
- * v0.3.1
+ * v0.3.11
  *
  * https://github.com/901D3/WebM-muxer.js
  *
@@ -138,7 +138,6 @@ class WebMMuxer {
     return out;
   }
 
-  // Updated
   /**
    * Extract frame data from VP8 frames, ignoring VP8L and VP8X as both are not supported by WebM
    *
@@ -316,7 +315,6 @@ class WebMMuxer {
     array.push(tracks);
   }
 
-  // Updated
   /**
    *
    * @param {*} timecodeMs
@@ -347,7 +345,6 @@ class WebMMuxer {
     this.#clusterFrameCount = 0;
   }
 
-  // Updated
   /**
    *
    * @param {*} frame
@@ -397,7 +394,6 @@ class WebMMuxer {
     this.#clusterTimeCode = Math.round(timestampMs);
   }
 
-  // Updated
   /**
    *
    * @param {*} frame - Input WebP data, with header. **usually comes from toBlob()**
@@ -420,7 +416,6 @@ class WebMMuxer {
     this.makeSimpleBlock(vp8Data, relativeTime, keyframe);
   }
 
-  // New
   /**
    *
    * @param {*} frame - Input WebP data, with header. **usually comes from toBlob()**
@@ -434,7 +429,6 @@ class WebMMuxer {
     this.makeSimpleBlock(vp8Data, relativeTime, true);
   }
 
-  // New
   /**
    *
    * @param {*} frame - Input WebP data, with header. **usually comes from toBlob()**
@@ -448,7 +442,6 @@ class WebMMuxer {
     this.makeSimpleBlock(vp8Data, relativeTime, false);
   }
 
-  // Updated
   /**
    *
    * @param {*} frame - Input WebP data, no header. **usually comes from WebCodecs**
@@ -470,7 +463,6 @@ class WebMMuxer {
     this.makeSimpleBlock(frame, relativeTime, keyframe);
   }
 
-  // New
   /**
    *
    * @param {*} frame - Input WebP data, no header. **usually comes from WebCodecs**
@@ -483,7 +475,6 @@ class WebMMuxer {
     this.makeSimpleBlock(frame, relativeTime, true);
   }
 
-  // New
   /**
    *
    * @param {*} frame - Input WebP data, no header. **usually comes from WebCodecs**
@@ -509,13 +500,11 @@ class WebMMuxer {
   finalize(array) {
     if (this.#blockChunks.length) this.makeClusterStart(this.#clusterTimeCode, array);
 
-    const dataOnly = this.#arrayConcat(...array);
-
     // Only write headers after finish adding frame so we can calculate SegmentDuration
     const header = [];
     this.writeHeader(header);
-    const fullHeader = this.#arrayConcat(...header);
 
-    return new Blob([this.#arrayConcat(fullHeader, dataOnly)]);
+    // Blob() already handles the array concatenation
+    return new Blob([...header, ...array]);
   }
 }
