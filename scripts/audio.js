@@ -26,18 +26,16 @@ function getVisualizerBufferFromFFT(real, imag, Nbars, threshold, minBin, maxBin
         if (v < mag) mag = v;
       }
     } else if (binValuePicking === "avg") {
-      mag = 0;
-      for (let j = startIdx; j < endIdx; j++) mag += getMag(j);
+      for (let j = startIdx + 1; j < endIdx; j++) mag += getMag(j);
 
       mag /= endIdx - startIdx;
     } else if (binValuePicking === "rms") {
-      mag = 0;
-      for (let j = startIdx; j < endIdx; j++) mag += getMag(j) ** 2;
+      for (let j = startIdx + 1; j < endIdx; j++) mag += getMag(j) ** 2;
 
       mag = Math.sqrt(mag / (endIdx - startIdx));
     }
 
-    barBuffer[i] = amplitudeOffset + mag * postVolMultiply; // Scaled up
+    barBuffer[i] = amplitudeOffset + mag * postVolMultiply;
 
     if (barBuffer[i] < threshold) barBuffer[i] = 0;
     currentBin = endBin;
