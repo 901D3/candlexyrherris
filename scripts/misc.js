@@ -18,11 +18,13 @@
 
   gId("fftSizeRange").addEventListener("input", function () {
     sliderInputSync(gId("fftSizeRange"), gId("fftSizeInput"), "fftSize", undefined, "slider");
+    windowFunc = getWindowFunctionLUT(fftSize, gId("windowFuncInput").value);
     displayInfo();
   });
 
   gId("fftSizeInput").addEventListener("input", function () {
-    sliderInputSync(gId("fftSizeRange"), gId("fftSizeInput"), "fftSize", 2048, "input");
+    sliderInputSync(gId("fftSizeRange"), gId("fftSizeInput"), "fftSize", 1600, "input");
+    windowFunc = getWindowFunctionLUT(fftSize, gId("windowFuncInput").value);
     displayInfo();
   });
 
@@ -283,16 +285,12 @@
   });
 
   gId("windowFuncInput").addEventListener("input", function () {
-    try {
-      windowFunc = new Function("n", "N", "v", sinc.toString() + "; return " + gId("windowFuncInput").value + ";");
-    } catch {}
+    windowFunc = getWindowFunctionLUT(fftSize, gId("windowFuncInput").value);
   });
 
   gId("windowFuncSelect").addEventListener("change", function () {
     gId("windowFuncInput").value = $windowFunc.getPreset(gId("windowFuncSelect").value);
-    try {
-      windowFunc = new Function("n", "N", "v", sinc.toString() + "; return " + gId("windowFuncInput").value + ";");
-    } catch {}
+    windowFunc = getWindowFunctionLUT(fftSize, gId("windowFuncInput").value);
   });
 
   gId("audioChannel").addEventListener("change", function () {
@@ -357,13 +355,5 @@
   sliderInputSync(gId("realShiftRange"), gId("realShiftInput"), "realShift", null, "input");
   sliderInputSync(gId("imagShiftRange"), gId("imagShiftInput"), "imagShift", null, "input");
   gId("windowFuncInput").value = $windowFunc.getPreset(gId("windowFuncSelect").value);
-  try {
-    windowFunc = new Function(
-      "n", // Index
-      "N", // STFT Real array length
-      "v", // Current scanning amplitude
-      sinc.toString() + "; return " + gId("windowFuncInput").value + ";"
-    );
-  } catch {}
   canvasStream = canvas.captureStream(recorderFrameRate);
 })();
