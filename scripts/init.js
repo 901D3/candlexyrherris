@@ -68,12 +68,10 @@ ctx.imageSmoothingEnabled = false;
 var canvasStream = canvas.captureStream();
 var canvasWidth = canvas.width;
 var canvasHeight = canvas.height;
-ctx.fillStyle = "gray";
-ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
 var isProcessing = false;
 var desyncOpt = false;
-var t = false;
+var telemetry = false;
 var audio = gId("audio");
 var video = document.createElement("video");
 video.muted = true;
@@ -138,9 +136,9 @@ var sampleRate;
 var bitDepth;
 var channelIndex = 0;
 
-var fftSize;
-var frameRate;
-var frameTime; // Optimization
+var fftSize = 1600;
+var frameRate = 30;
+var frameTime = 1000 / frameRate; // Optimization
 var frameLatency;
 var preVolMultiply;
 var postVolMultiply;
@@ -190,9 +188,9 @@ var isRecording = false;
 var isRendering = false;
 var pausedRendering = false;
 var resolvePromise = null;
-var streamlinedRenderOption = false;
+var webCodecsRenderOption = false;
 
-var windowFunc = new Function("n", "N", "v", sinc.toString() + "; return " + gId("windowFuncInput").value + ";");
+let webCodecsEncoder = null;
 
 let logEntries = [];
 
@@ -282,6 +280,30 @@ function sliderInputSync(slider, input, variable, defaultValue, source) {
   }
 
   window[variable] = value;
+}
+
+// LUT table for window function
+const windowFuncLUT = new Map();
+var windowFunc;
+windowFunc = getWindowFunctionLUT(fftSize, "1");
+
+function getWindowFunctionLUT(N, equation) {
+  if (!Number.isInteger(N)) throw new Error("N must be an integer");
+  if (equation == null) throw new Error("Unknown equation input: " + equation);
+
+  const trimmed = equation.replace(/\s/g, "");
+  const key = N + " | " + trimmed;
+
+  if (!windowFuncLUT.has(key)) {
+    const array = new Float32Array(N).fill(1);
+    const cp = new Function("n", "N", sinc.toString() + "; return " + trimmed);
+
+    for (let n = 0; n < N; n++) array[n] *= cp(n, N);
+
+    windowFuncLUT.set(key, array);
+  }
+
+  return windowFuncLUT.get(key);
 }
 
 // binSearch moved to binUtils.js
@@ -378,3 +400,8 @@ function waitForEvent(target, eventName) {
     target.addEventListener(eventName, handler);
   });
 }
+
+(function () {
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+})();
