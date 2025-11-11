@@ -7,6 +7,15 @@ An audio visualizer based on STFT(Short-time Fourier transform), it gives the ic
 
 Inspired by Sonic Candle
 
+──────────
+
+<img width="1280" height="720" alt="image" src="https://raw.githubusercontent.com/901D3/candlexyrherris/refs/heads/main/out/out1.png" />
+
+<img width="1280" height="720" alt="image" src="https://raw.githubusercontent.com/901D3/candlexyrherris/refs/heads/main/out/out2.png" />
+
+
+──────────
+
 # _Legal notices_
 
 ### **901D3/WebM-muxer.js**
