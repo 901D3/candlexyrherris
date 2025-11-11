@@ -132,12 +132,12 @@ function resumeRecording() {
 }
 
 function startRendering() {
-  if (streamlinedRenderOption) streamlinedRender();
+  if (webCodecsRenderOption) webCodecsRender();
   else render();
 
   startRend.setAttribute("disabled", "");
   stopRend.removeAttribute("disabled", "");
-  if (!streamlinedRenderOption) pauseRend.removeAttribute("disabled", "");
+  if (!webCodecsRenderOption) pauseRend.removeAttribute("disabled", "");
 
   startRec.setAttribute("disabled", "");
 }
