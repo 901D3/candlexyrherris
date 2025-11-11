@@ -1,56 +1,6 @@
 @import url("styles/$_.css");
 
 @font-face {
-  font-family: "UbuntuBold";
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/Ubuntu-B.ttf");
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/Ubuntu-B.ttf") format("woff");
-}
-@font-face {
-  font-family: "UbuntuLow";
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-L.woff2");
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-L.woff2") format("woff2");
-}
-@font-face {
-  font-family: "UbuntuLowItalic";
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-LI.woff2");
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-LI.woff2") format("woff2");
-}
-@font-face {
-  font-family: "UbuntuMedium";
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-M.woff2");
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-M.woff2") format("woff2");
-}
-@font-face {
-  font-family: "UbuntuMediumItalic";
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-MI.woff2");
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-MI.woff2") format("woff2");
-}
-@font-face {
-  font-family: "UbuntuR";
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-R.woff2");
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-R.woff2") format("woff2");
-}
-@font-face {
-  font-family: "UbuntuRI";
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-RI.woff2");
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-RI.woff2") format("woff2");
-}
-@font-face {
-  font-family: "UbuntuTh";
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-Th.woff2");
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/Ubuntu-Th.woff2") format("woff2");
-}
-@font-face {
-  font-family: "UbuntuMonoBold";
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/UbuntuMono-B.woff2");
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/UbuntuMono-B.woff2") format("woff");
-}
-@font-face {
-  font-family: "UbuntuMonoR";
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/UbuntuMono-R.woff2");
-  src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Ubuntu/woff2/UbuntuMono-R.woff2") format("woff2");
-}
-@font-face {
   font-family: "Trebuchet-MS";
   src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Trebuchet MS/trebuc.ttf");
   src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Trebuchet MS/trebuc.ttf") format("woff2");
@@ -119,12 +69,12 @@ body {
   width: 100%;
   height: 100%;
   accent-color: #ff9d00;
-  font-family: UbuntuR;
+  font-family: Ubuntu;
   background-color: #0a0a0a;
   color: #ffffff;
-  margin: 10px;
+  margin: 0px;
+  padding: 0px;
   font-size: 15px;
-  width: auto;
   overflow-x: auto;
 }
 
@@ -135,7 +85,7 @@ h4,
 h5,
 h6,
 p {
-  font-family: UbuntuR;
+  font-family: Ubuntu;
   color: #ffffff;
   box-sizing: border-box;
   padding: 0px;
@@ -144,7 +94,7 @@ p {
 
 label {
   margin: 0px;
-  font-family: UbuntuR;
+  font-family: Ubuntu;
   color: #ffffff;
   box-sizing: border-box;
   font-size: 16px;
@@ -184,7 +134,7 @@ select {
   color: #e0e0e0;
   border: 2px solid #ea7010;
   padding: 2px;
-  font-family: UbuntuR;
+  font-family: Ubuntu;
   font-size: 15px;
   margin-right: 5px;
   cursor: pointer;
@@ -211,7 +161,7 @@ input[type="range"] {
   appearance: none;
   display: inline-block;
   width: 200px;
-  height: 18px;
+  height: 17px;
 }
 
 input[type="range"]:hover {
@@ -252,7 +202,7 @@ button {
   color: #e0e0e0;
   border: 2px solid #ea7010;
   padding: 3px;
-  font-family: UbuntuBold;
+  font-family: Ubuntu;
   font-size: 14px;
   cursor: pointer;
 }
