@@ -4,10 +4,25 @@
     <meta charset="UTF-8" name="viewport" content="width=device-width,initial-scale=1" />
     <title data-text="$title"></title>
     <meta name="description" content="A tool for audio processing and playback" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/unifont@5.1.0/index.min.css" />
-    <link rel="icon" href="favicon.ico" />
-    <script src="https://unpkg.com/default-passive-events"></script>
+
+    <link rel="preload" as="script" href="scripts/init.js" />
+    <link rel="preload" as="script" href="scripts/resource/windowFunc.js" />
+    <link rel="preload" as="script" href="scripts/lib/901D3/binUtils.js" />
+    <link rel="preload" as="script" href="scripts/lib/901D3/wav.js" />
+    <link rel="preload" as="script" href="scripts/lib/901D3/WebM-muxer.js" />
+    <link rel="preload" as="script" href="scripts/lib/nayuki/fft.js" />
+    <link rel="preload" as="script" href="scripts/lib/webaudioAPI/audioBuffer.js" />
+    <link rel="preload" as="script" href="scripts/recorder.js" />
+    <link rel="preload" as="script" href="scripts/locale.js" />
+    <link rel="preload" as="script" href="scripts/sizing.js" />
+    <link rel="preload" as="script" href="scripts/audio.js" />
+    <link rel="preload" as="script" href="scripts/misc.js" />
+    <link rel="preload" as="script" href="scripts/process.js" />
+    <link rel="preload" as="script" href="scripts/drawer.js" />
   </head>
   <body class="display-flex top-bottom-flow" style="gap: 8px">
     <div class="display-flex top-bottom-flow" style="gap: 15px">
@@ -68,9 +83,9 @@
         <div class="settings_checkbox-label">
           <input
             type="checkbox"
-            id="streamlinedRenderOption"
-            onchange="streamlinedRenderOption = document.getElementById('streamlinedRenderOption').checked" />
-          <span>Streamlined</span>
+            id="webCodecsRenderOption"
+            onchange="webCodecsRenderOption = document.getElementById('webCodecsRenderOption').checked" />
+          <span>WebCodecs</span>
         </div>
         <div class="display-flex left-right-flow width-fit-content" style="gap: 12px">
           <button id="startRecording" class="sqrButton" type="button" disabled="">
@@ -136,7 +151,7 @@
         <div class="settings_label-slider-input">
           <span data-text="$bitrate"></span>
           <input type="range" id="recorderVideoBitrateRange" min="0" max="100000000" step="1" />
-          <input type="number" id="recorderVideoBitrateInput" placeholder="5000000" value="5000000" />
+          <input type="number" id="recorderVideoBitrateInput" placeholder="20000000" value="20000000" />
         </div>
         <div class="settings_label-input_long">
           <span data-text="$file_name"></span>
@@ -147,8 +162,8 @@
         <span>Render specific</span>
         <div class="settings_label-slider-input">
           <span data-text="$blob_quality"></span>
-          <input type="range" id="blobQualityRange" min="0" max="1" step="0.00000000001" />
-          <input type="number" id="blobQualityInput" placeholder="0.75" value="0.75" />
+          <input type="range" id="blobQualityRange" min="0" max="0.99999999999" step="0.00000000001" />
+          <input type="number" id="blobQualityInput" placeholder="0.8" value="0.8" />
         </div>
         <div class="settings_label-select">
           <span data-text="$codec"></span>
@@ -432,20 +447,6 @@
                 document.getElementById('canvasRendering').checked ? 'pixelated' : 'smooth';" />
             <span data-text="$pixelated_render"></span>
           </div>
-          <div class="settings_checkbox-label">
-            <input
-              type="checkbox"
-              id="desyncOpt"
-              onchange='
-              ctx = canvas.getContext("2d", {
-                willReadFrequently: true,
-                alpha: false,
-                colorSpace: "srgb",
-                colorType: "float16",
-                desynchronized: document.getElementById("desyncOpt").checked,
-              });' />
-            <span data-text="$canvas_desync"></span>
-          </div>
           <div class="settings_button-label">
             <button onclick="fullscreenCanvas()" data-text="$canvas_fullscreen"></button>
             <span>[F]</span>
@@ -526,7 +527,7 @@
     </div>
     <div class="settings_container">
       <div class="settings_checkbox-label">
-        <input type="checkbox" id="showTelemetries" onchange="t = document.getElementById('showTelemetries').checked" />
+        <input type="checkbox" id="showTelemetries" onchange="telemetry = document.getElementById('showTelemetries').checked" />
         <span data-text="$Telemetries"></span>
       </div>
     </div>
@@ -546,9 +547,6 @@
   <script src="scripts/lib/901D3/WebM-muxer.js"></script>
 
   <!--FFTs-->
-  <!--<script src="scripts/lib/wendykierp/base.js"></script>-->
-  <!--<script src="scripts/lib/wendykierp/mixed_radix/mixed_radix.js"></script>-->
-  <!--<script src="scripts/lib/wendykierp/mixed_radix/passes.js"></script>-->
   <script src="scripts/lib/nayuki/fft.js"></script>
 
   <!--Decoders-->
