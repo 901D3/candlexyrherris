@@ -3,37 +3,10 @@ function getCurrentFrameFFT(audioTime, channelArray) {
 
   stftRe = new Float32Array(channelArray.subarray(startSample, startSample + fftSize));
   stftIm = new Float32Array(fftSize);
-  const N = fftSize;
 
-  try {
-    windowFunc("n", "N", "v");
-  } catch {
-    return;
-  }
-
-  for (let n = 0; n < N; n++) {
-    const v = stftRe[n];
-    stftRe[n] *= windowFunc(n, N, v) * preVolMultiply;
-  }
+  for (let i = 0; i < fftSize; i++) stftRe[i] *= windowFunc[i] * preVolMultiply;
 
   nayuki.transform(stftRe, stftIm);
-
-  if (conjugateInterleaveEffect) {
-    const stftReTemp = stftRe.slice();
-    const stftImTemp = stftIm.slice();
-    stftRe.fill(0);
-    stftIm.fill(0);
-
-    for (let i = 0; i < fftSize; i++) {
-      stftRe[i * 2] = stftReTemp[i];
-      stftIm[i * 2 + 1] = stftImTemp[fftSize - 1 - i];
-    }
-
-    for (let i = 0; i < fftSize; i++) {
-      stftIm[i * 2] = stftImTemp[i];
-      stftRe[i * 2 + 1] = stftReTemp[fftSize - 1 - i];
-    }
-  }
 
   // Reverse engineered version of Sonic Candle's interleaved array indexing
   // Shifted real or imaginary arrays gives wavy bars
@@ -47,11 +20,11 @@ function getCurrentFrameFFT(audioTime, channelArray) {
     stftRe.fill(0);
     stftIm.fill(0);
 
-    for (let i = 0; i < fftSize; i++) {
+    for (let i = 0, i2 = i; i < fftSize; i++, i2 += 2) {
       //const re = stftReTemp[i] ** 2;
       const im = stftImTemp[i] ** 2;
-      stftIm[i * 2 + 1] = sqrt(stftReTemp[i + 1] ** 2 + im);
-      stftRe[i * 2] = sqrt(stftReTemp[i] ** 2 + im);
+      stftRe[i2] = sqrt(stftReTemp[i] ** 2 + im);
+      stftIm[i2 + 1] = sqrt(stftReTemp[i + 1] ** 2 + im);
     }
   }
 
@@ -97,7 +70,7 @@ function process() {
 
   drawWrapper();
 
-  if (t) frameCounter();
+  if (telemetry) frameCounter();
   if (audio.paused || audio.ended || isRendering) return;
   setTimeout(process, max(0, frameTime - (performance.now() - t0)));
 }
@@ -119,19 +92,21 @@ async function render() {
 
   printLog("Starting rendering");
 
-  const muxer = new WebMMuxer({
+  const WebMMuxerConfig = {
     codec: "vp8", // Has to be VP8
     width: canvasWidth,
     height: canvasHeight,
     frameRate: recorderFrameRate,
     bufferSize: Number(gId("bufferSizeInput").value),
-  });
+  };
+
+  WebMMuxer.init(WebMMuxerConfig);
   const chunks = [];
 
   const startPositionSeconds = Number(gId("rendererStartPosition").value ?? 0);
   const startFrame = floor(startPositionSeconds * recorderFrameRate);
   const totalFrames = ceil(audio.duration * recorderFrameRate);
-  printLog("Total frames:" + totalFrames, 1);
+  printLog("Total frames:" + totalFrames);
   audio.pause();
   if (video.readyState > 1) {
     video.pause();
@@ -141,25 +116,17 @@ async function render() {
   audio.loop = false;
   audio.currentTime = startPositionSeconds;
   video.currentTime = startPositionSeconds;
-
-  let maxConcurrentEncodes = Number(gId("rendererMaxConcurrentEncodes").value);
-  if (!Number.isInteger(maxConcurrentEncodes)) {
-    printLog("Max concurrent encodes default to 2");
-    maxConcurrentEncodes = 2;
-  }
-
-  const encodeQueue = new Set();
+  canvas.style.hidden = true;
 
   performance.mark("renderStart");
-
   for (let frameIndex = startFrame; frameIndex < totalFrames && !audio.ended; frameIndex++) {
     const frameTime = frameIndex / recorderFrameRate;
 
     if (backgroundStyle === "video") {
       performance.mark("videoDrawStart");
-      await new Promise((r) => {
+      await new Promise((resolve) => {
         video.currentTime = frameTime;
-        video.addEventListener("seeked", r, {once: true});
+        video.addEventListener("seeked", resolve, {once: true});
       });
       ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
       performance.mark("videoDrawEnd");
@@ -170,19 +137,11 @@ async function render() {
     drawWrapper();
     performance.mark("audioDrawEnd");
 
-    const encodePromise = (async () => {
-      performance.mark("toBlobStart");
-      const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", blobQuality));
-      performance.mark("toBlobEnd");
+    performance.mark("toBlobStart");
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", blobQuality));
+    performance.mark("toBlobEnd");
 
-      const buffer = new Uint8Array(await blob.arrayBuffer());
-      muxer.addFrameFromBlob(buffer, chunks);
-    })();
-
-    encodeQueue.add(encodePromise);
-    encodePromise.finally(() => encodeQueue.delete(encodePromise));
-
-    if (encodeQueue.size >= maxConcurrentEncodes) await Promise.race(encodeQueue);
+    WebMMuxer.addFrameFromBlob(new Uint8Array(await blob.arrayBuffer()), chunks);
 
     if (isRendering == false) {
       printLog("Rendering stopped manually");
@@ -194,7 +153,7 @@ async function render() {
       return true;
     }
 
-    if (t) {
+    if (telemetry) {
       let videoDraw;
       if (backgroundStyle === "video") {
         performance.measure("videoDraw", "videoDrawStart", "videoDrawEnd");
@@ -221,26 +180,24 @@ async function render() {
     }
 
     if (pausedRendering) await waitForResolve();
+
     // Yields so the UI stays responsive
-    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
   }
+
   performance.mark("renderEnd");
   performance.measure("render", "renderStart", "renderEnd");
   const renderTime = performance.getEntriesByName("render").at(-1)?.duration ?? 0;
-  printLog(
-    "Elapsed: " + renderTime + "\n" + "Rendering takes " + (renderTime / (audio.duration * 1000)) * 100 + "% of audio duration"
-  );
 
   onComplete();
 
   async function onComplete() {
-    await Promise.all(encodeQueue);
     isRendering = false;
     audio.muted = false;
     audio.loop = true;
     audio.controls = true;
 
-    const blob = muxer.finalize(chunks);
+    const blob = WebMMuxer.finalize(chunks);
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -259,9 +216,14 @@ async function render() {
     resumeRec.setAttribute("disabled", "");
     return true;
   }
+
+  printLog(
+    "Elapsed: " + renderTime + "\n" + "Rendering takes " + (renderTime / (audio.duration * 1000)) * 100 + "% of audio duration"
+  );
 }
 
-async function streamlinedRender() {
+// WebCodecs seems to be screwing up
+async function webCodecsRender() {
   if (isRecording == true) {
     printLog("Stop recording to start render");
     return false;
@@ -275,12 +237,14 @@ async function streamlinedRender() {
   printLog("Starting rendering");
 
   const bufferSize = Number(gId("bufferSizeInput").value);
-  const muxer = new WebMMuxer({
+
+  const WebMMuxerConfig = {
     codec: gId("renderCodec").value === "vp09" ? "vp9" : gId("renderCodec").value,
     width: canvasWidth,
     height: canvasHeight,
     frameRate: recorderFrameRate,
     bufferSize: bufferSize,
+
     profile: 0,
     level: 0xff,
     bitDepth: 8,
@@ -288,13 +252,15 @@ async function streamlinedRender() {
     colorRange: 1,
     colorPrimaries: 1,
     transferCharacteristics: 1,
-  });
+  };
+
+  WebMMuxer.init(WebMMuxerConfig);
   const chunks = [];
 
   const startPositionSeconds = Number(gId("rendererStartPosition").value ?? 0);
   const startFrame = floor(startPositionSeconds * recorderFrameRate);
   const totalFrames = ceil(audio.duration * recorderFrameRate);
-  printLog("Total frames:" + totalFrames, 1);
+  printLog("Total frames:" + totalFrames);
   audio.pause();
   if (video.readyState > 1) video.pause();
 
@@ -304,26 +270,7 @@ async function streamlinedRender() {
   video.currentTime = startPositionSeconds;
   canvas.style.hidden = true;
 
-  performance.mark("WebCodecsSetupStart");
-  const WCodecEncoder = new VideoEncoder({
-    output: (chunk) => {
-      const buffer = new Uint8Array(chunk.byteLength);
-      chunk.copyTo(buffer);
-      muxer.addFramePreEncoded(buffer, chunks);
-    },
-    error: (err) => console.error(err),
-  });
-
-  WCodecEncoder.configure({
-    codec: gId("renderCodec").value === "vp09" ? "vp09.00.10.8.01" : gId("renderCodec").value,
-    width: canvasWidth,
-    height: canvasHeight,
-    framerate: recorderFrameRate,
-    bitrate: recorderVideoBitrate,
-  });
-  performance.mark("WebCodecsSetupEnd");
-  performance.measure("WebCodecsSetup", "WebCodecsSetupStart", "WebCodecsSetupEnd");
-  printLog("WebCodecs setup: " + (performance.getEntriesByName("WebCodecsSetup").at(-1)?.duration ?? 0) + "ms");
+  webCodecsEncoder.configure(config);
 
   performance.mark("renderStart");
 
@@ -333,10 +280,12 @@ async function streamlinedRender() {
 
     if (backgroundStyle === "video") {
       performance.mark("videoDrawStart");
-      await new Promise((r) => {
+
+      await new Promise((resolve) => {
         video.currentTime = frameTime;
-        video.addEventListener("seeked", r, {once: true});
+        video.addEventListener("seeked", resolve, {once: true});
       });
+
       ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
       performance.mark("videoDrawEnd");
     }
@@ -346,15 +295,10 @@ async function streamlinedRender() {
     drawWrapper();
     performance.mark("audioDrawEnd");
 
-    performance.mark("toFrameStart");
-    const videoFrame = new VideoFrame(canvas, {
-      timestamp: frameTime * 1000000,
-    });
-    performance.mark("toFrameEnd");
+    const videoFrame = new VideoFrame(canvas, {timestamp: frameTime * 1e6, format: "I420"});
 
-    WCodecEncoder.encode(videoFrame, {
-      keyframe: frameIndex >= bufferSize ? true : false,
-    });
+    const keyframe = frameIndex % bufferSize === 0;
+    webCodecsEncoder.encode(videoFrame, {keyframe});
     videoFrame.close();
 
     if (isRendering == false) {
@@ -368,54 +312,45 @@ async function streamlinedRender() {
     }
 
     performance.mark("totalEnd");
-    if (t) {
+    if (telemetry) {
       let videoDraw;
+
       if (backgroundStyle === "video") {
         performance.measure("videoDraw", "videoDrawStart", "videoDrawEnd");
         videoDraw = performance.getEntriesByName("videoDraw").at(-1)?.duration ?? 0;
       }
 
       performance.measure("audioDraw", "audioDrawStart", "audioDrawEnd");
-      const audioDraw = performance.getEntriesByName("audioDraw").at(-1)?.duration ?? 0;
-
-      performance.measure("toFrame", "toFrameStart", "toFrameEnd");
-      const toFrame = performance.getEntriesByName("toFrame").at(-1)?.duration ?? 0;
-
       performance.measure("total", "totalStart", "totalEnd");
-      const total = performance.getEntriesByName("toFrame").at(-1)?.duration ?? 0;
 
       printLog(
-        "Video draw: " +
+        "Frames: " +
+          frameIndex +
+          "/" +
+          totalFrames +
+          "\n" +
+          "Video draw: " +
           videoDraw +
           "ms\n" +
           "Visualizer draw: " +
-          audioDraw +
-          "ms\n" +
-          "toFrame: " +
-          toFrame +
-          "ms\n" +
-          "total: " +
-          total +
-          "ms\n"
+          performance.getEntriesByName("audioDraw").at(-1)?.duration ??
+          0 + "ms\n" + "total: " + performance.getEntriesByName("toFrame").at(-1)?.duration ??
+          0 + "ms\n"
       );
 
       performance.clearMarks("videoDrawStart");
       performance.clearMarks("videoDrawEnd");
       performance.clearMarks("audioDrawStart");
       performance.clearMarks("audioDrawEnd");
-      performance.clearMarks("toFrameStart");
-      performance.clearMarks("toFrameEnd");
-      performance.clearMarks("totalStart");
       performance.clearMarks("totalEnd");
       performance.clearMeasures("videoDraw");
       performance.clearMeasures("audioDraw");
-      performance.clearMeasures("toFrame");
       performance.clearMeasures("total");
     }
 
-    // Yields so the UI stays responsive
-    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
   }
+
   performance.mark("renderEnd");
   performance.measure("render", "renderStart", "renderEnd");
 
@@ -427,15 +362,15 @@ async function streamlinedRender() {
   onComplete();
 
   async function onComplete() {
-    await WCodecEncoder.flush();
-    WCodecEncoder.close();
+    await webCodecsEncoder.flush();
+    webCodecsEncoder.close();
 
     isRendering = false;
     audio.muted = false;
     audio.loop = true;
     audio.controls = true;
 
-    const blob = muxer.finalize(chunks);
+    const blob = WebMMuxer.finalize(chunks);
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
