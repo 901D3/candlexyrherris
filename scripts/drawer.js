@@ -252,7 +252,7 @@ var barDrawer = (function () {
     ctx.beginPath();
 
     // Top-left
-    for (let i = halfN - 1; i >= 0; i--) {
+    for (let i = halfN; i >= 0; i--) {
       let x = anchorX + i * fullBarWidth;
       if (barWidthRounding) x = round(x);
 
@@ -273,7 +273,7 @@ var barDrawer = (function () {
       ctx.lineTo(x, posY + barHeight);
     }
 
-    // Top-right
+    // Bottom-right
     for (let i = halfN; i < Nbars; i++) {
       let x = anchorX + i * fullBarWidth;
       if (barWidthRounding) x = round(x);
@@ -281,11 +281,10 @@ var barDrawer = (function () {
       let barHeight = Math.max(minAmplitudeValue, Math.min(buffer[i], maxAmplitudeValue));
       if (barAmplitudeRounding) barHeight = Math.round(barHeight);
 
-      ctx.lineTo(x, posY - barHeight);
-      if (i == Nbars - 1) ctx.lineTo(x, posY + barHeight);
+      ctx.lineTo(x, posY + barHeight);
     }
 
-    // Bottom-right
+    // Top-right
     for (let i = Nbars - 1; i >= halfN; i--) {
       let x = anchorX + i * fullBarWidth;
       if (barWidthRounding) x = round(x);
@@ -293,7 +292,7 @@ var barDrawer = (function () {
       let barHeight = Math.max(minAmplitudeValue, Math.min(buffer[i], maxAmplitudeValue));
       if (barAmplitudeRounding) barHeight = Math.round(barHeight);
 
-      ctx.lineTo(x, posY + barHeight);
+      ctx.lineTo(x, posY - barHeight);
     }
 
     if (barOutline) ctx.stroke();
