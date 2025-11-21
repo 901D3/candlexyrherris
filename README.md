@@ -17,7 +17,7 @@ Direct mapping FFT bins to visualizer(with frequency range helper)\
 Customizable window function\
 "Interleave" effect\
 Triangle capsule, oval and lines bar styles\
-...(I can't list it all)
+...
 
 ──────────
 
