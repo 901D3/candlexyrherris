@@ -9,18 +9,6 @@ _**Inspired by Sonic Candle**_
 
 ──────────
 
-# **Features**
-
-Pre/Post volume multiplier\
-Non-power of 2 FFT size\
-Direct mapping FFT bins to visualizer(with frequency range helper)\
-Customizable window function\
-"Interleave" effect\
-Triangle capsule, oval and lines bar styles\
-...
-
-──────────
-
 <img width="1280" height="720" alt="image" src="https://raw.githubusercontent.com/901D3/candlexyrherris/refs/heads/main/out/out1.png" />
 
 <img width="1280" height="720" alt="image" src="https://raw.githubusercontent.com/901D3/candlexyrherris/refs/heads/main/out/out2.png" />
