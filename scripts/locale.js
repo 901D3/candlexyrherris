@@ -1,4 +1,4 @@
-var locales = {
+const locales = {
   none: "None",
   elN_A: "Your browser does not support this element",
   title: "Candlexyrherris",
@@ -109,6 +109,7 @@ var locales = {
 
   freq_range: "Freq range",
   Interleave: "Interleave",
+  normalize: "Normalize",
 
   desired_freq_range: "Desr freq range",
   desired_fft_size: "Desr FFT size",
@@ -139,7 +140,7 @@ var locales = {
   //: "",
 };
 
-var $locale = (function () {
+const $locale = (function () {
   function _getDataText(i, id) {
     const el = document.querySelector(`[data-text="${i}"][data-text-id="${id}"]`);
     if (!el) return false;
@@ -185,7 +186,9 @@ var $locale = (function () {
   }
 
   gId("windowFuncInput").placeholder =
-    "'n' for index\n" + "'N' for frame length\n" + "'Math' namespace is defined globally and any operators is allowed";
+    "'n' for index\n" +
+    "'N' for frame length\n" +
+    "'Math' namespace is defined globally and any operators is allowed";
 
   gId("console").innerHTML =
     "This is just an experiment version of Candlexyehrris, expect to see bugs and unstable stuff...\n" +
