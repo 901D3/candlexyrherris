@@ -5,14 +5,19 @@ var $windowFunc = (function () {
       ramp: "n / N",
       triangular: "1 - Math.abs((n - N / 2) / (N / 2))",
       welch: "1 - ((n - N / 2) / (N / 2)) ** 2",
-      cosine: "sin((Math.PI / N) * (n + 0.5))",
+      cosine: "Math.sin((Math.PI / N) * (n + 0.5))",
       bartlett: "(2 / N) * (N / 2 - Math.abs(n - N / 2))",
-      barthann: "0.62 - 0.48 * Math.abs(n / N - 0.5) + \n" + "0.38 * Math.cos(2 * Math.PI * Math.abs(n / N - 0.5))",
+      barthann:
+        "0.62 - 0.48 * Math.abs(n / N - 0.5) + \n" +
+        "0.38 * Math.cos(2 * Math.PI * Math.abs(n / N - 0.5))",
 
       hann: "0.5 * (1 - Math.cos((2 * Math.PI * n) / N))",
       hamming: "0.54 * (1 - Math.cos((2 * Math.PI * n) / N))",
 
-      blackman: "0.42 - \n" + "0.5 * Math.cos((2 * Math.PI * n) / N) + \n" + "0.08 * Math.cos((4 * Math.PI * n) / N)",
+      blackman:
+        "0.42 - \n" +
+        "0.5 * Math.cos((2 * Math.PI * n) / N) + \n" +
+        "0.08 * Math.cos((4 * Math.PI * n) / N)",
       nuttall:
         "0.355768 - \n" +
         "0.487396 * Math.cos((2 * Math.PI * n) / N) + \n" +
@@ -35,26 +40,26 @@ var $windowFunc = (function () {
         "0.083578947 * Math.cos((6 * Math.PI * n) / N) + \n" +
         "0.006947368 * Math.cos((6 * Math.PI * n) / N)",
 
-      bartlettHann: "0.62 - \n" + "0.48 * Math.abs((n / N) - 0.5) - \n" + "0.38 * Math.cos((2 * Math.PI * n) / N)",
+      bartlettHann:
+        "0.62 - \n" +
+        "0.48 * Math.abs((n / N) - 0.5) - \n" +
+        "0.38 * Math.cos((2 * Math.PI * n) / N)",
 
       gaussian: "Math.exp(-0.5 * ((n - N / 2) / ((0.35 * N) / 2)) ** 2)",
-      exponential: "Math.exp(-Math.abs(n - N / 2) * (1 / (N / 2)))",
+      exponential: "Math.exp(-Math.abs(n - N / 2) / N)",
 
       lanczos: "sinc((2 * n) / N - 1)",
 
       //other custom window functions
       fun1: "Math.exp(0.2 - (0.25 * Math.cos((Math.PI * n) / N)))",
       fun2: "1 - 0.012 * ((Math.PI * n) / N) + 0.05 * ((4 * Math.PI * n) / N)",
-      fun3: "n > ( N / 2 ) ? ((n / N) / n) : n / (N / 4)"
+      fun3: "n > ( N / 2 ) ? ((n / N) / n) : n / (N / 4)",
     };
 
     const choosenPreset = presets[preset];
 
-    if (choosenPreset) {
-      return choosenPreset;
-    } else {
-      return false;
-    }
+    if (choosenPreset) return choosenPreset;
+    else return false;
   }
 
   return {
