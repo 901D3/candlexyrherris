@@ -1,67 +1,68 @@
 function getCurrentFrameFFT(audioTime, channelArray) {
-  const startSample = floor(audioTime * sampleRate);
+  const startSample = Math.floor(audioTime * sampleRate);
 
-  stftRe = new Float32Array(channelArray.subarray(startSample, startSample + fftSize));
-  stftIm = new Float32Array(fftSize);
+  // Safety
+  if (audioLength - startSample - fftSize < audioLength) {
+    stftRe.set(channelArray.subarray(startSample, startSample + fftSize));
+  } else stftRe.fill(0);
 
-  for (let i = 0; i < fftSize; i++) stftRe[i] *= windowFunc[i] * preVolMultiply;
+  stftIm.fill(0);
+
+  for (let i = 0; i < fftSize; i++) stftRe[i] *= windowFuncArray[i];
 
   nayuki.transform(stftRe, stftIm);
 
-  // Reverse engineered version of Sonic Candle's interleaved array indexing
-  // Shifted real or imaginary arrays gives wavy bars
-  // You can use a different window function for stftIm(use it for wavy bars),
-  // and retransform with another different window function then
-  // stftRe again for a more complex visual effect. But you have to trade perfomance for the coolness...
+  if (normalizeSpectrum) {
+    const scaled = (canvasHeight / (windowFuncAvg * fftSize)) * postVolMultiply;
 
-  if (interleaveEffect) {
-    const stftReTemp = stftRe.slice();
-    const stftImTemp = stftIm.slice();
-    stftRe.fill(0);
-    stftIm.fill(0);
-
-    for (let i = 0, i2 = i; i < fftSize; i++, i2 += 2) {
-      //const re = stftReTemp[i] ** 2;
-      const im = stftImTemp[i] ** 2;
-      stftRe[i2] = sqrt(stftReTemp[i] ** 2 + im);
-      stftIm[i2 + 1] = sqrt(stftReTemp[i + 1] ** 2 + im);
+    for (let i = 0; i < fftSize; i++) {
+      stftRe[i] *= scaled;
+      stftIm[i] *= scaled;
     }
   }
 
-  //if (interleaveEffect) {
-  //  // Wavy bars effect
-  //  let stftImTemp = stftIm.slice();
-  //  stftIm.fill(0);
-  //
-  //  for (let i = 0; i < fftSize; i++) {
-  //    stftIm[i * 2 + 1] = sqrt(stftRe[i + 1] ** 2 + stftImTemp[i] ** 2);
-  //  }
-  //  stftImTemp = stftIm.slice();
-  //
-  //  // Fatty sidelobes for stftRe
-  //  stftRe = new Float32Array(channelArray.subarray(startSample, startSample + fftSize));
-  //  stftIm.fill(0);
-  //
-  //  for (let i = 0; i < fftSize; i++) {
-  //    stftRe[i] *= (i / fftSize) * volMultiplier * 2;
-  //  }
-  //
-  //  nayuki.transform(stftRe, stftIm);
-  //
-  //  // Transformed stftRe
-  //  let stftReTemp = stftRe.slice();
-  //  stftRe.fill(0);
-  //
-  //  for (let i = 0; i < fftSize; i++) {
-  //    stftRe[i * 2] = sqrt(stftReTemp[i] ** 2 + stftIm[i] ** 2);
-  //  }
-  //  stftIm = stftImTemp.slice();
-  //}
+  // Reverse engineered version of Sonic Candle's interleaved array indexing
+  // Shifted real or imaginary arrays gives wavy bars
+
+  if (interleaveEffect) {
+    // Save the transformed arrays
+    const stftReTemp = stftRe.slice();
+    const stftImTemp = stftIm.slice();
+
+    // Fill them with 0s
+    stftRe.fill(0);
+    stftIm.fill(0);
+
+    for (let i = 0; i < fftSize; i++) {
+      // Interleaved writing
+      const i2 = i * 2;
+
+      //const re = stftReTemp[i] ** 2;
+      const im = stftImTemp[i] ** 2;
+
+      // stftRe have the normal output
+      stftRe[i2] = Math.sqrt(stftReTemp[i] ** 2 + im);
+
+      // stftIm have the wavy bars output(because of shifted array)
+      stftIm[i2 + 1] = Math.sqrt(stftReTemp[i + 1] ** 2 + im);
+    }
+  }
 }
 
 function drawWrapper() {
-  getCurrentFrameFFT(audio.currentTime, channelIndex === 1 ? rightChannelArray : leftChannelArray);
-  const buffer = getVisualizerBufferFromFFT(stftRe, stftIm, bars, threshold, minBin, maxBin, interleaveEffect);
+  getCurrentFrameFFT(
+    audio.currentTime,
+    channelIndex === 1 ? rightChannelArray : leftChannelArray
+  );
+  const buffer = getVisualizerBufferFromFFT(
+    stftRe,
+    stftIm,
+    bars,
+    threshold,
+    minBin,
+    maxBin,
+    interleaveEffect
+  );
   drawVisualizerBufferToCanvas(ctx, buffer);
 }
 
@@ -104,7 +105,7 @@ async function render() {
   const chunks = [];
 
   const startPositionSeconds = Number(gId("rendererStartPosition").value ?? 0);
-  const startFrame = floor(startPositionSeconds * recorderFrameRate);
+  const startFrame = Math.floor(startPositionSeconds * recorderFrameRate);
   const totalFrames = ceil(audio.duration * recorderFrameRate);
   printLog("Total frames:" + totalFrames);
   audio.pause();
@@ -138,7 +139,9 @@ async function render() {
     performance.mark("audioDrawEnd");
 
     performance.mark("toBlobStart");
-    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", blobQuality));
+    const blob = await new Promise((resolve) =>
+      canvas.toBlob(resolve, "image/webp", blobQuality)
+    );
     performance.mark("toBlobEnd");
 
     WebMMuxer.addFrameFromBlob(new Uint8Array(await blob.arrayBuffer()), chunks);
@@ -166,7 +169,17 @@ async function render() {
       performance.measure("toBlob", "toBlobStart", "toBlobEnd");
       const toBlob = performance.getEntriesByName("toBlob").at(-1)?.duration ?? 0;
 
-      printLog("Video draw: " + videoDraw + "ms\n" + "Visualizer draw: " + audioDraw + "ms\n" + "toBlob: " + toBlob + "ms\n");
+      printLog(
+        "Video draw: " +
+          videoDraw +
+          "ms\n" +
+          "Visualizer draw: " +
+          audioDraw +
+          "ms\n" +
+          "toBlob: " +
+          toBlob +
+          "ms\n"
+      );
 
       performance.clearMarks("videoDrawStart");
       performance.clearMarks("videoDrawEnd");
@@ -204,7 +217,10 @@ async function render() {
     a.download = "video.webm";
     a.click();
     URL.revokeObjectURL(url);
-    printLog("Rendered video: " + "<a href='" + url + "' target='_blank'>" + url + "</a>", null);
+    printLog(
+      "Rendered video: " + "<a href='" + url + "' target='_blank'>" + url + "</a>",
+      null
+    );
 
     isRendering = false;
     startRend.removeAttribute("disabled", "");
@@ -218,7 +234,12 @@ async function render() {
   }
 
   printLog(
-    "Elapsed: " + renderTime + "\n" + "Rendering takes " + (renderTime / (audio.duration * 1000)) * 100 + "% of audio duration"
+    "Elapsed: " +
+      renderTime +
+      "\n" +
+      "Rendering takes " +
+      (renderTime / (audio.duration * 1000)) * 100 +
+      "% of audio duration"
   );
 }
 
@@ -258,7 +279,7 @@ async function webCodecsRender() {
   const chunks = [];
 
   const startPositionSeconds = Number(gId("rendererStartPosition").value ?? 0);
-  const startFrame = floor(startPositionSeconds * recorderFrameRate);
+  const startFrame = Math.floor(startPositionSeconds * recorderFrameRate);
   const totalFrames = ceil(audio.duration * recorderFrameRate);
   printLog("Total frames:" + totalFrames);
   audio.pause();
@@ -270,6 +291,27 @@ async function webCodecsRender() {
   video.currentTime = startPositionSeconds;
   canvas.style.hidden = true;
 
+  const init = {
+    output(chunk) {
+      const buffer = new Uint8Array(chunk.byteLength);
+      chunk.copyTo(buffer);
+      WebMMuxer.addFramePreEncoded(buffer, chunks);
+    },
+    error(err) {
+      console.error(err);
+    },
+  };
+
+  const config = {
+    codec: gId("renderCodec").value === "vp09" ? "vp09.00.10.08" : "vp8",
+    width: canvasWidth,
+    height: canvasHeight,
+    framerate: recorderFrameRate,
+    bitrate: recorderVideoBitrate,
+  };
+
+  webCodecsEncoder = new VideoEncoder(init);
+  console.log((await VideoEncoder.isConfigSupported(config)).supported);
   webCodecsEncoder.configure(config);
 
   performance.mark("renderStart");
@@ -356,7 +398,12 @@ async function webCodecsRender() {
 
   const renderTime = performance.getEntriesByName("render").at(-1)?.duration ?? 0;
   printLog(
-    "Elapsed: " + renderTime + "\n" + "Rendering takes " + (renderTime / (audio.duration * 1000)) * 100 + "% of audio duration"
+    "Elapsed: " +
+      renderTime +
+      "\n" +
+      "Rendering takes " +
+      (renderTime / (audio.duration * 1000)) * 100 +
+      "% of audio duration"
   );
 
   onComplete();
@@ -377,7 +424,10 @@ async function webCodecsRender() {
     a.download = "video.webm";
     a.click();
     URL.revokeObjectURL(url);
-    printLog("Rendered video: " + "<a href='" + url + "' target='_blank'>" + url + "</a>", null);
+    printLog(
+      "Rendered video: " + "<a href='" + url + "' target='_blank'>" + url + "</a>",
+      null
+    );
 
     isRendering = false;
     startRend.removeAttribute("disabled", "");
@@ -394,10 +444,18 @@ async function webCodecsRender() {
 function drawVisualizerBufferToCanvas(Ctx, buffer) {
   if (!isRendering) Ctx.clearRect(0, 0, canvasWidth, canvasHeight);
   if (backgroundStyle === "solidColor") {
-    Ctx.fillStyle = "rgb(" + backgroundColorRed + ", " + backgroundColorGreen + ", " + backgroundColorBlue + ")";
+    Ctx.fillStyle =
+      "rgb(" +
+      backgroundColorRed +
+      ", " +
+      backgroundColorGreen +
+      ", " +
+      backgroundColorBlue +
+      ")";
     Ctx.fillRect(0, 0, canvasWidth, canvasHeight);
   } else if (backgroundStyle === "image") Ctx.drawImage(image, 0, 0, canvasWidth, canvasHeight);
-  else if (backgroundStyle === "video" && !isRendering) Ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
+  else if (backgroundStyle === "video" && !isRendering)
+    Ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
 
   if (barOutline) {
     Ctx.strokeStyle = "rgb(" + barColorRed + ", " + barColorGreen + ", " + barColorBlue + ")";
@@ -481,6 +539,21 @@ function drawVisualizerBufferToCanvas(Ctx, buffer) {
       barAmplitudeRounding,
       barWidthRounding
     );
+  } else if (barStyle === "peaks") {
+    barDrawer.drawPeaks(
+      Ctx,
+      buffer,
+      bars,
+      barPosX,
+      barPosY,
+      barWidth,
+      barSpace,
+      minAmplitude,
+      maxAmplitude,
+      barAmplitudeRounding,
+      barWidthRounding,
+      barStyleTriangCapsuleHeight
+    );
   }
 }
 
@@ -490,7 +563,12 @@ function frameCounter() {
   let currentFps = 1 / dlT;
   lastUpdatedTime = performance.now();
   if (performance.now() - lLT >= 1000) {
-    printLog("Fps: " + currentFps.toString().padEnd(22) + " | Latency: " + (dlT * 1000).toString().padEnd(22));
+    printLog(
+      "Fps: " +
+        currentFps.toString().padEnd(22) +
+        " | Latency: " +
+        (dlT * 1000).toString().padEnd(22)
+    );
     lLT = performance.now();
   }
 }
