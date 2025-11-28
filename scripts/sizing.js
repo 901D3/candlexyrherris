@@ -16,19 +16,3 @@ function changecanvasSize() {
     alert("The width and height cannot be blank or negative.");
   }
 }
-
-const canvasSizeObserver = new ResizeObserver((entries) => {
-  for (let entry of entries) {
-    const {width, height} = entry.contentRect;
-
-    canvas.width = width;
-    canvas.height = height;
-    canvasWidth = canvas.width;
-    canvasHeight = canvas.height;
-
-    (w = width), (h = height);
-    sqSz = w * h;
-  }
-});
-
-canvasSizeObserver.observe(canvas);
