@@ -1,5 +1,5 @@
 var barDrawer = (function () {
-  function _drawRectBar(
+  const _drawRectBar = (
     ctx,
     buffer,
     Nbars,
@@ -11,17 +11,18 @@ var barDrawer = (function () {
     maxAmplitudeValue,
     barOutline = false,
     barAmplitudeRounding = false,
-    barWidthRounding = false
-  ) {
+    barWidthRounding = false,
+  ) => {
     posY *= canvasHeight;
     if (barOutline) posY -= 0.5;
     const halfN = Math.floor(Nbars / 2);
-    const fullBarWidth = barWidthValue + barSpaceValue;
-    const anchorX = posX * canvasWidth - halfN * fullBarWidth;
 
-    for (let i = halfN - 1; i >= 0; i--) {
+    for (let i = 0; i < Nbars; i++) {
+      const fullBarWidth = barWidthValue + barSpaceValue;
+      const anchorX = posX * canvasWidth - halfN * fullBarWidth;
+
       let x = anchorX + i * fullBarWidth;
-      if (barWidthRounding) x = round(x);
+      if (barWidthRounding) x = Math.round(x);
       if (barOutline) x += 0.5;
 
       let barHeight = Math.max(minAmplitudeValue, Math.min(buffer[i], maxAmplitudeValue));
@@ -32,23 +33,9 @@ var barDrawer = (function () {
       if (barOutline) ctx.strokeRect(x, y, barWidthValue, barHeight * 2);
       else ctx.fillRect(x, y, barWidthValue, barHeight * 2);
     }
+  };
 
-    for (let i = halfN; i < Nbars; i++) {
-      let x = anchorX + i * fullBarWidth;
-      if (barWidthRounding) x = round(x);
-      if (barOutline) x += 0.5;
-
-      let barHeight = Math.max(minAmplitudeValue, Math.min(buffer[i], maxAmplitudeValue));
-      if (barAmplitudeRounding) barHeight = Math.round(barHeight);
-
-      const y = posY - barHeight;
-
-      if (barOutline) ctx.strokeRect(x, y, barWidthValue, barHeight * 2);
-      else ctx.fillRect(x, y, barWidthValue, barHeight * 2);
-    }
-  }
-
-  function _drawCapsuleBar(
+  const _drawCapsuleBar = (
     ctx,
     buffer,
     Nbars,
@@ -62,7 +49,7 @@ var barDrawer = (function () {
     barAmplitudeRounding = false,
     barWidthRounding = false,
     capsuleRadius
-  ) {
+  ) => {
     posY *= canvasHeight;
     if (barOutline) posY -= 0.5;
     const halfN = Math.floor(Nbars / 2);
@@ -70,9 +57,10 @@ var barDrawer = (function () {
     const anchorX = posX * canvasWidth - halfN * fullBarWidth;
 
     capsuleRadius = barWidthValue * barStyleCapsuleRadius;
-    for (let i = halfN - 1; i >= 0; i--) {
+
+    for (let i = 0; i < Nbars; i++) {
       let x = anchorX + i * fullBarWidth;
-      if (barWidthRounding) x = round(x);
+      if (barWidthRounding) x = Math.round(x);
       if (barOutline) x += 0.5;
 
       let barHeight = Math.max(minAmplitudeValue, Math.min(buffer[i], maxAmplitudeValue));
@@ -82,28 +70,13 @@ var barDrawer = (function () {
 
       ctx.beginPath();
       ctx.roundRect(x, y, barWidthValue, barHeight * 2, capsuleRadius);
+
       if (barOutline) ctx.stroke();
       else ctx.fill();
     }
+  };
 
-    for (let i = halfN; i < Nbars; i++) {
-      let x = anchorX + i * fullBarWidth;
-      if (barWidthRounding) x = round(x);
-      if (barOutline) x += 0.5;
-
-      let barHeight = Math.max(minAmplitudeValue, Math.min(buffer[i], maxAmplitudeValue));
-      if (barAmplitudeRounding) barHeight = Math.round(barHeight);
-
-      const y = posY - barHeight;
-
-      ctx.beginPath();
-      ctx.roundRect(x, y, barWidthValue, barHeight * 2, capsuleRadius);
-      if (barOutline) ctx.stroke();
-      else ctx.fill();
-    }
-  }
-
-  function _drawTriCapsuleBar(
+  const _drawTriCapsuleBar = (
     ctx,
     buffer,
     Nbars,
@@ -117,7 +90,7 @@ var barDrawer = (function () {
     barAmplitudeRounding = false,
     barWidthRounding = false,
     triangleHeight
-  ) {
+  ) => {
     posY *= canvasHeight;
     if (barOutline) posY -= 0.5;
     const halfN = Math.floor(Nbars / 2);
@@ -126,9 +99,10 @@ var barDrawer = (function () {
     const anchorX = posX * canvasWidth - halfN * fullBarWidth;
 
     const maxTriangleHeight = barWidthValue * triangleHeight;
-    for (let i = halfN - 1; i >= 0; i--) {
+
+    for (let i = 0; i < Nbars; i++) {
       let x = anchorX + i * fullBarWidth;
-      if (barWidthRounding) x = round(x);
+      if (barWidthRounding) x = Math.round(x);
       if (barOutline) x += 0.5;
 
       let barHeight = Math.max(minAmplitudeValue, Math.min(buffer[i], maxAmplitudeValue));
@@ -141,45 +115,22 @@ var barDrawer = (function () {
       const xHalfBarWidth = x + halfW;
 
       ctx.beginPath();
+
       ctx.moveTo(xHalfBarWidth, topY - triH);
       ctx.lineTo(xBarWidth, topY);
       ctx.lineTo(xBarWidth, bottomY);
       ctx.lineTo(xHalfBarWidth, bottomY + triH);
       ctx.lineTo(x, bottomY);
       ctx.lineTo(x, topY);
+
       ctx.closePath();
+
       if (barOutline) ctx.stroke();
       else ctx.fill();
     }
+  };
 
-    for (let i = halfN; i < Nbars; i++) {
-      let x = anchorX + i * fullBarWidth;
-      if (barWidthRounding) x = round(x);
-      if (barOutline) x += 0.5;
-
-      let barHeight = Math.max(minAmplitudeValue, Math.min(buffer[i], maxAmplitudeValue));
-      if (barAmplitudeRounding) barHeight = Math.round(barHeight);
-
-      const triH = Math.min(maxTriangleHeight, barHeight);
-      const topY = posY - barHeight + triH;
-      const bottomY = posY + barHeight - triH;
-      const xBarWidth = x + barWidthValue;
-      const xHalfBarWidth = x + halfW;
-
-      ctx.beginPath();
-      ctx.moveTo(xHalfBarWidth, topY - triH);
-      ctx.lineTo(xBarWidth, topY);
-      ctx.lineTo(xBarWidth, bottomY);
-      ctx.lineTo(xHalfBarWidth, bottomY + triH);
-      ctx.lineTo(x, bottomY);
-      ctx.lineTo(x, topY);
-      ctx.closePath();
-      if (barOutline) ctx.stroke();
-      else ctx.fill();
-    }
-  }
-
-  function _drawOvalBar(
+  const _drawOvalBar = (
     ctx,
     buffer,
     Nbars,
@@ -192,45 +143,31 @@ var barDrawer = (function () {
     barOutline = false,
     barAmplitudeRounding = false,
     barWidthRounding = false
-  ) {
+  ) => {
     posY *= canvasHeight;
     if (barOutline) posY -= 0.5;
     const halfN = Math.floor(Nbars / 2);
     const fullBarWidth = barWidthValue + (barSpaceValue * barWidthValue + barSpaceValue);
     const anchorX = posX * canvasWidth - halfN * fullBarWidth + fullBarWidth / 2;
 
-    const dbPI = PI * 2;
-
-    for (let i = halfN - 1; i >= 0; i--) {
+    for (let i = 0, dbPI = PI * 2; i < Nbars; i++) {
       let x = anchorX + i * fullBarWidth;
-      if (barWidthRounding) x = round(x);
+      if (barWidthRounding) x = Math.round(x);
       if (barOutline) x += 0.5;
 
       let barHeight = Math.max(minAmplitudeValue, Math.min(buffer[i], maxAmplitudeValue));
       if (barAmplitudeRounding) barHeight = Math.round(barHeight);
 
       ctx.beginPath();
+
       ctx.ellipse(x, posY, barWidthValue, barHeight, 0, 0, dbPI);
+
       if (barOutline) ctx.stroke();
       else ctx.fill();
     }
+  };
 
-    for (let i = halfN; i < Nbars; i++) {
-      let x = anchorX + i * fullBarWidth;
-      if (barWidthRounding) x = round(x);
-      if (barOutline) x += 0.5;
-
-      let barHeight = Math.max(minAmplitudeValue, Math.min(buffer[i], maxAmplitudeValue));
-      if (barAmplitudeRounding) barHeight = Math.round(barHeight);
-
-      ctx.beginPath();
-      ctx.ellipse(x, posY, barWidthValue, barHeight, 0, 0, dbPI);
-      if (barOutline) ctx.stroke();
-      else ctx.fill();
-    }
-  }
-
-  function _drawLines(
+  const _drawLines = (
     ctx,
     buffer,
     Nbars,
@@ -242,7 +179,7 @@ var barDrawer = (function () {
     barOutline = false,
     barAmplitudeRounding = false,
     barWidthRounding = false
-  ) {
+  ) => {
     posY *= canvasHeight;
     if (barOutline) posY -= 0.5;
     const halfN = Math.floor(Nbars / 2);
@@ -251,10 +188,10 @@ var barDrawer = (function () {
 
     ctx.beginPath();
 
-    // Top-left
-    for (let i = halfN; i >= 0; i--) {
+    // Half-top
+    for (let i = 0; i < Nbars; i++) {
       let x = anchorX + i * fullBarWidth;
-      if (barWidthRounding) x = round(x);
+      if (barWidthRounding) x = Math.round(x);
 
       let barHeight = Math.max(minAmplitudeValue, Math.min(buffer[i], maxAmplitudeValue));
       if (barAmplitudeRounding) barHeight = Math.round(barHeight);
@@ -262,42 +199,56 @@ var barDrawer = (function () {
       ctx.lineTo(x, posY - barHeight);
     }
 
-    // Bottom-left
-    for (let i = 0; i < halfN; i++) {
+    // Half-bottom
+    for (let i = Nbars - 1; i >= 0; i--) {
       let x = anchorX + i * fullBarWidth;
-      if (barWidthRounding) x = round(x);
+      if (barWidthRounding) x = Math.round(x);
 
       let barHeight = Math.max(minAmplitudeValue, Math.min(buffer[i], maxAmplitudeValue));
       if (barAmplitudeRounding) barHeight = Math.round(barHeight);
 
       ctx.lineTo(x, posY + barHeight);
-    }
 
-    // Bottom-right
-    for (let i = halfN; i < Nbars; i++) {
-      let x = anchorX + i * fullBarWidth;
-      if (barWidthRounding) x = round(x);
-
-      let barHeight = Math.max(minAmplitudeValue, Math.min(buffer[i], maxAmplitudeValue));
-      if (barAmplitudeRounding) barHeight = Math.round(barHeight);
-
-      ctx.lineTo(x, posY + barHeight);
-    }
-
-    // Top-right
-    for (let i = Nbars - 1; i >= halfN; i--) {
-      let x = anchorX + i * fullBarWidth;
-      if (barWidthRounding) x = round(x);
-
-      let barHeight = Math.max(minAmplitudeValue, Math.min(buffer[i], maxAmplitudeValue));
-      if (barAmplitudeRounding) barHeight = Math.round(barHeight);
-
-      ctx.lineTo(x, posY - barHeight);
+      if (i === 0) ctx.lineTo(x, posY - barHeight);
     }
 
     if (barOutline) ctx.stroke();
     else ctx.fill();
-  }
+  };
+
+  const _drawPeaks = (
+    ctx,
+    buffer,
+    Nbars,
+    posX,
+    posY,
+    barWidthValue,
+    barSpaceValue,
+    minAmplitudeValue,
+    maxAmplitudeValue,
+    barAmplitudeRounding = false,
+    barWidthRounding = false,
+    peakHeight
+  ) => {
+    posY *= canvasHeight;
+    const halfN = Math.floor(Nbars / 2);
+    const fullBarWidth = barWidthValue + barSpaceValue;
+    const anchorX = posX * canvasWidth - halfN * fullBarWidth;
+
+    for (let i = 0; i < Nbars; i++) {
+      let x = anchorX + i * fullBarWidth;
+      if (barWidthRounding) x = Math.round(x);
+
+      let barHeight = Math.max(minAmplitudeValue, Math.min(buffer[i], maxAmplitudeValue));
+      if (barAmplitudeRounding) barHeight = Math.round(barHeight);
+
+      // Top peak
+      ctx.fillRect(x, posY - barHeight - peakHeight / 2, barWidthValue, peakHeight);
+
+      // Bottom peak
+      ctx.fillRect(x, posY + barHeight - peakHeight / 2, barWidthValue, peakHeight);
+    }
+  };
 
   return {
     drawRectBar: _drawRectBar,
@@ -305,5 +256,6 @@ var barDrawer = (function () {
     drawTriCapsuleBar: _drawTriCapsuleBar,
     drawOvalBar: _drawOvalBar,
     drawLines: _drawLines,
+    drawPeaks: _drawPeaks,
   };
 })();
