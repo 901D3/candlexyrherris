@@ -7,15 +7,17 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/unifont@5.1.0/index.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fontsource/unifont@5.1.0/index.min.css" />
 
     <link rel="preload" as="script" href="scripts/init.js" />
     <link rel="preload" as="script" href="scripts/resource/windowFunc.js" />
-    <link rel="preload" as="script" href="scripts/lib/901D3/binUtils.js" />
-    <link rel="preload" as="script" href="scripts/lib/901D3/wav.js" />
     <link rel="preload" as="script" href="scripts/lib/901D3/WebM-muxer.js" />
     <link rel="preload" as="script" href="scripts/lib/nayuki/fft.js" />
     <link rel="preload" as="script" href="scripts/lib/webaudioAPI/audioBuffer.js" />
+    <link rel="preload" as="script" href="scripts/binUtils.js" />
+    <link rel="preload" as="script" href="scripts/wav.js" />
     <link rel="preload" as="script" href="scripts/recorder.js" />
     <link rel="preload" as="script" href="scripts/locale.js" />
     <link rel="preload" as="script" href="scripts/sizing.js" />
@@ -30,7 +32,10 @@
         class="glowfire font-size text-align-center vertical-align-top-margin color font-weight-bold"
         style="--font-size: 175px"
         data-text="$title"></span>
-      <span class="text-align-center font-weight-bold font-size" style="--font-size: 25px" data-text="$subtitle"></span>
+      <span
+        class="text-align-center font-weight-bold font-size"
+        style="--font-size: 25px"
+        data-text="$subtitle"></span>
       <div class="firehr"></div>
     </div>
     <div class="display-flex left-right-flow width-fit-content" style="gap: 15px">
@@ -42,7 +47,7 @@
           class="height-fit-content"
           title=".wav, .flac, .mp3, .ogg, .opus, .m4a, .mp4, .mkv, .webm"
           accept=".wav, .flac, .mp3, .ogg, .opus, .m4a, .mp4, .mkv, .webm" />
-        <input type="text" id="linkUrl" placeholder="Audio link(must point to an audio file)" />
+        <input type="text" id="linkUrl" placeholder="Audio link" />
         <button
           id="updateAudioSrc"
           onclick="updateAudioSrc()"
@@ -56,7 +61,7 @@
           class="height-fit-content"
           title=".png, .jpg, .jpeg, .webp, .gif, .bmp"
           accept=".png, .jpg, .jpeg, .webp, .gif, .bmp" />
-        <input type="text" id="imageLinkUrl" placeholder="Image link(must point to an image file)" />
+        <input type="text" id="imageLinkUrl" placeholder="Image link" />
         <button
           id="updateImageSrc"
           onclick="updateImageSrc()"
@@ -70,7 +75,7 @@
           class="height-fit-content"
           title=".mp4, .mov, .mpeg, .webm, .3gp, .3gp2, .ogm, .ogv"
           accept=".mp4, .mov, .mpeg, .webm, .3gp, .3gp2, .ogm, .ogv" />
-        <input type="text" id="videoLinkUrl" placeholder="Video link(must point to a video file)" />
+        <input type="text" id="videoLinkUrl" placeholder="Video link" />
         <button
           id="updateVideoSrc"
           onclick="updateVideoSrc()"
@@ -79,7 +84,10 @@
           data-text="$update"></button>
       </div>
       <div class="display-flex top-bottom-flow width-fit-content" style="gap: 12px">
-        <span class="font-weight-bold" style="font-size: 20px" data-text="$recorder_renderer"></span>
+        <span
+          class="font-weight-bold"
+          style="font-size: 20px"
+          data-text="$recorder_renderer"></span>
         <div class="settings_checkbox-label">
           <input
             type="checkbox"
@@ -107,8 +115,12 @@
             <div
               class="horizontal-align-center width-fit-content height-fit-content display-flex left-right-flow"
               style="gap: 6px">
-              <div class="vertical-align-center-margin" style="width: 5px; height: 16px; background-color: #fff"></div>
-              <div class="vertical-align-center-margin" style="width: 5px; height: 16px; background-color: #fff"></div>
+              <div
+                class="vertical-align-center-margin"
+                style="width: 5px; height: 16px; background-color: #fff"></div>
+              <div
+                class="vertical-align-center-margin"
+                style="width: 5px; height: 16px; background-color: #fff"></div>
             </div>
           </button>
           <button id="resumeRecording" class="sqrButton" type="button" disabled="">
@@ -118,8 +130,12 @@
             <div
               class="horizontal-align-center width-fit-content height-fit-content display-flex left-right-flow"
               style="gap: 6px">
-              <div class="vertical-align-center-margin" style="width: 5px; height: 16px; background-color: #f70"></div>
-              <div class="vertical-align-center-margin" style="width: 5px; height: 16px; background-color: #f70"></div>
+              <div
+                class="vertical-align-center-margin"
+                style="width: 5px; height: 16px; background-color: #f70"></div>
+              <div
+                class="vertical-align-center-margin"
+                style="width: 5px; height: 16px; background-color: #f70"></div>
             </div>
           </button>
           <button id="resumeRendering" class="sqrButton" type="button" disabled="">
@@ -145,13 +161,22 @@
         </div>
         <div class="settings_label-slider-input">
           <span data-text="$frame_rate"></span>
-          <input type="range" id="recorderFrameRateRange" min="0" max="120" step="0.00000000001" />
+          <input
+            type="range"
+            id="recorderFrameRateRange"
+            min="0"
+            max="120"
+            step="0.00000000001" />
           <input type="number" id="recorderFrameRateInput" placeholder="30" value="30" />
         </div>
         <div class="settings_label-slider-input">
           <span data-text="$bitrate"></span>
           <input type="range" id="recorderVideoBitrateRange" min="0" max="100000000" step="1" />
-          <input type="number" id="recorderVideoBitrateInput" placeholder="20000000" value="20000000" />
+          <input
+            type="number"
+            id="recorderVideoBitrateInput"
+            placeholder="20000000"
+            value="20000000" />
         </div>
         <div class="settings_label-input_long">
           <span data-text="$file_name"></span>
@@ -162,7 +187,12 @@
         <span>Render specific</span>
         <div class="settings_label-slider-input">
           <span data-text="$blob_quality"></span>
-          <input type="range" id="blobQualityRange" min="0" max="0.99999999999" step="0.00000000001" />
+          <input
+            type="range"
+            id="blobQualityRange"
+            min="0"
+            max="0.99999999999"
+            step="0.00000000001" />
           <input type="number" id="blobQualityInput" placeholder="0.8" value="0.8" />
         </div>
         <div class="settings_label-select">
@@ -187,13 +217,13 @@
         <div class="settings_container">
           <span class="settings_label_title" data-text="$audio_settings_title"></span>
           <div class="settings_label-slider-input">
-            <span data-text="$pre_vol_multiplier"></span>
-            <input type="range" id="preVolumeMultiplierRange" min="0" max="10" step="0.00000000001" />
-            <input type="number" id="preVolumeMultiplierInput" placeholder="1" value="1" />
-          </div>
-          <div class="settings_label-slider-input">
             <span data-text="$post_vol_multiplier"></span>
-            <input type="range" id="postVolumeMultiplierRange" min="0" max="10" step="0.00000000001" />
+            <input
+              type="range"
+              id="postVolumeMultiplierRange"
+              min="0"
+              max="10"
+              step="0.00000000001" />
             <input type="number" id="postVolumeMultiplierInput" placeholder="1" value="1" />
           </div>
           <div class="settings_label-slider-input tooltip">
@@ -219,7 +249,12 @@
           </div>
           <div class="settings_label-slider-input">
             <span data-text="$amplitude_offset"></span>
-            <input type="range" id="amplitudeOffsetRange" min="0" max="1" step="0.00000000001" />
+            <input
+              type="range"
+              id="amplitudeOffsetRange"
+              min="0"
+              max="1"
+              step="0.00000000001" />
             <input type="number" id="amplitudeOffsetInput" placeholder="0" value="0" />
           </div>
           <div class="settings_label-slider-input">
@@ -298,8 +333,16 @@
             <input
               type="checkbox"
               id="interleaveEffect"
-              onchange="interleaveEffect = document.getElementById('interleaveEffect').checked;displayInfo()" />
+              onchange="interleaveEffect = document.getElementById('interleaveEffect').checked;" />
             <span data-text="$Interleave"></span>
+          </div>
+          <div class="settings_checkbox-label">
+            <input
+              type="checkbox"
+              id="normalizeSpectrum"
+              checked=""
+              onchange="normalizeSpectrum = document.getElementById('normalizeSpectrum').checked;" />
+            <span data-text="$normalize"></span>
           </div>
           <div class="settings_checkbox-label">
             <input
@@ -307,14 +350,6 @@
               id="interleaveEffectFix"
               onchange="interleaveEffectFix = document.getElementById('interleaveEffectFix').checked" />
             <span>Second bar fix(Interleaved only)</span>
-          </div>
-          <div class="settings_checkbox-label">
-            <input
-              type="checkbox"
-              id="ignoreDC"
-              checked=""
-              onchange="ignoreDC = document.getElementById('ignoreDC').checked ? 1 : 0" />
-            <span>Ignore DC(recommended)</span>
           </div>
           <div class="whitehr"></div>
           <span class="settings_label_title" data-text="$visualizer_settings_title"></span>
@@ -326,20 +361,34 @@
               <option value="triangCapsule" data-text="$triangle_capsule"></option>
               <option value="oval" data-text="$oval"></option>
               <option value="lines" data-text="$lines"></option>
+              <option value="peaks" data-text="$peaks"></option>
             </select>
           </div>
           <div class="settings_checkbox-label">
-            <input type="checkbox" id="barOutline" onchange="barOutline = document.getElementById('barOutline').checked" />
+            <input
+              type="checkbox"
+              id="barOutline"
+              onchange="barOutline = document.getElementById('barOutline').checked" />
             <span>Outline</span>
           </div>
           <div id="capsuleSettingsDisp" class="settings_label-slider-input disabled">
             <span data-text="$capsule_radius"></span>
-            <input type="range" id="barStyleCapsuleRadiusRange" min="0" max="0.5" step="0.00000000001" />
+            <input
+              type="range"
+              id="barStyleCapsuleRadiusRange"
+              min="0"
+              max="0.5"
+              step="0.00000000001" />
             <input type="number" id="barStyleCapsuleRadiusInput" value="0.5" />
           </div>
           <div id="triangCapsuleSettingsDisp" class="settings_label-slider-input disabled">
             <span data-text="$triangle_capsule_height"></span>
-            <input type="range" id="barStyleTriangCapsuleHeightRange" min="0" max="1" step="0.00000000001" />
+            <input
+              type="range"
+              id="barStyleTriangCapsuleHeightRange"
+              min="0"
+              max="1"
+              step="0.00000000001" />
             <input type="number" id="barStyleTriangCapsuleHeightInput" value="0.5" />
           </div>
           <div class="whitehr"></div>
@@ -409,17 +458,17 @@
           <div class="settings_label-slider-input" style="background-color: #ff0000">
             <span></span>
             <input type="range" id="backgroundColorRedRange" min="0" max="255" step="1" />
-            <input type="number" id="backgroundColorRedInput" placeholder="50" value="50" />
+            <input type="number" id="backgroundColorRedInput" value="20" />
           </div>
           <div class="settings_label-slider-input" style="background-color: #00ff00">
             <span></span>
             <input type="range" id="backgroundColorGreenRange" min="0" max="255" step="1" />
-            <input type="number" id="backgroundColorGreenInput" placeholder="50" value="50" />
+            <input type="number" id="backgroundColorGreenInput" value="20" />
           </div>
           <div class="settings_label-slider-input" style="background-color: #0000ff">
             <span></span>
             <input type="range" id="backgroundColorBlueRange" min="0" max="255" step="1" />
-            <input type="number" id="backgroundColorBlueInput" placeholder="50" value="50" />
+            <input type="number" id="backgroundColorBlueInput" value="20" />
           </div>
           <div class="settings_label-slider-input">
             <span data-text="$frame_rate_cap"></span>
@@ -517,7 +566,13 @@
             </select>
           </div>
           <div class="firehr"></div>
-          <audio id="audio" controls loop crossorigin="anonymous" src="" data-text="$elN_A"></audio>
+          <audio
+            id="audio"
+            controls
+            loop
+            crossorigin="anonymous"
+            src=""
+            data-text="$elN_A"></audio>
         </div>
         <div class="firehr"></div>
         <div class="mainCanvas">
@@ -527,11 +582,16 @@
     </div>
     <div class="settings_container">
       <div class="settings_checkbox-label">
-        <input type="checkbox" id="showTelemetry" onchange="telemetry = document.getElementById('showTelemetry').checked" />
+        <input
+          type="checkbox"
+          id="showTelemetry"
+          onchange="telemetry = document.getElementById('showTelemetry').checked" />
         <span>Telemetry</span>
       </div>
     </div>
-    <div class="border-width border-style-solid border-color" style="--border-width: 2px; --border-color: #1070ea">
+    <div
+      class="border-width border-style-solid border-color"
+      style="--border-width: 2px; --border-color: #1070ea">
       <div id="console"></div>
     </div>
     <div class="firehr"></div>
@@ -542,8 +602,6 @@
   <script src="scripts/resource/windowFunc.js"></script>
 
   <!--Libraries-->
-  <script src="scripts/lib/901D3/binUtils.js"></script>
-  <script src="scripts/lib/901D3/wav.js"></script>
   <script src="scripts/lib/901D3/WebM-muxer.js"></script>
 
   <!--FFTs-->
@@ -552,6 +610,8 @@
   <!--Decoders-->
   <script src="scripts/lib/webaudioAPI/audioBuffer.js"></script>
 
+  <script src="scripts/binUtils.js"></script>
+  <script src="scripts/wav.js"></script>
   <script src="scripts/recorder.js"></script>
   <script src="scripts/locale.js"></script>
   <script src="scripts/sizing.js"></script>
@@ -567,13 +627,12 @@
       let t0 = performance.now();
       const file = upload.files[0];
       if (!file) return;
-      let buffer = await file.arrayBuffer();
-      bytesArray = new Uint8Array(buffer);
-      const wavInfo = wavjs.readWavHeader(bytesArray);
-      const flacInfo = binUtils.binSearch(bytesArray, [0x66, 0x4c, 0x61, 0x43], 0, 4) !== false;
-      const mp3Info = binUtils.binSearch(bytesArray, [0x49, 0x44, 0x33], 0, 3) !== false;
-      const oggInfo = binUtils.binSearch(bytesArray, [0x4f, 0x67, 0x67, 0x53], 0, 4) !== false;
-      const m4aInfo = binUtils.isM4A(bytesArray) !== false;
+      const buffer = new Uint8Array(await file.arrayBuffer());
+      const wavInfo = wavjs.readWavHeader(buffer);
+      const flacInfo = binUtils.binSearch(buffer, [0x66, 0x4c, 0x61, 0x43], 0, 4) !== false;
+      const mp3Info = binUtils.binSearch(buffer, [0x49, 0x44, 0x33], 0, 3) !== false;
+      const oggInfo = binUtils.binSearch(buffer, [0x4f, 0x67, 0x67, 0x53], 0, 4) !== false;
+      const m4aInfo = binUtils.isM4A(buffer) !== false;
       audio.pause();
 
       if (wavInfo !== false) {
@@ -584,14 +643,20 @@
         bitDepth = wavInfo.bitDepth;
         await new Promise((resolve) => {
           setTimeout(() => {
-            const array = wavjs.convertWavData(sampleRate, bitDepth, format, wavInfo.outArray, 1);
+            const array = wavjs.convertWavData(
+              sampleRate,
+              bitDepth,
+              format,
+              wavInfo.outArray,
+              1
+            );
             leftChannelArray = array.leftChannel;
             rightChannelArray = array.rightChannel;
             resolve();
           }, 0);
         });
       } else {
-        let result = await audioBufferDecode.decode(bytesArray);
+        let result = await audioBufferDecode.decode(buffer);
 
         channels = result.channels;
         sampleRate = result.sampleRate;
@@ -600,7 +665,8 @@
         bitDepth = "Unknown";
       }
 
-      bytesArray = [];
+      audioLength = leftChannelArray.length;
+
       gId("startRecording").removeAttribute("disabled");
       gId("startRendering").removeAttribute("disabled");
 
@@ -619,21 +685,23 @@
     });
 
     async function updateAudioSrc() {
-      let t0 = performance.now();
+      const t0 = performance.now();
+      let link;
       try {
-        await fetch(gId("linkUrl").value);
+        link = await fetch(gId("linkUrl").value);
       } catch (e) {
         printLog(e);
         return;
       }
 
-      bytesArray = new Uint8Array(buffer);
-      const wavInfo = wavjs.readWavHeader(bytesArray);
-      const flacInfo = binUtils.binSearch(bytesArray, [0x66, 0x4c, 0x61, 0x43], 0, 4) !== false;
-      const mp3Info = binUtils.binSearch(bytesArray, [0x49, 0x44, 0x33], 0, 3) !== false;
-      const oggInfo = binUtils.binSearch(bytesArray, [0x4f, 0x67, 0x67, 0x53], 0, 4) !== false;
-      const m4aInfo = binUtils.isM4A(bytesArray) !== false;
-      audio.pause;
+      link = await link.arrayBuffer();
+      const buffer = new Uint8Array(link);
+      const wavInfo = wavjs.readWavHeader(buffer);
+      const flacInfo = binUtils.binSearch(buffer, [0x66, 0x4c, 0x61, 0x43], 0, 4) !== false;
+      const mp3Info = binUtils.binSearch(buffer, [0x49, 0x44, 0x33], 0, 3) !== false;
+      const oggInfo = binUtils.binSearch(buffer, [0x4f, 0x67, 0x67, 0x53], 0, 4) !== false;
+      const m4aInfo = binUtils.isM4A(buffer) !== false;
+      audio.pause();
 
       if (wavInfo !== false) {
         printLog("File type: wav");
@@ -643,14 +711,20 @@
         bitDepth = wavInfo.bitDepth;
         await new Promise((resolve) => {
           setTimeout(() => {
-            const array = wavjs.convertWavData(sampleRate, bitDepth, format, wavInfo.outArray, 1);
+            const array = wavjs.convertWavData(
+              sampleRate,
+              bitDepth,
+              format,
+              wavInfo.outArray,
+              1
+            );
             leftChannelArray = array.leftChannel;
             rightChannelArray = array.rightChannel;
             resolve();
           }, 0);
         });
       } else {
-        let result = await audioBufferDecode.decode(bytesArray);
+        let result = await audioBufferDecode.decode(buffer);
 
         channels = result.channels;
         sampleRate = result.sampleRate;
@@ -659,7 +733,8 @@
         bitDepth = "Unknown";
       }
 
-      bytesArray = [];
+      audioLength = leftChannelArray.length;
+
       gId("startRecording").removeAttribute("disabled");
       gId("startRendering").removeAttribute("disabled");
 
