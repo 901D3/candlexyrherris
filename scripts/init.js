@@ -6,26 +6,6 @@ function gIdV(i) {
   return document.getElementById(i).value;
 }
 
-function qSl(i) {
-  return document.querySelector(i);
-}
-
-function qSlA(i) {
-  return document.querySelectorAll(i);
-}
-
-function pFl(i) {
-  return parseFloat(i);
-}
-
-function pIn(i) {
-  return parseInt(i);
-}
-
-function lwC(i) {
-  return i.toLowerCase();
-}
-
 function logVar(variable) {
   let varName = (function () {
     for (const key in window) {
@@ -124,12 +104,6 @@ var {
   SQRT2,
 } = Math;
 
-var bytesArray;
-var leftChannelArray;
-var rightChannelArray;
-var stftRe;
-var stftIm;
-
 var format;
 var channels;
 var sampleRate;
@@ -140,7 +114,6 @@ var fftSize = 1600;
 var frameRate = 30;
 var frameTime = 1000 / frameRate; // Optimization
 var frameLatency;
-var preVolMultiply;
 var postVolMultiply;
 var minAmplitude;
 var maxAmplitude;
@@ -150,10 +123,15 @@ var minBin;
 var maxBin = Infinity;
 var realShift;
 var imagShift;
-var interleaveEffect = false;
-var conjugateInterleaveEffect = false;
-var interleaveEffectFix = false;
-var ignoreDC = 1;
+let interleaveEffect = false;
+let interleaveEffectFix = false;
+let normalizeSpectrum = true;
+
+let leftChannelArray;
+let rightChannelArray;
+let stftRe = new Float32Array(fftSize);
+let stftIm = new Float32Array(fftSize);
+let audioLength;
 
 var bars;
 var barColorRed;
@@ -166,12 +144,12 @@ var backgroundColorBlue;
 var barWidth;
 var barSpace;
 
-var binValuePicking = "first";
+let binValuePicking = "first";
 
-var barStyle = "rect";
+let barStyle = "rect";
 var barStyleCapsuleRadius = 0.5;
 var barStyleTriangCapsuleHeight = 0.5;
-var backgroundStyle = "solidColor";
+let backgroundStyle = "solidColor";
 var barOutline = false;
 var barAmplitudeRounding = false;
 var barWidthRounding = false;
@@ -181,8 +159,8 @@ var barPosY = 0.5;
 var recorderFrameRate = 30;
 var recorderFrameTime = 1000 / recorderFrameRate; // Optimization
 var recorderVideoBitrate = 20000000;
-var recorderMimeType = "video/webm";
-var recorderVideoCodec = "vp9";
+let recorderMimeType = "video/webm";
+let recorderVideoCodec = "vp9";
 var blobQuality = 0.75;
 var isRecording = false;
 var isRendering = false;
@@ -197,7 +175,10 @@ let logEntries = [];
 window.addEventListener(
   "touchstart",
   (e) => {
-    if (e.touches.length === 1 && (e.touches[0].clientX < 50 || e.touches[0].clientX > window.innerWidth - 50)) {
+    if (
+      e.touches.length === 1 &&
+      (e.touches[0].clientX < 50 || e.touches[0].clientX > window.innerWidth - 50)
+    ) {
       e.preventDefault();
     }
   },
@@ -282,31 +263,28 @@ function sliderInputSync(slider, input, variable, defaultValue, source) {
   window[variable] = value;
 }
 
-// LUT table for window function
-const windowFuncLUT = new Map();
-var windowFunc;
-windowFunc = getWindowFunctionLUT(fftSize, "1");
+let windowFuncArray = new Float32Array(fftSize);
+let windowFuncAvg = 0;
 
-function getWindowFunctionLUT(N, equation) {
+function getWindowFunction(N, equation) {
   if (!Number.isInteger(N)) throw new Error("N must be an integer");
   if (equation == null) throw new Error("Unknown equation input: " + equation);
 
   const trimmed = equation.replace(/\s/g, "");
-  const key = N + " | " + trimmed;
 
-  if (!windowFuncLUT.has(key)) {
-    const array = new Float32Array(N).fill(1);
-    const cp = new Function("n", "N", sinc.toString() + "; return " + trimmed);
+  windowFuncArray = new Float32Array(N).fill(1);
+  const cp = new Function("n", "N", sinc.toString() + "; return " + trimmed);
 
-    for (let n = 0; n < N; n++) array[n] *= cp(n, N);
+  let sum = 0;
+  for (let n = 0; n < N; n++) {
+    const v = cp(n, N);
 
-    windowFuncLUT.set(key, array);
+    windowFuncArray[n] = v;
+    sum += v;
   }
 
-  return windowFuncLUT.get(key);
+  windowFuncAvg = sum / N;
 }
-
-// binSearch moved to binUtils.js
 
 function createBlobFromElement(el) {
   if (!el) return false;
@@ -331,13 +309,29 @@ function flashChanges(el, fades, time, ...fadeColors) {
 function redFlashChangeText(el, time) {
   if (!el) return false;
 
-  flashChanges(el, 4, time, "rgba(255, 0, 0, 1)", "rgba(255, 0, 0, 0.6)", "rgba(255, 0, 0, 0.3)", "rgba(255, 0, 0, 0.0)");
+  flashChanges(
+    el,
+    4,
+    time,
+    "rgba(255, 0, 0, 1)",
+    "rgba(255, 0, 0, 0.6)",
+    "rgba(255, 0, 0, 0.3)",
+    "rgba(255, 0, 0, 0.0)"
+  );
 }
 
 function orangeFlashChangeText(el, time) {
   if (!el) return false;
 
-  flashChanges(el, 4, time, "rgba(255, 127, 0, 1)", "rgba(255, 127, 0, 0.6)", "rgba(255, 127, 0, 0.3)", "rgba(255, 127, 0, 0)");
+  flashChanges(
+    el,
+    4,
+    time,
+    "rgba(255, 127, 0, 1)",
+    "rgba(255, 127, 0, 0.6)",
+    "rgba(255, 127, 0, 0.3)",
+    "rgba(255, 127, 0, 0)"
+  );
 }
 
 function yellowFlashChangeText(el, time) {
