@@ -1,10 +1,3 @@
-//Turn into library so it can be used by anyone and not tied to this project
-
-/**
- * A simple WAV file reader and converter
- * 901D3's wav.js is licensed under the GPLv3 license
- */
-
 var wavjs = (function () {
   function _readWavHeader(inArray) {
     const t0 = performance.now();
@@ -36,7 +29,12 @@ var wavjs = (function () {
     //pos += 4;
 
     //wav file can have massive other metadatas so we search in the whole file and select the first match
-    const fmtFourCC = binUtils.binSearch(outArray, [0x66, 0x6d, 0x74, 0x20], 0, outArray.length);
+    const fmtFourCC = binUtils.binSearch(
+      outArray,
+      [0x66, 0x6d, 0x74, 0x20],
+      0,
+      outArray.length
+    );
     if (fmtFourCC === false) {
       printLog("[Wav reader] > 'fmt ' not found");
       return false;
@@ -74,7 +72,9 @@ var wavjs = (function () {
 
     const sampleRateValue = binUtils.readULEndian(pos, 32, outArray);
     if (sampleRateValue === -1) {
-      printLog("[Wav reader] > Invalid sample rate | offset: " + pos + " | value: " + sampleRateValue);
+      printLog(
+        "[Wav reader] > Invalid sample rate | offset: " + pos + " | value: " + sampleRateValue
+      );
       sampleRateValue = null;
       return false;
     }
@@ -82,7 +82,9 @@ var wavjs = (function () {
 
     const bitDepthValue = binUtils.readULEndian(pos, 16, outArray);
     if (![16, 24, 32].includes(bitDepthValue)) {
-      printLog("[Wav reader] > Unsupported bit depth | offset: " + pos + " | value: " + bitDepthValue);
+      printLog(
+        "[Wav reader] > Unsupported bit depth | offset: " + pos + " | value: " + bitDepthValue
+      );
       bitDepthValue = null;
       return false;
     }
@@ -106,7 +108,13 @@ var wavjs = (function () {
   }
 
   function _convertWavData(sampleRateValue, bitDepthValue, formatValue, array, discard) {
-    if (!array || sampleRateValue === null || bitDepthValue === null || formatValue === null) return;
+    if (
+      array == null ||
+      sampleRateValue === null ||
+      bitDepthValue === null ||
+      formatValue === null
+    )
+      return;
     const arrayLength = array.length;
 
     const bytesPerSample = floor(bitDepthValue / 8);
