@@ -13,6 +13,8 @@ _**Inspired by Sonic Candle**_
 
 <img width="1280" height="720" alt="image" src="https://raw.githubusercontent.com/901D3/candlexyrherris/refs/heads/main/out/out2.png" />
 
+<img width="1280" height="720" alt="image" src="https://raw.githubusercontent.com/901D3/candlexyrherris/refs/heads/main/out/out3.png" />
+
 
 ──────────
 
