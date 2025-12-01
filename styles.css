@@ -1,40 +1,47 @@
 @import url("styles/$_.css");
 
-@font-face {
+@font-face 
+{
   font-family: "Trebuchet-MS";
   src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Trebuchet MS/trebuc.ttf");
   src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Trebuchet MS/trebuc.ttf")
     format("woff2");
 }
-@font-face {
+@font-face 
+{
   font-family: "Classwiz-X";
   src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Calculator font/Casio/Classwiz X/ClassWizXDisplay-Regular.woff2");
   src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Calculator font/Casio/Classwiz X/ClassWizXDisplay-Regular.woff2")
     format("woff2");
 }
-@font-face {
+@font-face 
+{
   font-family: "Classwiz-CW";
   src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Calculator%20font/Casio/Classwiz%20CW/cwcwd.woff2");
   src: url("https://raw.githubusercontent.com/901D3/901D3.github.io/branchcuahuy/assets/font/Calculator%20font/Casio/Classwiz%20CW/cwcwd.woff2")
     format("woff2");
 }
 
-::-webkit-scrollbar {
+::-webkit-scrollbar 
+{
   width: 10px;
   height: 10px;
 }
 
-::-webkit-scrollbar-track {
+::-webkit-scrollbar-track 
+{
   background: #000000;
   height: 15px;
 }
 
-::-webkit-resizer {
+::-webkit-resizer 
+{
   background: #ff9040;
   border-top-left-radius: 50%;
 }
 
-::-webkit-range-thumb {
+::-webkit-range-thumb 
+{
   width: 4px;
   height: 100%;
   border-radius: 0px;
@@ -43,7 +50,8 @@
   border: none;
 }
 
-::-moz-range-thumb {
+::-moz-range-thumb 
+{
   width: 4px;
   height: 100%;
   border-radius: 0px;
@@ -53,22 +61,26 @@
 }
 
 input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
+input[type="number"]::-webkit-inner-spin-button 
+{
   -webkit-appearance: none;
   margin: 0;
 }
 
-input[type="number"] {
+input[type="number"] 
+{
   appearance: textfield;
   -moz-appearance: textfield;
 }
 
-.resizable {
+.resizable 
+{
   overflow: hidden;
   resize: both;
 }
 
-body {
+body 
+{
   width: 100%;
   height: 100%;
   accent-color: #ff9d00;
@@ -87,7 +99,8 @@ h3,
 h4,
 h5,
 h6,
-p {
+p 
+{
   font-family: Ubuntu;
   color: #ffffff;
   box-sizing: border-box;
@@ -95,7 +108,8 @@ p {
   margin: 0px;
 }
 
-label {
+label 
+{
   margin: 0px;
   font-family: Ubuntu;
   color: #ffffff;
@@ -104,16 +118,8 @@ label {
   cursor: pointer;
 }
 
-audio {
-  width: 500px;
-}
-
-#audio {
-  margin-left: 0px;
-  margin-right: 0px;
-}
-
-input {
+input 
+{
   background-color: #000;
   color: #e0e0e0;
   border: 2px solid #ea7010;
@@ -125,14 +131,16 @@ input {
   display: inline-block;
 }
 
-input:disabled {
+input:disabled 
+{
   background-color: #333333;
   color: #e0e0e0;
   border: 3px solid #555555;
   cursor: not-allowed;
 }
 
-select {
+select 
+{
   background-color: #000;
   color: #e0e0e0;
   border: 2px solid #ea7010;
@@ -143,23 +151,29 @@ select {
   cursor: pointer;
 }
 
-select:disabled {
+select:disabled 
+{
   background-color: #333333;
   color: #e0e0e0;
   border: 3px solid #555555;
   cursor: not-allowed;
 }
 
-textarea {
+textarea 
+{
+  align-self: left;
   background-color: #000;
   color: #e0e0e0;
   border: 2px solid #ea7010;
   padding: 4px;
   font-family: Unifont;
   font-size: 16px;
+  height: 150px;
 }
 
-input[type="range"] {
+input[type="range"] 
+{
+  align-self: left;
   -webkit-appearance: none;
   appearance: none;
   display: inline-block;
@@ -167,18 +181,22 @@ input[type="range"] {
   height: 18px;
 }
 
-input[type="range"]:hover {
+input[type="range"]:hover 
+{
   cursor: e-resize;
 }
 
-input[type="range"]:disabled {
+input[type="range"]:disabled 
+{
   background-color: #333333;
   color: #b3b3b3;
   border: 3px solid #555555;
   cursor: not-allowed;
 }
 
-input[type="checkbox"] {
+input[type="checkbox"] 
+{
+  align-self: left;
   display: inline-flex;
   justify-content: center;
   position: relative;
@@ -187,20 +205,19 @@ input[type="checkbox"] {
   cursor: pointer;
 }
 
-input[type="file"] {
+input[type="file"] 
+{
+  align-self: left;
   padding: 3px;
   cursor: pointer;
   width: max-content;
 }
 
-input:hover,
-button:hover,
-select:hover {
-  background-color: #793400;
-  border-color: #ea7010;
-}
-
-button {
+button 
+{
+  width: max-content;
+  height: max-content;
+  align-self: left;
   background-color: #000;
   color: #e0e0e0;
   border: 2px solid #ea7010;
@@ -210,35 +227,43 @@ button {
   cursor: pointer;
 }
 
-button[disabled] {
+input:hover,
+button:hover,
+select:hover 
+{
+  background-color: #793400;
+  border-color: #ea7010;
+}
+
+button[disabled] 
+{
   background-color: #333333;
   color: #e0e0e0;
   border: 3px solid #555555;
   cursor: not-allowed;
 }
 
-button[disabled]:hover {
+button[disabled]:hover 
+{
   background-color: #555555;
   border-color: #555555;
 }
 
-audio {
+video 
+{
   align-self: center;
 }
 
-canvas {
-  aspect-ratio: inherit;
-  text-align: left;
-  transform-origin: top left;
-  position: relative;
-  display: inline-block;
+canvas 
+{
   align-self: center;
   image-rendering: pixelated;
   margin: 0px;
   padding: 0px;
 }
 
-#console {
+#console 
+{
   display: flex;
   flex-direction: column;
   background: #000000;
@@ -251,11 +276,13 @@ canvas {
   white-space: pre-wrap;
 }
 
-hr {
+hr 
+{
   width: 100%;
 }
 
-.glowfire {
+.glowfire 
+{
   background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00);
   background-size: cover;
   background-clip: text;
@@ -263,16 +290,19 @@ hr {
   -webkit-background-clip: text;
 }
 
-select {
+select 
+{
   background-color: #000;
   color: #fff;
 }
 
-#docs {
+#docs 
+{
   text-align: left;
 }
 
-.controls {
+.controls 
+{
   background-color: #a4947b;
   border: 2px solid #ea7010;
   padding: 3px;
@@ -281,7 +311,8 @@ select {
   resize: both;
 }
 
-.previewContainer {
+.previewContainer 
+{
   display: flex;
   flex-direction: column;
   margin-left: auto;
@@ -290,28 +321,32 @@ select {
   margin-bottom: auto;
 }
 
-.canvasControls {
+.canvasControls 
+{
   background-color: #e14f00;
   border: 8px solid #1b1b1b;
   padding: 10px;
-  max-width: max-content;
 }
 
-a {
+a 
+{
   color: #ffaa00;
 }
 
-span {
-  font-size: 15px;
+span 
+{
+  font-size: 16px;
   margin: 0px;
   padding: 0px;
 }
 
-#console span {
+#console span 
+{
   font-size: 16px;
 }
 
-.recorder button {
+.recorder button 
+{
   padding: 7px;
   font-size: 15px;
   cursor: pointer;
@@ -319,7 +354,8 @@ span {
   width: 100%;
 }
 
-.bigContainer {
+.bigContainer 
+{
   display: flex;
   justify-items: center;
   align-items: center;
@@ -327,7 +363,8 @@ span {
   resize: both;
 }
 
-.previewContainer {
+.previewContainer 
+{
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -337,7 +374,8 @@ span {
   margin-right: auto;
 }
 
-.mainAudio {
+.mainVideo 
+{
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -346,10 +384,12 @@ span {
   margin-bottom: auto;
   margin-left: auto;
   margin-right: auto;
+  border: 2px solid #ea7010;
   line-height: 0;
 }
 
-.mainCanvas {
+.mainCanvas 
+{
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -363,7 +403,8 @@ span {
   line-height: 0;
 }
 
-.tooltipTextRight {
+.tooltipTextRight 
+{
   visibility: hidden;
   background-color: #424242ee;
   text-align: left;
@@ -372,7 +413,8 @@ span {
   z-index: 1;
 }
 
-.tooltipTextBottom {
+.tooltipTextBottom 
+{
   visibility: hidden;
   background-color: #424242ee;
   text-align: left;
@@ -381,7 +423,8 @@ span {
   z-index: 1;
 }
 
-.tooltip:hover .tooltipTextRight {
+.tooltip:hover .tooltipTextRight 
+{
   visibility: visible;
   margin-top: auto;
   margin-bottom: auto;
@@ -390,7 +433,8 @@ span {
   left: 100%;
 }
 
-.tooltip:hover .tooltipTextBottom {
+.tooltip:hover .tooltipTextBottom 
+{
   visibility: visible;
   margin-top: auto;
   margin-bottom: auto;
@@ -399,7 +443,8 @@ span {
   bottom: 100%;
 }
 
-.firehr {
+.firehr 
+{
   width: 99%;
   height: 2px;
   margin-top: 3px;
@@ -409,7 +454,8 @@ span {
   background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00);
 }
 
-.whitehr {
+.whitehr 
+{
   width: 99%;
   height: 2px;
   margin-top: 3px;
@@ -419,7 +465,8 @@ span {
   background: #fff;
 }
 
-.whitevr {
+.whitevr 
+{
   width: 2px;
   height: 99%;
   margin-top: auto;
@@ -429,22 +476,26 @@ span {
   background: #fff;
 }
 
-.hidden {
+.hidden 
+{
   display: none !important;
 }
 
-.disabled {
+.disabled 
+{
   pointer-events: none;
   opacity: 0.2;
   cursor: not-allowed;
 }
 
-.offscreen_hide {
+.offscreen_hide 
+{
   width: 0px;
   height: 0px;
 }
 
-.settings_label-input {
+.settings_label-input 
+{
   display: flex;
   flex-direction: row;
   width: 100%;
@@ -452,7 +503,8 @@ span {
   gap: 5px;
 }
 
-.settings_label-input span {
+.settings_label-input span 
+{
   width: 100%;
   height: fit-content;
   margin-top: auto;
@@ -463,22 +515,25 @@ span {
   text-wrap: nowrap;
 }
 
-.settings_label-input input {
-  width: 120px;
+.settings_label-input input 
+{
+  width: 100%;
   margin-top: auto;
   margin-bottom: auto;
   margin-left: auto;
   margin-right: 0px;
 }
 
-.settings_label-slider-input {
+.settings_label-slider-input 
+{
   display: flex;
   flex-direction: row;
   width: 100%;
   height: fit-content;
 }
 
-.settings_label-slider-input span {
+.settings_label-slider-input span 
+{
   width: 100%;
   height: fit-content;
   margin-top: auto;
@@ -489,15 +544,17 @@ span {
   text-wrap: nowrap;
 }
 
-.settings_label-slider-input input[type="range"] {
-  width: 210px;
+.settings_label-slider-input input[type="range"] 
+{
+  width: 100%;
   margin-top: auto;
   margin-bottom: auto;
   margin-left: auto;
   margin-right: 2px;
 }
 
-.settings_label-slider-input input {
+.settings_label-slider-input input 
+{
   width: 120px;
   margin-top: auto;
   margin-bottom: auto;
@@ -505,7 +562,8 @@ span {
   margin-right: 0px;
 }
 
-.settings_checkbox-label {
+.settings_checkbox-label 
+{
   display: flex;
   flex-direction: row;
   width: fit-content;
@@ -514,14 +572,16 @@ span {
   margin-bottom: 2px;
 }
 
-.settings_checkbox-label input[type="checkbox"] {
+.settings_checkbox-label input[type="checkbox"] 
+{
   margin-top: auto;
   margin-left: auto;
   margin-right: auto;
   margin-bottom: auto;
 }
 
-.settings_checkbox-label span {
+.settings_checkbox-label span 
+{
   width: 100%;
   margin-top: auto;
   margin-left: 5px;
@@ -530,21 +590,24 @@ span {
   text-wrap: nowrap;
 }
 
-.settings_button-label {
+.settings_button-label 
+{
   display: flex;
   flex-direction: row;
   width: 100%;
   height: fit-content;
 }
 
-.settings_button-label button {
+.settings_button-label button 
+{
   margin-top: auto;
   margin-left: 0px;
   margin-right: 5px;
   margin-bottom: auto;
 }
 
-.settings_button-label span {
+.settings_button-label span 
+{
   margin-top: auto;
   margin-left: 0px;
   margin-right: auto;
@@ -552,36 +615,40 @@ span {
   text-wrap: nowrap;
 }
 
-.settings_label_title {
+.settings_label_title 
+{
   font-weight: bold;
   font-size: 25px;
   width: fit-content;
   height: fit-content;
 }
 
-.settings_container {
+.settings_container 
+{
   display: flex;
   flex-direction: column;
   height: fit-content;
   gap: 6px;
-  min-width: 300px;
 }
 
-.settings_checkbox-label-select {
+.settings_checkbox-label-select 
+{
   display: flex;
   flex-direction: row;
   width: 100%;
   height: fit-content;
 }
 
-.settings_checkbox-label-select input[type="checkbox"] {
+.settings_checkbox-label-select input[type="checkbox"] 
+{
   margin-top: auto;
   margin-left: 0px;
   margin-right: auto;
   margin-bottom: auto;
 }
 
-.settings_checkbox-label-select span {
+.settings_checkbox-label-select span 
+{
   width: 100%;
   height: fit-content;
   margin-top: auto;
@@ -591,21 +658,67 @@ span {
   text-wrap: nowrap;
 }
 
-.settings_checkbox-label-select select {
+.settings_checkbox-label-select select 
+{
   margin-top: auto;
   margin-bottom: auto;
   margin-left: auto;
   margin-right: 0px;
 }
 
-.settings_label-select {
+.settings_label-select 
+{
   display: flex;
   flex-direction: row;
   width: 100%;
   height: fit-content;
 }
 
-.settings_label-select span {
+.settings_checkbox-label-input 
+{
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: fit-content;
+}
+
+.settings_checkbox-label-input input[type="checkbox"] 
+{
+  margin-top: auto;
+  margin-left: 0px;
+  margin-right: auto;
+  margin-bottom: auto;
+}
+
+.settings_checkbox-label-input span 
+{
+  width: 100%;
+  height: fit-content;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 5px;
+  margin-right: auto;
+  text-wrap: nowrap;
+}
+
+.settings_checkbox-label-input input 
+{
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: auto;
+  margin-right: 0px;
+}
+
+.settings_label-select 
+{
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: fit-content;
+}
+
+.settings_label-select span 
+{
   width: 100%;
   height: fit-content;
   margin-top: auto;
@@ -616,14 +729,16 @@ span {
   text-wrap: nowrap;
 }
 
-.settings_label-select select {
+.settings_label-select select 
+{
   margin-top: auto;
   margin-bottom: auto;
   margin-left: auto;
   margin-right: 0px;
 }
 
-.settings_container_info {
+.settings_container_info 
+{
   display: flex;
   flex-direction: column;
   height: fit-content;
@@ -634,7 +749,8 @@ span {
   background-color: #10101050;
 }
 
-.info_indicator {
+.info_indicator 
+{
   margin-top: 2px;
   margin-bottom: auto;
   margin-left: auto;
@@ -644,7 +760,8 @@ span {
   opacity: 0.5;
 }
 
-.settings_label-label_info {
+.settings_label-label_info 
+{
   display: flex;
   flex-direction: row;
   width: 100%;
@@ -652,7 +769,8 @@ span {
   gap: 5px;
 }
 
-.settings_label-label_info span {
+.settings_label-label_info span 
+{
   width: 100%;
   height: fit-content;
   margin-top: auto;
@@ -664,7 +782,8 @@ span {
   text-wrap: nowrap;
 }
 
-.settings_label-label_info .info {
+.settings_label-label_info .info 
+{
   width: fit-content;
   height: fit-content;
   margin-top: auto;
@@ -676,16 +795,13 @@ span {
   text-wrap: nowrap;
 }
 
-.barsPerBinIndic {
+.barsPerBinIndic 
+{
   color: #ffbb2e;
 }
 
-#windowFuncInput {
-  height: 200px;
-  text-overflow: ellipsis;
-}
-
-.settings_label-input_long {
+.settings_label-input_long 
+{
   display: flex;
   flex-direction: row;
   width: 100%;
@@ -693,7 +809,8 @@ span {
   gap: 5px;
 }
 
-.settings_label-input_long span {
+.settings_label-input_long span 
+{
   width: 100%;
   height: fit-content;
   margin-top: auto;
@@ -704,7 +821,8 @@ span {
   text-wrap: nowrap;
 }
 
-.settings_label-input_long input {
+.settings_label-input_long input 
+{
   width: 100%;
   margin-top: auto;
   margin-bottom: auto;
@@ -712,7 +830,8 @@ span {
   margin-right: 0px;
 }
 
-.sqrButton {
+.sqrButton 
+{
   width: 40px;
   height: 40px;
   margin: 0px;
