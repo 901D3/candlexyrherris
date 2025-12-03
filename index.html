@@ -93,7 +93,7 @@
             type="checkbox"
             id="webCodecsRenderOption"
             onchange="webCodecsRenderOption = document.getElementById('webCodecsRenderOption').checked" />
-          <span>WebCodecs</span>
+          <label for="webCodecsRenderOption">WebCodecs</label>
         </div>
         <div class="display-flex left-right-flow width-fit-content" style="gap: 12px">
           <button id="startRecording" class="sqrButton" type="button" disabled="">
@@ -334,7 +334,7 @@
               type="checkbox"
               id="interleaveEffect"
               onchange="interleaveEffect = document.getElementById('interleaveEffect').checked;" />
-            <span data-text="$Interleave"></span>
+            <label for="interleaveEffect" data-text="$Interleave"></label>
           </div>
           <div class="settings_checkbox-label">
             <input
@@ -342,14 +342,14 @@
               id="normalizeSpectrum"
               checked=""
               onchange="normalizeSpectrum = document.getElementById('normalizeSpectrum').checked;" />
-            <span data-text="$normalize"></span>
+            <label for="normalizeSpectrum" data-text="$normalize"></label>
           </div>
           <div class="settings_checkbox-label">
             <input
               type="checkbox"
               id="interleaveEffectFix"
               onchange="interleaveEffectFix = document.getElementById('interleaveEffectFix').checked" />
-            <span>Second bar fix(Interleaved only)</span>
+            <label for="interleaveEffectFix">Second bar fix(Interleaved only)</label>
           </div>
           <div class="whitehr"></div>
           <span class="settings_label_title" data-text="$visualizer_settings_title"></span>
@@ -369,7 +369,7 @@
               type="checkbox"
               id="barOutline"
               onchange="barOutline = document.getElementById('barOutline').checked" />
-            <span>Outline</span>
+            <label for="barOutline">Outline</label>
           </div>
           <div id="capsuleSettingsDisp" class="settings_label-slider-input disabled">
             <span data-text="$capsule_radius"></span>
@@ -437,14 +437,14 @@
               type="checkbox"
               id="barAmplitudeRounding"
               onchange="barAmplitudeRounding = document.getElementById('barAmplitudeRounding').checked" />
-            <span>Amplitude Rounding</span>
+            <label for="barAmplitudeRounding">Amplitude Rounding</label>
           </div>
           <div class="settings_checkbox-label">
             <input
               type="checkbox"
               id="barWidthRounding"
               onchange="barWidthRounding = document.getElementById('barWidthRounding').checked" />
-            <span>Width Rounding</span>
+            <label for="barWidthRounding">Width Rounding</label>
           </div>
           <div class="whitehr"></div>
           <div class="settings_label-select">
@@ -494,7 +494,7 @@
               checked=""
               onchange="document.getElementById('canvas').style.imageRendering =
                 document.getElementById('canvasRendering').checked ? 'pixelated' : 'smooth';" />
-            <span data-text="$pixelated_render"></span>
+            <label for="canvasRendering" data-text="$pixelated_render"></label>
           </div>
           <div class="settings_button-label">
             <button onclick="fullscreenCanvas()" data-text="$canvas_fullscreen"></button>
@@ -586,7 +586,7 @@
           type="checkbox"
           id="showTelemetry"
           onchange="telemetry = document.getElementById('showTelemetry').checked" />
-        <span>Telemetry</span>
+        <span for="showTelemetry">Telemetry</span>
       </div>
     </div>
     <div
