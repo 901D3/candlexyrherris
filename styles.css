@@ -578,7 +578,7 @@ audio {
   margin-bottom: auto;
 }
 
-.settings_checkbox-label-select span {
+.settings_checkbox-label-select label {
   width: 100%;
   height: fit-content;
   margin-top: auto;
@@ -610,7 +610,7 @@ audio {
   margin-bottom: auto;
 }
 
-.settings_checkbox-label-input span {
+.settings_checkbox-label-input label {
   width: 100%;
   height: fit-content;
   margin-top: auto;
