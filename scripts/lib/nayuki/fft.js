@@ -23,15 +23,10 @@
 
 "use strict";
 
-/*
- * Computes the discrete Fourier _transform (DFT) of the given complex vector, storing the result back into the vector.
- * The vector can have any length. This is a wrapper function.
- */
-
 const nayuki = (() => {
   const _transform = (real, imag) => {
     const fftSize = real.length;
-    if (fftSize != imag.length) throw new Error("Mismatched lengths");
+    if (fftSize !== imag.length) throw new Error("Mismatched lengths");
     // Is power of 2
     else if ((fftSize & (fftSize - 1)) == 0) _transformRadix2(real, imag);
     // More complicated algorithm for arbitrary sizes
@@ -68,14 +63,13 @@ const nayuki = (() => {
 
   const getTrigsLUT = (n) => {
     if (!trigsLUT.has(n)) {
-      const PI2 = 2 * PI;
-      const invN = 1 / n;
+      const invNPI2 = (2 * PI) / n;
 
       const cosTable = new Float32Array(n);
       const sinTable = new Float32Array(n);
 
       for (let i = 0; i < n; i++) {
-        const angle = PI2 * i * invN;
+        const angle = i * invNPI2;
 
         cosTable[i] = Math.cos(angle);
         sinTable[i] = Math.sin(angle);
@@ -136,7 +130,7 @@ const nayuki = (() => {
           const sinTableValue = sinTable[kTablestep];
 
           const tpre = realLValue * cosTableValue + imagLValue * sinTableValue;
-          const tpim = -realLValue * sinTableValue + imagLValue * cosTableValue;
+          const tpim = imagLValue * cosTableValue - realLValue * sinTableValue;
 
           real[l] = real[j] - tpre;
           imag[l] = imag[j] - tpim;
@@ -146,12 +140,6 @@ const nayuki = (() => {
       }
     }
   };
-
-  /*
-   * Computes the discrete Fourier _transform (DFT) of the given complex vector, storing the result back into the vector.
-   * The vector can have any length. This requires the convolution function, which in turn requires the radix-2 FFT function.
-   * Uses Bluestein's chirp z-transform algorithm.
-   */
 
   const bluesteinTrigLUT = new Map();
 
@@ -206,7 +194,7 @@ const nayuki = (() => {
       const idx2 = m - i;
 
       aReal[i] = re * cosValue + im * sinValue;
-      aImag[i] = -re * sinValue + im * cosValue;
+      aImag[i] = im * cosValue - re * sinValue;
 
       bReal[i] = cosValue;
       bImag[i] = sinValue;
