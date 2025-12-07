@@ -31,6 +31,13 @@ function displayInfo() {
   gId("binRangeLbl").innerHTML = maxBin;
 }
 
+window.addEventListener("beforeunload", function (e) {
+  if (isRecording || isRendering) {
+    e.preventDefault();
+    e.returnValue = "";
+  }
+});
+
 document.addEventListener("keydown", function (event) {
   const active = document.activeElement;
   const ignoreTags = ["INPUT", "TEXTAREA"];
