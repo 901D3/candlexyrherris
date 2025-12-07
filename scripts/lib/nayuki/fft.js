@@ -69,12 +69,13 @@ const nayuki = (() => {
   const getTrigsLUT = (n) => {
     if (!trigsLUT.has(n)) {
       const PI2 = 2 * PI;
+      const invN = 1 / n;
 
       const cosTable = new Float32Array(n);
       const sinTable = new Float32Array(n);
 
       for (let i = 0; i < n; i++) {
-        const angle = (PI2 * i) / n;
+        const angle = PI2 * i * invN;
 
         cosTable[i] = Math.cos(angle);
         sinTable[i] = Math.sin(angle);
@@ -93,10 +94,10 @@ const nayuki = (() => {
 
   const _transformRadix2 = (real, imag) => {
     const fftSize = real.length;
-    if (fftSize != imag.length) throw new Error("Mismatched lengths");
+    if (fftSize !== imag.length) throw new Error("Mismatched lengths");
 
     const levels = Math.log2(fftSize) | 0;
-    if (levels == -1) throw new Error("Length is not a power of 2");
+    if (levels === -1) throw new Error("Length is not a power of 2");
 
     const {cosTable, sinTable} = getTrigsLUT(fftSize);
     const reverseIndices = getBitReversal(fftSize);
@@ -181,7 +182,7 @@ const nayuki = (() => {
 
   const _transformBluestein = (real, imag) => {
     const fftSize = real.length;
-    if (fftSize != imag.length) throw new Error("Mismatched lengths");
+    if (fftSize !== imag.length) throw new Error("Mismatched lengths");
 
     let m = 1;
     const dbFftSize = (fftSize << 1) + 1;
@@ -192,17 +193,6 @@ const nayuki = (() => {
     const aReal = new Float32Array(m);
     const aImag = new Float32Array(m);
 
-    for (let i = 0; i < fftSize; i++) {
-      const cosValue = cosTable[i];
-      const sinValue = sinTable[i];
-
-      const re = real[i];
-      const im = imag[i];
-
-      aReal[i] = re * cosValue + im * sinValue;
-      aImag[i] = -re * sinValue + im * cosValue;
-    }
-
     const bReal = new Float32Array(m);
     const bImag = new Float32Array(m);
 
@@ -210,7 +200,13 @@ const nayuki = (() => {
       const cosValue = cosTable[i];
       const sinValue = sinTable[i];
 
+      const re = real[i];
+      const im = imag[i];
+
       const idx2 = m - i;
+
+      aReal[i] = re * cosValue + im * sinValue;
+      aImag[i] = -re * sinValue + im * cosValue;
 
       bReal[i] = cosValue;
       bImag[i] = sinValue;
@@ -231,11 +227,11 @@ const nayuki = (() => {
   const _convolveComplex = (xReal, xImag, yReal, yImag, outReal, outImag) => {
     const fftSize = xReal.length;
     if (
-      fftSize != xImag.length ||
-      fftSize != yReal.length ||
-      fftSize != yImag.length ||
-      fftSize != outReal.length ||
-      fftSize != outImag.length
+      fftSize !== xImag.length ||
+      fftSize !== yReal.length ||
+      fftSize !== yImag.length ||
+      fftSize !== outReal.length ||
+      fftSize !== outImag.length
     ) {
       throw new Error("Mismatched lengths");
     }
